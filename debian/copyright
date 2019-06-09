@@ -1,0 +1,7 @@
+Format: http://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Upstream-Name: lpp
+Source: https://github.com/m2osw/lpp
+
+Files: *
+Copyright: 2019 Made to Order Software Corp. <contact@m2osw.com>
+License: GPL-3 (see LICENSE.txt)

@@ -1,0 +1,28 @@
+Source: lpp
+Priority: extra
+Maintainer: Alexis Wilke <alexis@m2osw.com>
+Build-Depends: cmake,
+    debhelper,
+    doxygen,
+    graphviz
+Standards-Version: 3.9.4
+Section: devel
+Homepage: https://www.m2osw.com/lpp
+Vcs-Git: https://github.com/m2osw/lpp.git
+Vcs-Browser: https://github.com/m2osw/lpp
+
+Package: lpp
+Section: devel
+Architecture: any
+Depends: ${misc:Depends}
+Description: Logo to binary compiler.
+ A compiler that transforms Logo procedures to binary.
+
+Package: lpp-doc
+Section: doc
+Architecture: all
+Depends: ${misc:Depends}
+Description: Documentation for the lpp compiler.
+ The documentation about the lpp compiler.
+
+# vim: ts=4 sw=4 et

@@ -1,0 +1,10 @@
+lpp for Debian
+--------------
+
+The compiler currently comes mainly with an executable and external header
+files (declarations.)
+
+The source package includes the source of the executable and the
+declarations for a basic Linux system. Additional declarations can
+be added manually, by other packages/extensions, etc.
+

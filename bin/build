@@ -1,0 +1,16 @@
+#!/bin/sh
+#
+
+cd ..
+rm -rf BUILD
+mkdir -p BUILD/Debug
+mkdir -p BUILD/Release
+
+cd BUILD/Debug
+cmake ../../lpp
+make
+
+cd ../../BUILD/Release
+cmake ../../lpp
+make
+
