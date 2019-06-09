@@ -1,4 +1,9 @@
 
+<p align="center">
+<img alt="lpp" title="A Logo Compiler to transform Logo scripts to binary."
+src="https://raw.githubusercontent.com/m2osw/lpp/master/doc/lpp-logo.png" width="180" height="180"/>
+</p>
+
 # About lpp
 
 lpp is a compiler that transforms Logo procedures in binary executables
@@ -12,14 +17,14 @@ how to use your shell commands.
 # Bugs
 
 Please report problems and bugs in this
-[github issue queue](https://github.com/).
+[github issue queue](https://github.com/m2osw/lpp/issues).
 
 
 # License
 
 This software is licensed under the GPL version 3.
 
-[Made to Order Software Copr.](https://www.m2osw.com/) offers commercial
+[Made to Order Software Corp.](https://www.m2osw.com/) offers commercial
 licensing if you are interested in using our software in closed source.
 
 
