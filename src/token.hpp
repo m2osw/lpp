@@ -18,6 +18,9 @@
 
 #pragma once
 
+#include "exception.hpp"
+
+#include <iostream>
 #include <map>
 #include <memory>
 #include <string>
@@ -34,6 +37,7 @@ namespace lpp
 // <var># -> double
 // <var>@ -> list
 // <var>! -> bool
+// <var>& -> map (plist)
 
 enum class token_t
 {
@@ -62,7 +66,9 @@ enum class token_t
     TOK_NOTEQUALP,                  // <>
     TOK_OPEN_LIST,                  // [
     TOK_OPEN_PARENTHESIS,           // (
+    TOK_PRIMITIVE,                  // "PRIMITIVE" word
     TOK_PRODUCT,                    // *
+    TOK_PROGRAM,                    // "PROGRAM" word
     TOK_QUOTED,                     // "<letters>
     TOK_QUOTIENT,                   // /
     TOK_SUM,                        // +
@@ -78,6 +84,26 @@ enum class token_t
 
 std::string     to_string(token_t token);
 
+typedef std::uint_fast32_t          procedure_flag_t;
+
+// type
+//
+constexpr procedure_flag_t          PROCEDURE_FLAG_TYPE_MASK    = 0x0000000F;
+constexpr procedure_flag_t          PROCEDURE_FLAG_PROCEDURE    = 0x00000000;      // TO ...
+constexpr procedure_flag_t          PROCEDURE_FLAG_PRIMITIVE    = 0x00000001;      // PRIMITIVE ...
+constexpr procedure_flag_t          PROCEDURE_FLAG_DECLARE      = 0x00000002;      // DECLARE ...
+constexpr procedure_flag_t          PROCEDURE_FLAG_C            = 0x00000003;      // PRIMITIVE [C] ...
+
+// flags
+//
+constexpr procedure_flag_t          PROCEDURE_FLAG_INLINE       = 0x00000010;
+constexpr procedure_flag_t          PROCEDURE_FLAG_ARITHMETIC   = 0x00000020;
+constexpr procedure_flag_t          PROCEDURE_FLAG_CONTROL      = 0x00000040;
+
+
+
+typedef std::uint32_t               argument_count_t;
+
 
 class Token
 {
@@ -85,17 +111,19 @@ public:
     typedef std::shared_ptr<Token>              pointer_t;
     typedef std::vector<pointer_t>              vector_t;
     typedef std::map<std::string, pointer_t>    map_t;
-    typedef std::uint32_t                       argument_count_t;
 
-                        Token(token_t token = token_t::TOK_EOF);
+                        Token(token_t token = token_t::TOK_EOF, std::string const & filename = std::string(), line_t line = 0);
+                        Token(token_t token, Token::pointer_t location);
 
     void                set_token(token_t token);
     void                set_word(token_t token, std::string const & word, bool start_of_line = false);
     void                set_integer(std::int64_t value);
     void                set_float(double value);
     void                set_boolean(bool value);
+    void                set_procedure_flags(procedure_flag_t flags);
     void                set_function_limits(argument_count_t min_param, argument_count_t def_param, argument_count_t max_param);
     void                add_list_item(pointer_t item);
+    void                set_list_item(int idx, pointer_t item);
     void                add_map_item(std::string const & name, pointer_t item);
 
     token_t             get_token() const;
@@ -104,12 +132,18 @@ public:
     std::int64_t        get_integer() const;
     double              get_float() const;
     bool                get_boolean() const;
+    procedure_flag_t    set_procedure_flags() const;
     argument_count_t    get_min_args() const;
     argument_count_t    get_def_args() const;
     argument_count_t    get_max_args() const;
     vector_t::size_type get_list_size() const;
     pointer_t           get_list_item(vector_t::size_type idx) const;
+    map_t const &       get_map() const;
     pointer_t           get_map_item(std::string const & name) const;
+
+    std::string const & get_filename() const;
+    line_t              get_line() const;
+    void                error(std::string const & message);
 
 private:
     token_t             f_token = token_t::TOK_EOF;
@@ -120,13 +154,19 @@ private:
     double              f_float = 0.0;
     vector_t            f_list = vector_t();
     map_t               f_map = map_t();
+    procedure_flag_t    f_procedure_flags = 0;
     argument_count_t    f_min_args = 0;
     argument_count_t    f_def_args = 0;
     argument_count_t    f_max_args = 0;
+    std::string         f_filename = std::string();
+    line_t              f_line = 0;
 };
 
 
-
 } // lpp namespace
+
+
+std::ostream & operator << (std::ostream & out, lpp::Token const & token);
+
 
 // vim: ts=4 sw=4 et nocindent

@@ -27,9 +27,15 @@ namespace lpp
 class Lexer
 {
 public:
-    typedef int         char_type;
+    typedef std::shared_ptr<Lexer>      pointer_t;
+    typedef std::vector<pointer_t>      vector_t;
+    typedef int                         char_type;
 
-                        Lexer(std::istream & in);
+                        Lexer(std::string const & filename);
+                        Lexer(std::string const & filename, std::string const & primitive);
+                        ~Lexer();
+                        Lexer(Lexer const & rhs) = delete;
+    Lexer &             operator = (Lexer const & rhs) = delete;
 
     Token::pointer_t    next_token();
 
@@ -38,8 +44,10 @@ private:
     char_type           getc();
     bool                isspace(char_type c) const;
 
-    std::istream &      f_in;
-    std::uint_fast32_t  f_line = 0;
+    std::string         f_filename = std::string();
+    std::istream *      f_file = nullptr;
+    std::istream *      f_in = nullptr;
+    line_t              f_line = 0;
     std::uint_fast8_t   f_unget_pos = 0;
     char_type           f_unget_chars[2];
     bool                f_start_of_line = true;

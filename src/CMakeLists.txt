@@ -32,7 +32,7 @@ include_directories(
 )
 
 add_executable( ${PROJECT_NAME}
-    error.cpp
+    exception.cpp
     lexer.cpp
     lpp.cpp
     parser.cpp

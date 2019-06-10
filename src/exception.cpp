@@ -16,15 +16,22 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#pragma once
-
-#include <string>
+#include "exception.hpp"
 
 namespace lpp
 {
 
 
-void error(std::string const & message);
+
+lpp_error::lpp_error(std::string const & message, std::string const & filename, line_t line)
+    : runtime_error("error: "
+            + (filename.empty() ? std::string() : "in " + filename)
+            + (line == 0 ? std::string() : " on line #" + std::to_string(line))
+            + (filename.empty() && line == 0 ? std::string() : std::string(": "))
+            + message)
+{
+}
+
 
 
 } // lpp namespace

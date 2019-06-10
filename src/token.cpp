@@ -53,7 +53,9 @@ char const * const g_token_to_string[] =
     [static_cast<int>(token_t::TOK_NOTEQUALP)]         = "NOTEQUALP",
     [static_cast<int>(token_t::TOK_OPEN_LIST)]         = "OPEN_LIST",
     [static_cast<int>(token_t::TOK_OPEN_PARENTHESIS)]  = "OPEN_PARENTHESIS",
+    [static_cast<int>(token_t::TOK_PRIMITIVE)]         = "PRIMITIVE",
     [static_cast<int>(token_t::TOK_PRODUCT)]           = "PRODUCT",
+    [static_cast<int>(token_t::TOK_PROGRAM)]           = "PROGRAM",
     [static_cast<int>(token_t::TOK_QUOTED)]            = "QUOTED",
     [static_cast<int>(token_t::TOK_QUOTIENT)]          = "QUOTIENT",
     [static_cast<int>(token_t::TOK_SUM)]               = "SUM",
@@ -86,14 +88,45 @@ std::string to_string(token_t token)
 }
 
 
-Token::Token(token_t token)
+Token::Token(token_t token, std::string const & filename, line_t line)
     : f_token(token)
+    , f_filename(filename)
+    , f_line(line)
+{
+}
+
+
+Token::Token(token_t token, Token::pointer_t location)
+    : f_token(token)
+    , f_filename(location->f_filename)
+    , f_line(location->f_line)
 {
 }
 
 
 void Token::set_token(token_t token)
 {
+    switch(token)
+    {
+    case token_t::TOK_FUNCTION_CALL:
+    case token_t::TOK_THING:
+        switch(f_token)
+        {
+        case token_t::TOK_WORD:
+            f_token = token;
+            return;
+
+        default:
+            break;
+
+        }
+        break;
+
+    default:
+        break;
+
+    }
+
     switch(f_token)
     {
     case token_t::TOK_FLOAT:
@@ -101,7 +134,10 @@ void Token::set_token(token_t token)
     case token_t::TOK_QUOTED:
     case token_t::TOK_THING:
     case token_t::TOK_WORD:
-        throw std::logic_error("set_token() called with token type TOK_FLOAT/INTEGER/QUOTED/THING/WORD");
+        throw std::logic_error("set_token("
+                             + to_string(token)
+                             + ") called with the current token type set to "
+                             + to_string(f_token));
 
     default:
         f_token = token;
@@ -173,12 +209,50 @@ void Token::set_function_limits(argument_count_t min_args, argument_count_t def_
 
 void Token::add_list_item(Token::pointer_t item)
 {
-    if(f_token != token_t::TOK_LIST)
+    switch(f_token)
     {
-        throw std::logic_error("add_list_item() called when the token type is not TOK_LIST");
+    case token_t::TOK_LIST:
+    case token_t::TOK_FUNCTION_CALL:
+        break;
+
+    default:
+        throw std::logic_error("add_list_item() called with token "
+                            + to_string(f_token)
+                            + ", expected TOK_LIST/TOK_FUNCTION_CALL instead.");
+
     }
 
     f_list.push_back(item);
+}
+
+
+void Token::set_list_item(int idx, Token::pointer_t item)
+{
+    switch(f_token)
+    {
+    case token_t::TOK_LIST:
+    case token_t::TOK_FUNCTION_CALL:
+        break;
+
+    default:
+        throw std::logic_error("set_list_item() called with token "
+                            + to_string(f_token)
+                            + ", expected TOK_LIST/TOK_FUNCTION_CALL instead.");
+
+    }
+
+    if(static_cast<size_t>(idx) >= f_list.size())
+    {
+        throw std::logic_error("set_list_item() called with index "
+                            + std::to_string(idx)
+                            + " which is out of range (max is "
+                            + std::to_string(f_list.size())
+                            + " for token "
+                            + to_string(f_token)
+                            + ".");
+    }
+
+    f_list[idx] = item;
 }
 
 
@@ -256,7 +330,7 @@ bool Token::get_boolean() const
 }
 
 
-Token::argument_count_t Token::get_min_args() const
+argument_count_t Token::get_min_args() const
 {
     if(f_token != token_t::TOK_LIST)
     {
@@ -267,7 +341,7 @@ Token::argument_count_t Token::get_min_args() const
 }
 
 
-Token::argument_count_t Token::get_def_args() const
+argument_count_t Token::get_def_args() const
 {
     if(f_token != token_t::TOK_LIST)
     {
@@ -278,7 +352,7 @@ Token::argument_count_t Token::get_def_args() const
 }
 
 
-Token::argument_count_t Token::get_max_args() const
+argument_count_t Token::get_max_args() const
 {
     if(f_token != token_t::TOK_LIST)
     {
@@ -291,9 +365,17 @@ Token::argument_count_t Token::get_max_args() const
 
 Token::vector_t::size_type Token::get_list_size() const
 {
-    if(f_token != token_t::TOK_LIST)
+    switch(f_token)
     {
-        throw std::logic_error("get_list_size() called when the token type is not TOK_LIST");
+    case token_t::TOK_LIST:
+    case token_t::TOK_FUNCTION_CALL:
+        break;
+
+    default:
+        throw std::logic_error("get_list_size() called with the token type set to "
+                             + to_string(f_token)
+                             + ", it expects one of TOK_LIST/TOK_FUNCTION_CALL");
+
     }
 
     return f_list.size();
@@ -316,6 +398,12 @@ Token::pointer_t Token::get_list_item(vector_t::size_type idx) const
 }
 
 
+Token::map_t const & Token::get_map() const
+{
+    return f_map;
+}
+
+
 Token::pointer_t Token::get_map_item(std::string const & name) const
 {
     if(f_token != token_t::TOK_MAP)
@@ -333,7 +421,65 @@ Token::pointer_t Token::get_map_item(std::string const & name) const
 }
 
 
+std::string const & Token::get_filename() const
+{
+    return f_filename;
+}
+
+
+line_t Token::get_line() const
+{
+    return f_line;
+}
+
+
+void Token::error(std::string const & message)
+{
+    throw lpp_error(message, f_filename, f_line);
+}
+
+
 
 } // lpp namespace
+
+
+std::ostream & operator << (std::ostream & out, lpp::Token const & token)
+{
+    switch(token.get_token())
+    {
+    case lpp::token_t::TOK_LIST:
+        {
+            out << "[";
+            auto const max(token.get_list_size());
+            for(std::remove_const<decltype(max)>::type idx(0); idx < max; ++idx)
+            {
+                out << *token.get_list_item(idx);
+            }
+            out << "]";
+        }
+        break;
+
+    case lpp::token_t::TOK_QUOTED:
+        out << '"' << token.get_word();
+        break;
+
+    case lpp::token_t::TOK_THING:
+        out << ':' << token.get_word();
+        break;
+
+    case lpp::token_t::TOK_WORD:
+        out << token.get_word();
+        break;
+
+    default:
+        out << lpp::to_string(token.get_token());
+        break;
+
+    }
+
+    return out;
+}
+
+
 
 // vim: ts=4 sw=4 et nocindent

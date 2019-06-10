@@ -1,0 +1,7 @@
+program
+  display "Hello\ World!
+end program
+
+to display :word
+  print :word
+end "display

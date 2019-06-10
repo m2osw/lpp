@@ -18,18 +18,60 @@
 
 #include "lexer.hpp"
 
-#include "error.hpp"
+#include "exception.hpp"
 
+#include <fstream>
 #include <iostream>
+#include <sstream>
 
 namespace lpp
 {
 
 
 
-Lexer::Lexer(std::istream & in)
-    : f_in(in)
+Lexer::Lexer(std::string const & filename)
+    : f_filename(filename)
 {
+    if(filename == "-")
+    {
+        f_in = &std::cin;
+    }
+    else
+    {
+        std::ifstream * file(new std::ifstream);
+        file->open(filename);
+        if(!file->is_open())
+        {
+            delete file;
+            throw lpp_error("could not open file \""
+                          + filename
+                          + "\".");
+        }
+        f_file = file;
+        f_in = file;
+    }
+}
+
+
+Lexer::Lexer(std::string const & filename, std::string const & primitive)
+    : f_filename(filename)
+{
+    std::stringstream * file = new std::stringstream;
+    *file << primitive;
+    file->seekg(0);
+
+    f_file = file;
+    f_in = file;
+    f_line = 1;
+}
+
+
+Lexer::~Lexer()
+{
+    if(f_file != nullptr)
+    {
+        delete f_file;
+    }
 }
 
 
@@ -55,10 +97,10 @@ Lexer::char_type Lexer::getc()
             return f_unget_chars[f_unget_pos];
         }
 
-        auto result(f_in.get());
+        auto result(f_in->get());
         if(result == '\r')
         {
-            result = f_in.get();
+            result = f_in->get();
             if(result != '\n')
             {
                 ungetc(result);
@@ -68,7 +110,7 @@ Lexer::char_type Lexer::getc()
         if(result == '\n')
         {
             ++f_line;
-            auto const line_continuation(f_in.get());
+            auto const line_continuation(f_in->get());
             if(line_continuation != '~')
             {
                 ungetc(line_continuation);
@@ -126,6 +168,9 @@ Token::pointer_t Lexer::next_token()
                     case ' ':
                     case '\t':
                     case '\n':
+                        // no need to unget spaces
+                        return word;
+
                     case '+':       // TBD: quoted words are expected to include this character and following?!
                     case '-':
                     case '*':
@@ -137,6 +182,7 @@ Token::pointer_t Lexer::next_token()
                     case ')':
                     case '[':
                     case ']':
+                        ungetc(c);
                         return word;
 
                     }
@@ -155,7 +201,7 @@ Token::pointer_t Lexer::next_token()
             }
         };
 
-    Token::pointer_t result(std::make_shared<Token>());
+    Token::pointer_t result(std::make_shared<Token>(token_t::TOK_EOF, f_filename, f_line));
     for(;;)
     {
         char_type c(getc());
@@ -271,7 +317,7 @@ Token::pointer_t Lexer::next_token()
                     result->set_word(token_t::TOK_THING, word);
                     return result;
                 }
-                error("dangling ':', expected a word following it.");
+                result->error("dangling ':', expected a word following it.");
             }
             break;
 
@@ -284,74 +330,107 @@ Token::pointer_t Lexer::next_token()
             return result;
 
         default:
-            if((c >= '0' && c <= '9')
-            || c == '.')
             {
-                std::string number(get_word(c));
-                if(number.find('.') == std::string::npos)
+                bool is_number(c >= '0' && c <= '9');
+                if(c == '.')
                 {
-                    char * e(nullptr);
-                    std::uint64_t const v(strtoull(number.c_str(), &e, 10));
-                    // TODO: verify conversion
-                    result->set_integer(v);
+                    c = getc();
+                    if(c >= '0' && c <= '9')
+                    {
+                        is_number = true;
+                    }
+                    ungetc(c);
+                    c = '.';
+                }
+                if(is_number)
+                {
+                    std::string number(get_word(c));
+                    if(number.find('.') == std::string::npos)
+                    {
+                        char * e(nullptr);
+                        std::uint64_t const v(strtoull(number.c_str(), &e, 10));
+                        // TODO: verify conversion
+                        result->set_integer(v);
+                    }
+                    else
+                    {
+                        char *e(nullptr);
+                        double const v(strtod(number.c_str(), &e));
+                        // TODO: verify conversion
+                        result->set_float(v);
+                    }
                 }
                 else
                 {
-                    char *e(nullptr);
-                    double const v(strtod(number.c_str(), &e));
-                    // TODO: verify conversion
-                    result->set_float(v);
-                }
-            }
-            else
-            {
-                std::string const word(get_word(c));
-                if(word.length() > 1)
-                {
-                    switch(word[0])
+                    std::string const word(get_word(c));
+                    if(word.length() > 1)
                     {
-                    case 'D':
-                        if(word == "DECLARE")
+                        switch(word[0])
                         {
-                            result->set_token(token_t::TOK_DECLARE);
-                            return result;
-                        }
-                        break;
+                        case 'd':
+                            if(word == "declare")
+                            {
+                                result->set_token(token_t::TOK_DECLARE);
+                                return result;
+                            }
+                            break;
 
-                    case 'E':
-                        if(word == "END")
-                        {
-                            result->set_token(token_t::TOK_END);
-                            return result;
-                        }
-                        break;
+                        case 'e':
+                            if(word == "end")
+                            {
+                                result->set_token(token_t::TOK_END);
+                                return result;
+                            }
+                            break;
 
-                    case 'F':
-                        if(word == "FALSE")
-                        {
-                            result->set_boolean(false);
-                            return result;
-                        }
-                        break;
+                        case 'f':
+                            if(word == "false")
+                            {
+                                result->set_boolean(false);
+                                return result;
+                            }
+                            break;
 
-                    case 'T':
-                        if(word == "TO")
-                        {
-                            result->set_token(token_t::TOK_TO);
-                            return result;
-                        }
-                        else if(word == "TRUE")
-                        {
-                            result->set_boolean(true);
-                            return result;
-                        }
-                        break;
+                        case 'p':
+                            if(word == "primitive")
+                            {
+                                result->set_token(token_t::TOK_PRIMITIVE);
+                                return result;
+                            }
+                            else if(word == "program")
+                            {
+                                result->set_token(token_t::TOK_PROGRAM);
+                                return result;
+                            }
+                            break;
 
+                        case 't':
+                            if(word == "to")
+                            {
+                                result->set_token(token_t::TOK_TO);
+                                return result;
+                            }
+                            else if(word == "true")
+                            {
+                                result->set_boolean(true);
+                                return result;
+                            }
+                            break;
+
+                        case 'v':
+                            if(word == "void")
+                            {
+                                result->set_token(token_t::TOK_VOID);
+                                return result;
+                            }
+                            break;
+
+                        }
                     }
+                    result->set_word(token_t::TOK_WORD, word, start_of_line);
                 }
-                result->set_word(token_t::TOK_WORD, word, start_of_line);
+                return result;
             }
-            return result;
 
         }
     }

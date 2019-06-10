@@ -16,19 +16,25 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#include "error.hpp"
+#pragma once
 
-#include <iostream>
+#include <stdexcept>
 
 namespace lpp
 {
 
 
-void error(std::string const & message)
+
+typedef std::uint_fast32_t  line_t;
+
+
+
+class lpp_error
+    : public std::runtime_error
 {
-    std::cerr << "error: " << message << std::endl;
-    exit(1);
-}
+public:
+    lpp_error(std::string const & message, std::string const & filename = std::string(), line_t line = 0);
+};
 
 
 
