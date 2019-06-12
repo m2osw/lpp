@@ -1,7 +1,6 @@
-#!/bin/sh
+#!/bin/sh -e
 #
 # Execute make
-
 
 case "$1" in
 "-l")
@@ -9,7 +8,7 @@ case "$1" in
 	;;
 
 "-r")
-	make -C ../BUILD/Release
+	make -j4 -C ../BUILD/Release
 	;;
 
 "-d")
@@ -18,10 +17,20 @@ case "$1" in
 	make -C ../BUILD/Debug
 	;;
 
-*)
+"-t")
+	echo "-- Building..."
 	make -C ../BUILD/Debug
+	echo "-- lpp compiling..."
+	../BUILD/Debug/src/lpp tests/suite/syntax-print.logo
+	echo "-- g++ compiling..."
+	g++ -std=c++14 -I rt l.cpp rt/*.cpp
+	;;
+
+*)
+	make -j4 -C ../BUILD/Debug
 	;;
 
 esac
 
 
+# From the https://github.com/m2osw/lpp project

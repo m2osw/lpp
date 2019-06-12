@@ -198,12 +198,27 @@ void Token::set_function_limits(argument_count_t min_args, argument_count_t def_
 {
     if(f_token != token_t::TOK_LIST)
     {
-        throw std::logic_error("set_function_limits() called when the token type is not TOK_LIST");
+        throw std::logic_error("set_function_limits() called when the token type is not TOK_LIST.");
     }
 
     f_min_args = min_args;
     f_def_args = def_args;
     f_max_args = max_args;
+}
+
+
+void Token::set_declaration(pointer_t declaration)
+{
+    if(f_token != token_t::TOK_FUNCTION_CALL)
+    {
+        throw std::logic_error("set_declaration() called when the token type is not TOK_FUNCTION_CALL.");
+    }
+    if(f_declaration != nullptr)
+    {
+        throw std::logic_error("set_declaration() called twice on the same token.");
+    }
+
+    f_declaration = declaration;
 }
 
 
@@ -286,10 +301,13 @@ std::string const & Token::get_word() const
     case token_t::TOK_QUOTED:
     case token_t::TOK_THING:
     case token_t::TOK_WORD:
+    case token_t::TOK_FUNCTION_CALL:
         break;
 
     default:
-        throw std::logic_error("get_word() called when the token type is not TOK_QUOTED/THING/WORD");
+        throw std::logic_error("get_word() called when the token type is TOK_"
+                             + to_string(f_token)
+                             + " not TOK_QUOTED/THING/WORD/FUNCTION_CALL");
 
     }
 
@@ -345,7 +363,7 @@ argument_count_t Token::get_def_args() const
 {
     if(f_token != token_t::TOK_LIST)
     {
-        throw std::logic_error("get_def_args() called when the token type is not TOK_LIST");
+        throw std::logic_error("get_def_args() called when the token type is not TOK_LIST.");
     }
 
     return f_def_args;
@@ -356,10 +374,21 @@ argument_count_t Token::get_max_args() const
 {
     if(f_token != token_t::TOK_LIST)
     {
-        throw std::logic_error("get_max_args() called when the token type is not TOK_LIST");
+        throw std::logic_error("get_max_args() called when the token type is not TOK_LIST.");
     }
 
     return f_max_args;
+}
+
+
+Token::pointer_t Token::get_declaration() const
+{
+    if(f_token != token_t::TOK_FUNCTION_CALL)
+    {
+        throw std::logic_error("get_declaration() called when the token type is not TOK_FUNCTION_CALL.");
+    }
+
+    return f_declaration;
 }
 
 
@@ -384,9 +413,17 @@ Token::vector_t::size_type Token::get_list_size() const
 
 Token::pointer_t Token::get_list_item(vector_t::size_type idx) const
 {
-    if(f_token != token_t::TOK_LIST)
+    switch(f_token)
     {
-        throw std::logic_error("get_list_item() called when the token type is not TOK_LIST");
+    case token_t::TOK_LIST:
+    case token_t::TOK_FUNCTION_CALL:
+        break;
+
+    default:
+        throw std::logic_error("get_list_item() called with the token type set to "
+                             + to_string(f_token)
+                             + ", it expects one of TOK_LIST/TOK_FUNCTION_CALL");
+
     }
 
     if(idx >= f_list.size())

@@ -29,3 +29,4 @@ licensing if you are interested in using our software in closed source.
 
 
 vim: ts=4 sw=4 et
+-- From the [lpp](https://www.m2osw.com/lpp) project.

@@ -122,6 +122,7 @@ public:
     void                set_boolean(bool value);
     void                set_procedure_flags(procedure_flag_t flags);
     void                set_function_limits(argument_count_t min_param, argument_count_t def_param, argument_count_t max_param);
+    void                set_declaration(pointer_t declaration);
     void                add_list_item(pointer_t item);
     void                set_list_item(int idx, pointer_t item);
     void                add_map_item(std::string const & name, pointer_t item);
@@ -136,6 +137,7 @@ public:
     argument_count_t    get_min_args() const;
     argument_count_t    get_def_args() const;
     argument_count_t    get_max_args() const;
+    pointer_t           get_declaration() const;
     vector_t::size_type get_list_size() const;
     pointer_t           get_list_item(vector_t::size_type idx) const;
     map_t const &       get_map() const;
@@ -158,6 +160,7 @@ private:
     argument_count_t    f_min_args = 0;
     argument_count_t    f_def_args = 0;
     argument_count_t    f_max_args = 0;
+    pointer_t           f_declaration = pointer_t();
     std::string         f_filename = std::string();
     line_t              f_line = 0;
 };

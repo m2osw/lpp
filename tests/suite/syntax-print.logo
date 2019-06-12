@@ -1,7 +1,7 @@
 program
-  display "Hello\ World!
+  display [Hello  World! [note: list of list]]
 end program
 
-to display :word
-  print :word
+to display :msg
+  print :msg "?
 end "display

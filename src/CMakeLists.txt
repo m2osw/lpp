@@ -31,12 +31,13 @@ include_directories(
     ${CMAKE_CURRENT_BINARY_DIR}
 )
 
-add_executable( ${PROJECT_NAME}
-    exception.cpp
-    lexer.cpp
-    lpp.cpp
-    parser.cpp
-    token.cpp
+add_executable(
+    ${PROJECT_NAME}
+        exception.cpp
+        lexer.cpp
+        lpp.cpp
+        parser.cpp
+        token.cpp
 )
 
 

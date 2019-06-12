@@ -22,6 +22,9 @@
 
 #include <iostream>
 #include <limits>
+#include <sstream>
+
+
 
 namespace lpp
 {
@@ -968,8 +971,7 @@ Token::pointer_t Parser::parse_body(Token::pointer_t body)
     Token::pointer_t new_body(std::make_shared<Token>(token_t::TOK_LIST));
     for(;;)
     {
-        next_body_token();
-        switch(f_current_token->get_token())
+        switch(next_body_token()->get_token())
         {
         case token_t::TOK_EOF:
             return new_body;
@@ -1012,7 +1014,6 @@ Token::pointer_t Parser::call_function()
             f_current_token->error("expected a WORD token after '('.");
             return f_current_token;
         }
-
     }
 
     Token::pointer_t func_call(f_current_token);
@@ -1024,7 +1025,7 @@ Token::pointer_t Parser::call_function()
     Token::pointer_t declaration(f_declarations->get_map_item(func_call->get_word()));
     if(declaration == nullptr)
     {
-        f_current_token->error("unknown command \"" + func_call->get_word() + "\"");
+        f_current_token->error("unknown procedure \"" + func_call->get_word() + "\"");
         return f_current_token;
     }
 
@@ -1033,12 +1034,13 @@ Token::pointer_t Parser::call_function()
     argument_count_t max_args(std::numeric_limits<argument_count_t>::max());
     if(!parenthesis)
     {
-        max_args = declaration->get_def_args();
+        max_args = def_args;
     }
 
     // change the WORD into a FUNCTION-CALL
     //
     func_call->set_token(token_t::TOK_FUNCTION_CALL);
+    func_call->set_declaration(declaration);
 
     next_body_token();
     for(;;)
@@ -1089,7 +1091,7 @@ Token::pointer_t Parser::equality_expression()
             {
                 Token::pointer_t rhs(relational_expression());
 
-                Token::pointer_t op(std::make_shared<Token>());
+                Token::pointer_t op(std::make_shared<Token>(token_t::TOK_EOF, lhs));
                 op->set_word(token_t::TOK_FUNCTION_CALL, to_string(token));
                 op->add_list_item(lhs);
                 op->add_list_item(rhs);
@@ -1122,7 +1124,7 @@ Token::pointer_t Parser::relational_expression()
             {
                 Token::pointer_t rhs(additive_expression());
 
-                Token::pointer_t op(std::make_shared<Token>());
+                Token::pointer_t op(std::make_shared<Token>(token_t::TOK_EOF, lhs));
                 op->set_word(token_t::TOK_FUNCTION_CALL, to_string(token));
                 op->add_list_item(lhs);
                 op->add_list_item(rhs);
@@ -1153,7 +1155,7 @@ Token::pointer_t Parser::additive_expression()
             {
                 Token::pointer_t rhs(multiplicative_expression());
 
-                Token::pointer_t op(std::make_shared<Token>());
+                Token::pointer_t op(std::make_shared<Token>(token_t::TOK_EOF, lhs));
                 op->set_word(token_t::TOK_FUNCTION_CALL, to_string(token));
                 op->add_list_item(lhs);
                 op->add_list_item(rhs);
@@ -1184,7 +1186,7 @@ Token::pointer_t Parser::multiplicative_expression()
             {
                 Token::pointer_t rhs(unary_expression());
 
-                Token::pointer_t op(std::make_shared<Token>());
+                Token::pointer_t op(std::make_shared<Token>(token_t::TOK_EOF, lhs));
                 op->set_word(token_t::TOK_FUNCTION_CALL, to_string(token));
                 op->add_list_item(lhs);
                 op->add_list_item(rhs);
@@ -1221,7 +1223,7 @@ Token::pointer_t Parser::unary_expression()
         {
             Token::pointer_t rhs(unary_expression());
 
-            Token::pointer_t op(std::make_shared<Token>());
+            Token::pointer_t op(std::make_shared<Token>(token_t::TOK_EOF, rhs));
             op->set_word(token_t::TOK_FUNCTION_CALL, "PLUS");
             op->add_list_item(rhs);
             return op;
@@ -1232,7 +1234,7 @@ Token::pointer_t Parser::unary_expression()
         {
             Token::pointer_t rhs(unary_expression());
 
-            Token::pointer_t op(std::make_shared<Token>());
+            Token::pointer_t op(std::make_shared<Token>(token_t::TOK_EOF, rhs));
             op->set_word(token_t::TOK_FUNCTION_CALL, "MINUS");
             op->add_list_item(rhs);
             return op;
@@ -1245,7 +1247,9 @@ Token::pointer_t Parser::unary_expression()
 
             if(f_current_token->get_token() != token_t::TOK_CLOSE_PARENTHESIS)
             {
-                f_current_token->error("expression expected a closing parenthesis");
+                f_current_token->error("expression expected a closing parenthesis instead of a "
+                                     + to_string(f_current_token->get_token())
+                                     + ".");
             }
             next_body_token();
             return rhs;
@@ -1253,11 +1257,12 @@ Token::pointer_t Parser::unary_expression()
 
     case token_t::TOK_OPEN_LIST:
         {
-            Token::pointer_t list(std::make_shared<Token>(token_t::TOK_LIST));
+            ++f_parsing_list;
+            Token::pointer_t list(std::make_shared<Token>(token_t::TOK_LIST, f_current_token));
 
+            next_body_token();
             for(;;)
             {
-                next_body_token();
                 if(f_current_token->get_token() == token_t::TOK_CLOSE_LIST)
                 {
                     next_body_token();
@@ -1265,10 +1270,20 @@ Token::pointer_t Parser::unary_expression()
                 }
                 list->add_list_item(expression());
             }
+            --f_parsing_list;
             return list;
         }
 
     case token_t::TOK_WORD:
+        if(f_parsing_list > 0)
+        {
+            // if the function we're dealing with is a control function
+            // then this list may need to be parsed _properly_
+            //
+            Token::pointer_t result(f_current_token);
+            next_body_token();
+            return result;
+        }
         return call_function();
 
     default:
@@ -1281,6 +1296,352 @@ Token::pointer_t Parser::unary_expression()
 }
 
 
+
+
+void Parser::optimize()
+{
+    // TODO: go through all the function calls in the procedures and program
+    //       and optimize those that we can optimize (i.e. `SUM 3 7` becomes
+    //       `10`)
+    //
+    //       note that at first this may not look useful for basic
+    //       arithmetics since the C++ compiler will take care of
+    //       such optimizations, but if you end up with an instruction
+    //       such as `item 3 [a b c d e f]` you can reduce it to just `c`
+    //       which is something the C++ compiler is not likely to do for us
+}
+
+
+void Parser::generate()
+{
+    f_out.open("l.cpp");
+    if(!f_out.is_open())
+    {
+        f_current_token->error("unable to open intermediate file \"l.cpp\".");
+        return;
+    }
+
+    f_out << "// AUTO-GENERATED FILE\n"
+          << "#include <lpp.hpp>\n";
+
+    {
+        f_out << "// Function Declarations\n";
+
+        auto const & procedures(f_procedures->get_map());
+        for(auto p : procedures)
+        {
+            std::string const cpp_name(logo_to_cpp_name(p.first));
+            f_out << "void " << cpp_name << "();\n";
+        }
+    }
+
+    {
+        f_out << "// Function Definitions\n";
+
+        auto const & procedures(f_procedures->get_map());
+        for(auto p : procedures)
+        {
+            auto const max(p.second->get_list_size());
+
+            f_body = p.second->get_list_item(max - 1);
+            f_function = p.second;
+
+            std::string const cpp_name(logo_to_cpp_name(p.first));
+            f_out << "void " << cpp_name << "(lpp::lpp__context::pointer_t context)\n";
+            f_out << "{\n";
+            output_body();
+            f_out << "}\n";
+        }
+    }
+
+    f_rt_main = f_program->get_list_size() > 0;
+    if(f_rt_main)
+    {
+        f_out << "// Program Definition\n";
+
+        f_body = f_program;
+        f_function.reset();
+
+        f_out << "void lpp__startup(lpp::lpp__context::pointer_t context)\n";
+        f_out << "{\n";
+        output_body();
+        f_out << "}\n";
+    }
+}
+
+
+void Parser::output_body()
+{
+    auto const max(f_body->get_list_size());
+    for(std::remove_const<decltype(max)>::type c(0); c < max; ++c)
+    {
+        // a body is a list of commands (function calls)
+        //
+        output_function_call(f_body->get_list_item(c));
+    }
+}
+
+
+void Parser::output_function_call(Token::pointer_t function_call)
+{
+    std::string const context_name(get_unique_name());
+
+    f_out << "{\n"
+          << "lpp::lpp__context::pointer_t "
+          << context_name
+          << "(std::make_shared<lpp::lpp__context>());\n";
+
+    // a command may have a list of arguments following it
+    //
+    auto const max_args(function_call->get_list_size());
+    Token::pointer_t declaration(function_call->get_declaration());
+
+    // the declaration is built this way:
+    //declaration->add_list_item(name);
+    //declaration->add_list_item(required_arguments);
+    //declaration->add_list_item(optional_arguments);
+    //declaration->add_list_item(rest_argument); -- optional
+
+    Token::pointer_t required_arguments(declaration->get_list_item(1));
+    Token::pointer_t optional_arguments(declaration->get_list_item(2));
+    Token::pointer_t rest_argument;
+    if(declaration->get_list_size() >= 4)
+    {
+        rest_argument = declaration->get_list_item(3);
+    }
+
+    for(std::remove_const<decltype(max_args)>::type a(0); a < max_args; ++a)
+    {
+        Token::pointer_t arg(function_call->get_list_item(a));
+
+        switch(arg->get_token())
+        {
+        case token_t::TOK_FUNCTION_CALL:
+            // the output of a function call will stack a parameter
+            //
+            output_function_call(arg);
+            break;
+
+        case token_t::TOK_BOOLEAN:
+            f_out << "lpp::lpp__value::pointer_t value("
+                  << "std::make_shared<lpp::lpp__value>("
+                  << arg->get_boolean()
+                  << "));\n";
+            break;
+
+        case token_t::TOK_INTEGER:
+            f_out << "lpp::lpp__value::pointer_t value("
+                  << "std::make_shared<lpp::lpp__value>("
+                  << arg->get_integer()
+                  << "));\n";
+            break;
+
+        case token_t::TOK_FLOAT:
+            f_out << "lpp::lpp__value::pointer_t value("
+                  << "std::make_shared<lpp::lpp__value>("
+                  << arg->get_float()
+                  << "));\n";
+            break;
+
+        case token_t::TOK_WORD:
+            f_out << "lpp::lpp__value::pointer_t value("
+                  << "std::make_shared<lpp::lpp__value>("
+                     "std::string("
+                  << word_to_cpp_literal_string(arg->get_word())
+                  << ")"
+                     ")"
+                     ");\n";
+            break;
+
+        case token_t::TOK_QUOTED:
+            f_out << "lpp::lpp__value::pointer_t value("
+                     "std::make_shared<lpp::lpp__value>("
+                     "std::string("
+                  << word_to_cpp_literal_string(arg->get_word())
+                  << ")"
+                     ")"
+                     ");\n";
+            break;
+
+        case token_t::TOK_THING:
+            f_out << "lpp::lpp__value::pointer_t value("
+                  << "context->get_thing("
+                  << word_to_cpp_literal_string(arg->get_word())
+                  << ")->get_value());\n";
+            break;
+
+        case token_t::TOK_LIST:
+            f_out << "lpp::lpp__value::pointer_t value(";
+            build_list(arg);
+            f_out << ");\n";
+            break;
+
+        default:
+            arg->error("unexpected token type ("
+                      + to_string(arg->get_token())
+                      + ") in a list of arguments.");
+            return;
+
+        }
+
+        Token::pointer_t arg_name;
+        if(a < required_arguments->get_list_size())
+        {
+            arg_name = required_arguments->get_list_item(a);
+        }
+        else if(a - required_arguments->get_list_size() < optional_arguments->get_list_size())
+        {
+            arg_name = optional_arguments->get_list_item(a - required_arguments->get_list_size());
+        }
+        // else -- accumulate in the rest list
+
+        if(arg_name != nullptr)
+        {
+            f_out << context_name
+                  << "->set_thing("
+                  << word_to_cpp_literal_string(arg_name->get_word())
+                  << ",value,lpp::lpp__thing_type_t::LPP__THING_TYPE_LOCAL);\n";
+        }
+    }
+
+    f_out << context_name
+          << "->attach(context);\n";
+
+    f_out << logo_to_cpp_name(function_call->get_word())
+          << "("
+          << context_name
+          << ");\n"
+          << "}\n";
+}
+
+
+void Parser::build_list(Token::pointer_t list)
+{
+    std::string const context_name(get_unique_name());
+
+    f_out << "std::make_shared<lpp::lpp__value>(lpp::lpp__value::vector_t{\n";
+
+    auto const max(list->get_list_size());
+    for(std::remove_const<decltype(max)>::type l(0); l < max; ++l)
+    {
+        if(l != 0)
+        {
+            f_out << ",";
+        }
+        Token::pointer_t item(list->get_list_item(l));
+        switch(item->get_token())
+        {
+        case token_t::TOK_BOOLEAN:
+            f_out << "std::make_shared<lpp::lpp__value>("
+                  << item->get_boolean()
+                  << ")\n";
+            break;
+
+        case token_t::TOK_INTEGER:
+            f_out << "std::make_shared<lpp::lpp__value>("
+                  << item->get_integer()
+                  << ")\n";
+            break;
+
+        case token_t::TOK_FLOAT:
+            f_out << "std::make_shared<lpp::lpp__value>("
+                  << item->get_float()
+                  << ")\n";
+            break;
+
+        case token_t::TOK_WORD:
+            f_out << "std::make_shared<lpp::lpp__value>("
+                     "std::string("
+                  << word_to_cpp_literal_string(item->get_word())
+                  << ")"
+                     ")\n";
+            break;
+
+        case token_t::TOK_LIST:
+            build_list(item);
+            break;
+
+        default:
+            item->error("unexpected token type ("
+                      + to_string(item->get_token())
+                      + ") in a list literal.");
+            return;
+
+        }
+    }
+
+    f_out << "})\n";
+}
+
+
+std::string Parser::logo_to_cpp_name(std::string const & name)
+{
+    std::stringstream result;
+
+    result << std::hex;
+    for(auto c : name)
+    {
+        if((c >= 'a' && c <= 'z')
+        || (c >= 'A' && c <= 'Z')
+        || (c >= '0' && c <= '9'))
+        {
+            result << static_cast<char>(c);
+        }
+        else
+        {
+            result << '_'
+                   << static_cast<int>(c);
+        }
+    }
+
+    return result.str();
+}
+
+
+std::string Parser::word_to_cpp_literal_string(std::string const & word)
+{
+    std::stringstream result;
+
+    result << '"';
+    for(auto c : word)
+    {
+        switch(c)
+        {
+        case '\0':
+            result << "\\0";
+            break;
+
+        case '\\':
+            result << "\\\\";
+            break;
+
+        case '"':
+            result << "\\\"";
+            break;
+
+        default:
+            result << c;
+            break;
+
+        }
+    }
+    result << '"';
+
+    return result.str();
+}
+
+
+std::string Parser::get_unique_name()
+{
+    std::stringstream ss;
+
+    ss << "lpp__tmp"
+       << f_unique;
+
+    ++f_unique;
+
+    return ss.str();
+}
 
 
 } // lpp namespace

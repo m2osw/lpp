@@ -162,29 +162,36 @@ int main(int argc, char * argv[])
         }
 
         parser->parse();
+        parser->generate();
+
+        return 0;
     }
     catch(std::logic_error const & e)
     {
         std::cerr << "error: lpp detected a bug in its own implementation; "
                   << e.what()
                   << std::endl;
+        return 1;
     }
     catch(lpp::lpp_error const & e)
     {
         // the message of an lpp error is already complete
         //
         std::cerr << e.what() << std::endl;
+        return 1;
     }
     catch(std::exception const & e)
     {
         std::cerr << "error: unknown standard exception detected: "
                   << e.what()
                   << std::endl;
+        return 1;
     }
     catch(...)
     {
         std::cerr << "error: unknown exception detected."
                   << std::endl;
+        return 1;
     }
 }
 

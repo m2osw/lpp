@@ -20,6 +20,10 @@
 
 #include "lexer.hpp"
 
+#include <fstream>
+
+
+
 namespace lpp
 {
 
@@ -36,6 +40,8 @@ public:
     void                    add_lexer(Lexer::pointer_t lexer);
 
     void                    parse();
+    void                    optimize();
+    void                    generate();
 
 private:
     void                    parse_declarations();
@@ -56,17 +62,28 @@ private:
     Token::pointer_t        additive_expression();
     Token::pointer_t        multiplicative_expression();
     Token::pointer_t        unary_expression();
+    void                    output_body();
+    void                    output_function_call(Token::pointer_t function_call);
+    void                    build_list(Token::pointer_t list);
+    std::string             logo_to_cpp_name(std::string const & name);
+    std::string             word_to_cpp_literal_string(std::string const & word);
+    std::string             get_unique_name();
 
     bool                    f_output_object = false;
     bool                    f_enable_trace = false;
+    bool                    f_rt_main = false;
     std::uint_fast32_t      f_body_pos = 0;
     Token::pointer_t        f_body = Token::pointer_t();
+    Token::pointer_t        f_function = Token::pointer_t();
+    std::uint_fast64_t      f_unique = 0;
     std::uint_fast16_t      f_lexer_pos = 0;
+    std::uint_fast32_t      f_parsing_list = 0;
     Lexer::vector_t         f_lexer = Lexer::vector_t();
-    Token::pointer_t        f_current_token = Token::pointer_t();   // last f_lexer.next_token()
-    Token::pointer_t        f_program = Token::pointer_t();         // as-is function calls
-    Token::pointer_t        f_declarations = Token::pointer_t();    // DECLARE ...
+    Token::pointer_t        f_current_token = Token::pointer_t();   // last f_lexer.next_token() / next_body_token();
+    Token::pointer_t        f_program = Token::pointer_t();         // PROGRAM ...
+    Token::pointer_t        f_declarations = Token::pointer_t();    // DECLARE/PRIMITIVE ...
     Token::pointer_t        f_procedures = Token::pointer_t();      // TO ...
+    std::ofstream           f_out = std::ofstream();
 };
 
 
