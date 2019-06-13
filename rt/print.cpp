@@ -59,7 +59,7 @@ void print_value(lpp::lpp__value::pointer_t value, int depth = 0)
             std::cout << "[";
         }
         {
-            auto list(value->get_vector());
+            auto list(value->get_list());
             size_t const max(list.size());
             if(max > 0)
             {
@@ -88,6 +88,12 @@ void print(lpp::lpp__context::pointer_t context)
 {
     lpp::lpp__value::pointer_t msg(context->get_thing("msg")->get_value());
     print_value(msg);
+    lpp::lpp__value::pointer_t rest(context->find_thing("rest")->get_value());
+    if(rest != nullptr)
+    {
+        std::cout << " ";
+        print_value(rest);
+    }
     std::cout << "\n";
 }
 

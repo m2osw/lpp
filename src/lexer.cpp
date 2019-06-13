@@ -244,11 +244,33 @@ Token::pointer_t Lexer::next_token()
             break;
 
         case '+':
-            result->set_token(token_t::TOK_SUM);
+            c = getc();
+            ungetc(c);
+            if(c == ' '
+            || c == '\t'
+            || c == '\n')
+            {
+                result->set_token(token_t::TOK_SUM);
+            }
+            else
+            {
+                result->set_token(token_t::TOK_PLUS);
+            }
             return result;
 
         case '-':
-            result->set_token(token_t::TOK_DIFFERENCE);
+            c = getc();
+            ungetc(c);
+            if(c == ' '
+            || c == '\t'
+            || c == '\n')
+            {
+                result->set_token(token_t::TOK_DIFFERENCE);
+            }
+            else
+            {
+                result->set_token(token_t::TOK_MINUS);
+            }
             return result;
 
         case '*':
@@ -389,12 +411,22 @@ Token::pointer_t Lexer::next_token()
                                 result->set_boolean(false);
                                 return result;
                             }
+                            else if(word == "function")
+                            {
+                                result->set_token(token_t::TOK_FUNCTION);
+                                return result;
+                            }
                             break;
 
                         case 'p':
                             if(word == "primitive")
                             {
                                 result->set_token(token_t::TOK_PRIMITIVE);
+                                return result;
+                            }
+                            else if(word == "procedure")
+                            {
+                                result->set_token(token_t::TOK_PROCEDURE);
                                 return result;
                             }
                             else if(word == "program")

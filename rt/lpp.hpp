@@ -83,7 +83,7 @@ public:
     lpp__integer_t          get_integer() const;
     lpp__float_t            get_float() const;
     std::string const &     get_string() const;
-    vector_t const &        get_vector() const;
+    vector_t const &        get_list() const;
 
     void                    unset();
     void                    set_boolean(bool value);
@@ -91,7 +91,7 @@ public:
     void                    set_float(lpp__float_t value);
     void                    set_string(std::string const & value);
     void                    set_string(vector_t const & value);
-    void                    set_vector(vector_t const & value);
+    void                    set_list(vector_t const & value);
 
 private:
     // WARNING: the order of the types is captured in the lpp__value_type_t
@@ -173,7 +173,10 @@ private:
 
 // primitives
 
+void minus(lpp::lpp__context::pointer_t context);
 void print(lpp::lpp__context::pointer_t context);
+void product(lpp::lpp__context::pointer_t context);
+void sum(lpp::lpp__context::pointer_t context);
 
 
 // vim: ts=4 sw=4 et nocindent

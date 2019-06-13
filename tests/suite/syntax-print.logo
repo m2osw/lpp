@@ -3,5 +3,5 @@ program
 end program
 
 to display :msg
-  print :msg "?
+  print :msg "MORE -5 + 123 * 2 [Info]
 end "display

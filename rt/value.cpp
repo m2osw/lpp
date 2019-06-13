@@ -100,7 +100,7 @@ std::string const & lpp__value::get_string() const
 }
 
 
-lpp__value::vector_t const & lpp__value::get_vector() const
+lpp__value::vector_t const & lpp__value::get_list() const
 {
     return boost::get<vector_t>(f_value);
 }
@@ -136,7 +136,7 @@ void lpp__value::set_string(std::string const & value)
 }
 
 
-void lpp__value::set_vector(vector_t const & value)
+void lpp__value::set_list(vector_t const & value)
 {
     f_value = value;
 }

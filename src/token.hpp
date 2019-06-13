@@ -58,15 +58,19 @@ enum class token_t
     TOK_END,                        // "END" word
     TOK_EQUALP,                     // =
     TOK_FLOAT,                      // \d+\.\d+ or \d+[eE][-+]\d+
+    TOK_FUNCTION,                   // "FUNCTION" word
     TOK_GREATEREQUALP,              // >=
     TOK_GREATERP,                   // >
     TOK_INTEGER,                    // \d+
     TOK_LESSEQUALP,                 // <=
     TOK_LESSP,                      // <
+    TOK_MINUS,                      // -<something> (opposed to -<space><something>)
     TOK_NOTEQUALP,                  // <>
     TOK_OPEN_LIST,                  // [
     TOK_OPEN_PARENTHESIS,           // (
+    TOK_PLUS,                       // +<something> (opposed to +<space><something>)
     TOK_PRIMITIVE,                  // "PRIMITIVE" word
+    TOK_PROCEDURE,                  // "PROCEDURE" word
     TOK_PRODUCT,                    // *
     TOK_PROGRAM,                    // "PROGRAM" word
     TOK_QUOTED,                     // "<letters>
@@ -99,6 +103,7 @@ constexpr procedure_flag_t          PROCEDURE_FLAG_C            = 0x00000003;   
 constexpr procedure_flag_t          PROCEDURE_FLAG_INLINE       = 0x00000010;
 constexpr procedure_flag_t          PROCEDURE_FLAG_ARITHMETIC   = 0x00000020;
 constexpr procedure_flag_t          PROCEDURE_FLAG_CONTROL      = 0x00000040;
+constexpr procedure_flag_t          PROCEDURE_FLAG_FUNCTION     = 0x00000080;       // function uses OUTPUT <expr>
 
 
 
@@ -121,6 +126,8 @@ public:
     void                set_float(double value);
     void                set_boolean(bool value);
     void                set_procedure_flags(procedure_flag_t flags);
+    void                add_procedure_flags(procedure_flag_t flags);
+    void                remove_procedure_flags(procedure_flag_t flags);
     void                set_function_limits(argument_count_t min_param, argument_count_t def_param, argument_count_t max_param);
     void                set_declaration(pointer_t declaration);
     void                add_list_item(pointer_t item);
@@ -133,7 +140,7 @@ public:
     std::int64_t        get_integer() const;
     double              get_float() const;
     bool                get_boolean() const;
-    procedure_flag_t    set_procedure_flags() const;
+    procedure_flag_t    get_procedure_flags() const;
     argument_count_t    get_min_args() const;
     argument_count_t    get_def_args() const;
     argument_count_t    get_max_args() const;

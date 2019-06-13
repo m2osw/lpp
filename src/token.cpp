@@ -45,15 +45,19 @@ char const * const g_token_to_string[] =
     [static_cast<int>(token_t::TOK_END)]               = "END",
     [static_cast<int>(token_t::TOK_EQUALP)]            = "EQUALP",
     [static_cast<int>(token_t::TOK_FLOAT)]             = "FLOAT",
+    [static_cast<int>(token_t::TOK_FUNCTION)]          = "FUNCTION",
     [static_cast<int>(token_t::TOK_GREATEREQUALP)]     = "GREATEREQUALP",
     [static_cast<int>(token_t::TOK_GREATERP)]          = "GREATERP",
     [static_cast<int>(token_t::TOK_INTEGER)]           = "INTEGER",
     [static_cast<int>(token_t::TOK_LESSEQUALP)]        = "LESSEQUALP",
     [static_cast<int>(token_t::TOK_LESSP)]             = "LESSP",
+    [static_cast<int>(token_t::TOK_MINUS)]             = "MINUS",
     [static_cast<int>(token_t::TOK_NOTEQUALP)]         = "NOTEQUALP",
     [static_cast<int>(token_t::TOK_OPEN_LIST)]         = "OPEN_LIST",
     [static_cast<int>(token_t::TOK_OPEN_PARENTHESIS)]  = "OPEN_PARENTHESIS",
+    [static_cast<int>(token_t::TOK_PLUS)]              = "PLUS",
     [static_cast<int>(token_t::TOK_PRIMITIVE)]         = "PRIMITIVE",
+    [static_cast<int>(token_t::TOK_PROCEDURE)]         = "PROCEDURE",
     [static_cast<int>(token_t::TOK_PRODUCT)]           = "PRODUCT",
     [static_cast<int>(token_t::TOK_PROGRAM)]           = "PROGRAM",
     [static_cast<int>(token_t::TOK_QUOTED)]            = "QUOTED",
@@ -160,10 +164,13 @@ void Token::set_word(token_t token, std::string const & word, bool start_of_line
         break;
 
     case token_t::TOK_WORD:
+    case token_t::TOK_FUNCTION_CALL:
         break;
 
     default:
-        throw std::logic_error("set_word() called when the token type is not TOK_QUOTED/THING/WORD");
+        throw std::logic_error("set_word() called with token type "
+                             + to_string(token)
+                             + " which is not one of TOK_QUOTED/THING/WORD/FUNCTION_CALL");
 
     }
 
@@ -191,6 +198,24 @@ void Token::set_boolean(bool value)
 {
     f_token = token_t::TOK_BOOLEAN;
     f_boolean = value;
+}
+
+
+void Token::set_procedure_flags(procedure_flag_t flags)
+{
+    f_procedure_flags = flags;
+}
+
+
+void Token::add_procedure_flags(procedure_flag_t flags)
+{
+    f_procedure_flags |= flags;
+}
+
+
+void Token::remove_procedure_flags(procedure_flag_t flags)
+{
+    f_procedure_flags &= ~flags;
 }
 
 
@@ -345,6 +370,12 @@ bool Token::get_boolean() const
     }
 
     return f_boolean;
+}
+
+
+procedure_flag_t Token::get_procedure_flags() const
+{
+    return f_procedure_flags;
 }
 
 
