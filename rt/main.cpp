@@ -32,30 +32,49 @@ void lpp__startup(lpp::lpp__context::pointer_t context);
 
 int main(int argc, char * argv[])
 {
-    std::cout << "-- setup context & `arguments`... --\n";
-
-    lpp::lpp__context::pointer_t context(std::make_shared<lpp::lpp__context>());
-    context->set_global(context);
-
-    lpp__startup(context);
-
-    lpp::lpp__value::pointer_t exit_code(context->get_returned_value());
-    if(exit_code != nullptr)
+    try
     {
-        if(exit_code->type() != lpp::lpp__value_type_t::LPP__VALUE_TYPE_INTEGER)
+        std::cout << "-- setup context & `arguments`... --\n";
+
+        lpp::lpp__context::pointer_t context(std::make_shared<lpp::lpp__context>());
+        context->set_global(context);
+
+        lpp__startup(context);
+
+        if(context->has_returned_value())
         {
-            std::cerr << "error: exit code is expected to be an integer.\n";
-            return 1;
-        }
-        else
-        {
+            lpp::lpp__value::pointer_t exit_code(context->get_returned_value());
+            if(exit_code->type() != lpp::lpp__value_type_t::LPP__VALUE_TYPE_INTEGER)
+            {
+                std::cerr << "error: exit code is expected to be an integer.\n";
+                return 1;
+            }
+            else
+            {
 std::cout << "-- got an exit code! --\n";
-            return exit_code->get_integer();
+                return exit_code->get_integer();
+            }
         }
-    }
 
 std::cout << "-- no exit code, return 0 by default --\n";
-    return 0;
+        return 0;
+    }
+    catch(lpp::lpp__error const & e)
+    {
+        std::cerr << "error: "
+                  << (e.tag() == "error" ? "" : e.tag() + ": ")
+                  << e.what()
+                  << std::endl;
+        // TODO: display value if not nullptr
+        return 1;
+    }
+    catch(std::logic_error const & e)
+    {
+        std::cerr << "internal error: "
+                  << e.what()
+                  << std::endl;
+        return 1;
+    }
 }
 
 

@@ -75,7 +75,8 @@ lpp__thing::pointer_t lpp__context::get_thing(std::string const & name) const
     lpp__thing::pointer_t thing(find_thing(name));
     if(thing == nullptr)
     {
-        throw lpp__error("thing named \"" + name + " not found");
+        throw lpp__error("error"
+                       , "thing named \"" + name + " not found.");
     }
     return thing;
 }
@@ -139,8 +140,20 @@ void lpp__context::set_thing(std::string const & name, lpp__value::pointer_t val
 }
 
 
+bool lpp__context::has_returned_value() const
+{
+    return f_return_value != nullptr;
+}
+
+
 lpp__value::pointer_t lpp__context::get_returned_value() const
 {
+    if(f_return_value == nullptr)
+    {
+        throw lpp__error("error"
+                       , "nothing was returned.");
+    }
+
     return f_return_value;
 }
 

@@ -20,35 +20,39 @@
 //
 #include "lpp.hpp"
 
+// C++ lib
+//
+#include <iostream>
 
 
-namespace lpp
+
+
+void primitive_minus(lpp::lpp__context::pointer_t context)
 {
+    // TODO: handle overflow/underflow
 
+    lpp::lpp__value::pointer_t n(context->get_thing("number")->get_value());
 
-lpp__error::lpp__error(std::string const & tag
-                     , std::string const & message
-                     , lpp::lpp__value::pointer_t value)
-    : std::runtime_error(message)
-    , f_tag(tag)
-    , f_value(value)
-{
+    lpp::lpp__value::pointer_t result(std::make_shared<lpp::lpp__value>());
+
+    switch(n->type())
+    {
+    case lpp::lpp__value_type_t::LPP__VALUE_TYPE_INTEGER:
+        result->set_integer(-n->get_integer());
+        break;
+
+    case lpp::lpp__value_type_t::LPP__VALUE_TYPE_FLOAT:
+        result->set_float(-n->get_float());
+        break;
+
+    default:
+        throw lpp::lpp__error("error"
+                            , "minus used with an unexpected parameter type.");
+
+    }
+
+    context->set_return_value(result);
 }
 
 
-std::string const & lpp__error::tag() const
-{
-    return f_tag;
-}
-
-
-lpp__value::pointer_t lpp__error::value() const
-{
-    return f_value;
-}
-
-
-
-} // lpp namespace
 // vim: ts=4 sw=4 et nocindent
-

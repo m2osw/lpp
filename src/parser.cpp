@@ -92,7 +92,7 @@ Parser::Parser()
             "primitive [function control inline] error end\n"
             // F
             "primitive [function] filep&file? :filename end\n"
-            "primitive [function inline] first :list end\n"
+            "primitive [function inline] first :thing end\n"
             "primitive [function inline] firsts :list end\n"
             "primitive [procedure control inline] for :control :instructions end\n"
             "primitive [procedure control inline] forever :instructions end\n"
@@ -1085,7 +1085,7 @@ Token::pointer_t Parser::parse_body(Token::pointer_t body)
 
         case token_t::TOK_WORD:
         case token_t::TOK_OPEN_PARENTHESIS:
-            new_body->add_list_item(call_function());
+            new_body->add_list_item(call_function(false));
             break;
 
         default:
@@ -1110,7 +1110,7 @@ Token::pointer_t Parser::parse_expression(Token::pointer_t expr)
 }
 
 
-Token::pointer_t Parser::call_function()
+Token::pointer_t Parser::call_function(bool must_return)
 {
     bool const parenthesis(f_current_token->get_token() == token_t::TOK_OPEN_PARENTHESIS);
     if(parenthesis)
@@ -1136,13 +1136,39 @@ Token::pointer_t Parser::call_function()
         return f_current_token;
     }
 
-    argument_count_t min_args(declaration->get_min_args());
-    argument_count_t def_args(declaration->get_def_args());
-    argument_count_t max_args(std::numeric_limits<argument_count_t>::max());
-    if(!parenthesis)
+    procedure_flag_t const procedure_flags(declaration->get_procedure_flags());
+    if((procedure_flags & PROCEDURE_FLAG_FUNCTION) == 0)
     {
-        max_args = def_args;
+        // this is a procedure (no output)
+        //
+        if(must_return)
+        {
+            f_current_token->error("procedure \"" + func_call->get_word() + "\" cannot be used inside an expression");
+            return f_current_token;
+        }
     }
+    else
+    {
+        // this is a function (will output)
+        //
+        if(!must_return)
+        {
+            f_current_token->error("function \""
+                                 + func_call->get_word()
+                                 + "\" cannot be used outside of an expression (try `ignore "
+                                 + func_call->get_word()
+                                 + "` instead");
+            return f_current_token;
+        }
+    }
+
+    argument_count_t min_args(declaration->get_min_args());
+    //argument_count_t def_args(declaration->get_def_args());
+    argument_count_t max_args(std::numeric_limits<argument_count_t>::max());
+    //if(!parenthesis)
+    //{
+    //    max_args = def_args;
+    //}
 
     // change the WORD into a FUNCTION-CALL
     //
@@ -1168,41 +1194,69 @@ Token::pointer_t Parser::call_function()
         }
         else
         {
-            // stop when we see a word at the beginning of a new line
+            // we stop in various circumstances
+
+            // EOF found?
             //
-            //    WORD <arg> ...
-            //    WORD ...
+            bool eoa(f_current_token->get_token() == token_t::TOK_EOF);
+std::cerr << "checking eoa -- " << (eoa ? "TOK_EOF" : "") << "\n";
+
+            // next token is a WORD which represents procedure?
             //
-            // and we at least have min_args arguments
-            //
-            if(f_current_token->get_token() == token_t::TOK_WORD
-            && f_current_token->get_start_of_line()
-            && func_call->get_list_size() >= min_args)
+            if(!eoa
+            && f_current_token->get_token() == token_t::TOK_WORD)
             {
-                break;
+                Token::pointer_t word_declaration(f_declarations->get_map_item(f_current_token->get_word()));
+                if((word_declaration->get_procedure_flags() & PROCEDURE_FLAG_FUNCTION) == 0)
+                {
+std::cerr << "   eoa -- WORD " << f_current_token->get_word() << " is procedure\n";
+                    eoa = true;
+                }
+else std::cerr << "   eoa -- WORD " << f_current_token->get_word() << " is function\n";
             }
 
-            if(f_current_token->get_token() == token_t::TOK_WORD
-            && func_call->get_list_size() >= def_args)
-            {
-                break;
-            }
-
-            if(f_current_token->get_token() == token_t::TOK_OPEN_PARENTHESIS
-            && func_call->get_list_size() >= def_args
+            // next two tokens are '(' + WORD and the word is a procedure?
+            //
+            if(!eoa
+            && f_current_token->get_token() == token_t::TOK_OPEN_PARENTHESIS
             && f_body_pos + 1 < f_body->get_list_size())
             {
                 Token::pointer_t next_token(f_body->get_list_item(f_body_pos + 1));
                 if(next_token->get_token() == token_t::TOK_WORD)
                 {
-                    break;
+                    Token::pointer_t word_declaration(f_declarations->get_map_item(next_token->get_word()));
+                    if((next_token->get_procedure_flags() & PROCEDURE_FLAG_FUNCTION) == 0)
+                    {
+std::cerr << "   eoa -- (WORD " << next_token->get_word() << " ...) is procedure\n";
+                        eoa = true;
+                    }
+else std::cerr << "   eoa -- (WORD " << next_token->get_word() << " ...) is function\n";
                 }
             }
 
-            if(f_current_token->get_token() == token_t::TOK_EOF)
+            if(eoa)
             {
+                if(func_call->get_list_size() < min_args)
+                {
+                    f_current_token->error("too few arguments to call \""
+                                         + func_call->get_word()
+                                         + "\"; the minimum number of required arguments is "
+                                         + std::to_string(min_args)
+                                         + ".");
+                    return f_current_token;
+                }
                 break;
             }
+        }
+
+        if(func_call->get_list_size() >= max_args)
+        {
+            f_current_token->error("too many arguments to call \""
+                                 + func_call->get_word()
+                                 + "\"; the maximum number of accepted arguments is "
+                                 + std::to_string(max_args)
+                                 + ".");
+            return f_current_token;
         }
 
         func_call->add_list_item(expression());
@@ -1446,7 +1500,7 @@ Token::pointer_t Parser::unary_expression()
             next_body_token();
             return result;
         }
-        return call_function();
+        return call_function(true);
 
     default:
         f_current_token->error("unexpected token ("
@@ -1509,7 +1563,7 @@ void Parser::generate()
             f_function = p.second;
 
             std::string const cpp_name(logo_to_cpp_name(p.first));
-            f_out << "void " << cpp_name << "(lpp::lpp__context::pointer_t context)\n";
+            f_out << "void procedure_" << cpp_name << "(lpp::lpp__context::pointer_t context)\n";
             f_out << "{\n";
             output_body();
             f_out << "}\n";
@@ -1721,6 +1775,21 @@ void Parser::output_function_call(Token::pointer_t function_call, std::string co
     f_out << context_name
           << "->attach(context);\n";
 
+    switch(procedure_flags & PROCEDURE_FLAG_TYPE_MASK)
+    {
+    case PROCEDURE_FLAG_PRIMITIVE:
+        f_out << "primitive_";
+        break;
+
+    case PROCEDURE_FLAG_PROCEDURE:
+    case PROCEDURE_FLAG_DECLARE:
+        f_out << "procedure_";
+        break;
+
+    case PROCEDURE_FLAG_C:  // C functions are called as is
+        break;
+
+    }
     f_out << logo_to_cpp_name(function_call->get_word())
           << "("
           << context_name

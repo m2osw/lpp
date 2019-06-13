@@ -27,33 +27,17 @@
 
 
 
-void minus(lpp::lpp__context::pointer_t context)
+void primitive_show(lpp::lpp__context::pointer_t context)
 {
-    // TODO: handle overflow/underflow
-
-    lpp::lpp__value::pointer_t n(context->get_thing("number")->get_value());
-
-    lpp::lpp__value::pointer_t result(std::make_shared<lpp::lpp__value>());
-
-    switch(n->type())
+    lpp::lpp__value::pointer_t thing(context->get_thing("thing")->get_value());
+    std::cout << thing->to_string(lpp::DISPLAY_FLAG_TYPED);
+    lpp::lpp__value::pointer_t rest(context->find_thing("rest")->get_value());
+    if(rest != nullptr)
     {
-    case lpp::lpp__value_type_t::LPP__VALUE_TYPE_INTEGER:
-        result->set_integer(-n->get_integer());
-        break;
-
-    case lpp::lpp__value_type_t::LPP__VALUE_TYPE_FLOAT:
-        result->set_float(-n->get_float());
-        break;
-
-    default:
-        // TODO: create logo error
-        std::cerr << "error: unexpected params to minus.\n";
-        exit(1);
-        break;
-
+        std::cout << " ";
+        std::cout << rest->to_string(lpp::DISPLAY_FLAG_TYPED);
     }
-
-    context->set_return_value(result);
+    std::cout << "\n";
 }
 
 

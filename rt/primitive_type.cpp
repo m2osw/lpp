@@ -20,35 +20,31 @@
 //
 #include "lpp.hpp"
 
+// C++ lib
+//
+#include <iostream>
 
 
-namespace lpp
+
+
+void primitive_type(lpp::lpp__context::pointer_t context)
 {
-
-
-lpp__error::lpp__error(std::string const & tag
-                     , std::string const & message
-                     , lpp::lpp__value::pointer_t value)
-    : std::runtime_error(message)
-    , f_tag(tag)
-    , f_value(value)
-{
+    lpp::lpp__value::pointer_t thing(context->get_thing("thing")->get_value());
+    std::cout << thing->to_string();
+    lpp::lpp__value::pointer_t rest(context->find_thing("rest")->get_value());
+    if(rest != nullptr)
+    {
+        // reimplement the list because we need to not have spaces between
+        // each element
+        //
+        auto list(rest->get_list());
+        size_t const max(list.size());
+        for(size_t i(0); i < max; ++i)
+        {
+            std::cout << list[i]->to_string();
+        }
+    }
 }
 
 
-std::string const & lpp__error::tag() const
-{
-    return f_tag;
-}
-
-
-lpp__value::pointer_t lpp__error::value() const
-{
-    return f_value;
-}
-
-
-
-} // lpp namespace
 // vim: ts=4 sw=4 et nocindent
-

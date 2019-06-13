@@ -28,7 +28,7 @@
 #define T1T2(t1, t2) (static_cast<int>(t1) * 256 + static_cast<int>(t2))
 
 
-void sum(lpp::lpp__context::pointer_t context)
+void primitive_sum(lpp::lpp__context::pointer_t context)
 {
     // TODO: handle overflow/underflow
 
@@ -56,10 +56,8 @@ void sum(lpp::lpp__context::pointer_t context)
         break;
 
     default:
-        // TODO: create logo error
-        std::cerr << "error: unexpected params to product.\n";
-        exit(1);
-        break;
+        throw lpp::lpp__error("error"
+                            , "sum used with an unexpected parameter type.");
 
     }
 
@@ -89,10 +87,8 @@ void sum(lpp::lpp__context::pointer_t context)
                 break;
 
             default:
-                // TODO: create logo error
-                std::cerr << "error: unexpected params to product.\n";
-                exit(1);
-                break;
+                throw lpp::lpp__error("error"
+                                    , "sum used with an unexpected parameter type.");
 
             }
         }

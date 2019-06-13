@@ -55,7 +55,7 @@ private:
     void                    line();
     void                    to_definition(Token::pointer_t keyword);
     void                    program();
-    Token::pointer_t        call_function();
+    Token::pointer_t        call_function(bool must_return);
     Token::pointer_t        expression();
     Token::pointer_t        equality_expression();
     Token::pointer_t        relational_expression();

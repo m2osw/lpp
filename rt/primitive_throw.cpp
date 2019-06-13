@@ -20,35 +20,22 @@
 //
 #include "lpp.hpp"
 
+// C++ lib
+//
+#include <iostream>
 
 
-namespace lpp
+
+
+void primitive_throw(lpp::lpp__context::pointer_t context)
 {
+    lpp::lpp__value::pointer_t tag(context->get_thing("tag")->get_value());
+    lpp::lpp__value::pointer_t value(context->get_thing("value")->get_value());
 
-
-lpp__error::lpp__error(std::string const & tag
-                     , std::string const & message
-                     , lpp::lpp__value::pointer_t value)
-    : std::runtime_error(message)
-    , f_tag(tag)
-    , f_value(value)
-{
+    throw lpp::lpp__error(tag->get_word()
+                        , "User Error"
+                        , value);
 }
 
 
-std::string const & lpp__error::tag() const
-{
-    return f_tag;
-}
-
-
-lpp__value::pointer_t lpp__error::value() const
-{
-    return f_value;
-}
-
-
-
-} // lpp namespace
 // vim: ts=4 sw=4 et nocindent
-

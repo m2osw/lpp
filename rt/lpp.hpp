@@ -34,17 +34,9 @@ namespace lpp
 {
 
 
-class lpp__error
-    : public std::runtime_error
-{
-public:
-                    lpp__error(std::string const & message);
-};
-
-
 enum class lpp__special_value_t
 {
-    LPP__SEPCIAL_VALUE_NOT_SET      // a.k.a. the VOID value
+    LPP__SPECIAL_VALUE_NOT_SET      // a.k.a. the VOID value
 };
 
 
@@ -55,9 +47,15 @@ enum class lpp__value_type_t
     LPP__VALUE_TYPE_BOOLEAN,
     LPP__VALUE_TYPE_INTEGER,
     LPP__VALUE_TYPE_FLOAT,
-    LPP__VALUE_TYPE_STRING,
+    LPP__VALUE_TYPE_WORD,
     LPP__VALUE_TYPE_LIST
 };
+
+
+typedef std::uint_fast32_t      display_flag_t;
+
+constexpr display_flag_t        DISPLAY_FLAG_BACKSLASHED = 0x0001;  // add backslashes if necessary to re-read the value
+constexpr display_flag_t        DISPLAY_FLAG_TYPED       = 0x0002;  // show " for words, [] for lists
 
 
 typedef std::int_fast64_t       lpp__integer_t;
@@ -70,7 +68,7 @@ public:
     typedef std::shared_ptr<lpp__value>     pointer_t;
     typedef std::vector<pointer_t>          vector_t;
 
-                            lpp__value(lpp__special_value_t value = lpp__special_value_t::LPP__SEPCIAL_VALUE_NOT_SET);
+                            lpp__value(lpp__special_value_t value = lpp__special_value_t::LPP__SPECIAL_VALUE_NOT_SET);
                             lpp__value(bool value);
                             lpp__value(lpp__integer_t value);
                             lpp__value(lpp__float_t value);
@@ -82,16 +80,17 @@ public:
     bool                    get_boolean() const;
     lpp__integer_t          get_integer() const;
     lpp__float_t            get_float() const;
-    std::string const &     get_string() const;
+    std::string const &     get_word() const;
     vector_t const &        get_list() const;
 
     void                    unset();
     void                    set_boolean(bool value);
     void                    set_integer(lpp__integer_t value);
     void                    set_float(lpp__float_t value);
-    void                    set_string(std::string const & value);
-    void                    set_string(vector_t const & value);
+    void                    set_word(std::string const & value);
     void                    set_list(vector_t const & value);
+
+    std::string             to_string(display_flag_t flags = 0, int depth = 0);
 
 private:
     // WARNING: the order of the types is captured in the lpp__value_type_t
@@ -103,7 +102,25 @@ private:
                  , double
                  , std::string
                  , vector_t>
-                            f_value = lpp__special_value_t::LPP__SEPCIAL_VALUE_NOT_SET;
+                            f_value = lpp__special_value_t::LPP__SPECIAL_VALUE_NOT_SET;
+};
+
+
+
+class lpp__error
+    : public std::runtime_error
+{
+public:
+                            lpp__error(std::string const & tag
+                                     , std::string const & message
+                                     , lpp__value::pointer_t value = lpp__value::pointer_t());
+
+    std::string const &     tag() const;
+    lpp__value::pointer_t   value() const;
+
+private:
+    std::string             f_tag = std::string();
+    lpp__value::pointer_t   f_value = lpp__value::pointer_t();
 };
 
 
@@ -155,6 +172,7 @@ public:
                                     , lpp__value::pointer_t value
                                     , lpp__thing_type_t type = lpp__thing_type_t::LPP__THING_TYPE_DEFAULT);
 
+    bool                    has_returned_value() const;
     lpp__value::pointer_t   get_returned_value() const; // throw if not set (i.e. last call did a STOP not an OUTPUT)
     void                    set_return_value(lpp__value::pointer_t value);
 
@@ -173,10 +191,14 @@ private:
 
 // primitives
 
-void minus(lpp::lpp__context::pointer_t context);
-void print(lpp::lpp__context::pointer_t context);
-void product(lpp::lpp__context::pointer_t context);
-void sum(lpp::lpp__context::pointer_t context);
+void primitive_first(lpp::lpp__context::pointer_t context);
+void primitive_minus(lpp::lpp__context::pointer_t context);
+void primitive_print(lpp::lpp__context::pointer_t context);
+void primitive_product(lpp::lpp__context::pointer_t context);
+void primitive_show(lpp::lpp__context::pointer_t context);
+void primitive_sum(lpp::lpp__context::pointer_t context);
+void primitive_throw(lpp::lpp__context::pointer_t context);
+void primitive_type(lpp::lpp__context::pointer_t context);
 
 
 // vim: ts=4 sw=4 et nocindent
