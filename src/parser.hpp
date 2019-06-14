@@ -44,6 +44,15 @@ public:
     void                    generate();
 
 private:
+    struct control_t
+    {
+        Token::pointer_t            m_function_call;
+        std::string const &         m_result_var;
+        Token::vector_t::size_type  m_max_args;
+        Token::pointer_t            m_declaration;
+        procedure_flag_t const      m_procedure_flags;
+    };
+
     void                    parse_declarations();
     void                    parse_procedures();
     void                    parse_program();
@@ -62,9 +71,11 @@ private:
     Token::pointer_t        additive_expression();
     Token::pointer_t        multiplicative_expression();
     Token::pointer_t        unary_expression();
-    void                    output_body();
+    void                    output_body(Token::pointer_t body);
     void                    output_function_call(Token::pointer_t function_call, std::string const & result_var = std::string());
     void                    build_list(Token::pointer_t list);
+    void                    control(control_t & control_info);
+    void                    control_repeat(control_t & control_info);
     std::string             logo_to_cpp_name(std::string const & name);
     std::string             word_to_cpp_literal_string(std::string const & word);
     std::string             get_unique_name();

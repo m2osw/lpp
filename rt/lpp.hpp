@@ -62,6 +62,9 @@ typedef std::int_fast64_t       lpp__integer_t;
 typedef double                  lpp__float_t;
 
 
+typedef std::vector<lpp__integer_t>     lpp__vector_integer_t;
+
+
 class lpp__value
 {
 public:
@@ -176,6 +179,10 @@ public:
     lpp__value::pointer_t   get_returned_value() const; // throw if not set (i.e. last call did a STOP not an OUTPUT)
     void                    set_return_value(lpp__value::pointer_t value);
 
+    void                    add_repeat_count(lpp__integer_t count);
+    void                    remove_last_repeat_count();
+    lpp__integer_t          get_repeat_count() const;
+
     void                    attach(pointer_t parent);
 
 private:
@@ -183,6 +190,19 @@ private:
     pointer_t               f_parent = lpp__context::pointer_t();
     lpp__thing::map_t       f_things = lpp__thing::map_t();
     lpp__value::pointer_t   f_return_value = lpp__value::pointer_t();
+    lpp__vector_integer_t   f_repeat_count = lpp__vector_integer_t();
+};
+
+
+
+class lpp__raii_repeat_count
+{
+public:
+                            lpp__raii_repeat_count(lpp__context::pointer_t context, lpp__integer_t count);
+                            ~lpp__raii_repeat_count();
+
+private:
+    lpp__context::pointer_t f_context;
 };
 
 

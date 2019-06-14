@@ -37,6 +37,7 @@ add_executable(
         lexer.cpp
         lpp.cpp
         parser.cpp
+        primitives.cpp
         token.cpp
 )
 

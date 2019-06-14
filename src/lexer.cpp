@@ -127,7 +127,7 @@ Lexer::char_type Lexer::getc()
 
 Token::pointer_t Lexer::next_token()
 {
-    auto get_word = [&](char_type c = '\0')
+    auto get_word = [&](char_type c = '\0', bool quoted = false)
         {
             std::string word;
             if(c == '\0')
@@ -171,6 +171,13 @@ Token::pointer_t Lexer::next_token()
                         // no need to unget spaces
                         return word;
 
+                    case '(':
+                    case ')':
+                    case '[':
+                    case ']':
+                        ungetc(c);
+                        return word;
+
                     case '+':       // TBD: quoted words are expected to include this character and following?!
                     case '-':
                     case '*':
@@ -178,12 +185,12 @@ Token::pointer_t Lexer::next_token()
                     case '<':
                     case '>':
                     case '=':
-                    case '(':
-                    case ')':
-                    case '[':
-                    case ']':
-                        ungetc(c);
-                        return word;
+                        if(!quoted)
+                        {
+                            ungetc(c);
+                            return word;
+                        }
+                        break;
 
                     }
                     if(c == '\\')
@@ -344,7 +351,7 @@ Token::pointer_t Lexer::next_token()
             break;
 
         case '"':
-            result->set_word(token_t::TOK_QUOTED, get_word());
+            result->set_word(token_t::TOK_QUOTED, get_word('\0', true));
             return result;
 
         case '?':

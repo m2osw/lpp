@@ -106,6 +106,8 @@ constexpr procedure_flag_t          PROCEDURE_FLAG_CONTROL      = 0x00000040;
 constexpr procedure_flag_t          PROCEDURE_FLAG_FUNCTION     = 0x00000080;       // function uses OUTPUT <expr>
 
 
+typedef std::int64_t                integer_t;
+typedef double                      float_t;
 
 typedef std::uint32_t               argument_count_t;
 
@@ -122,8 +124,8 @@ public:
 
     void                set_token(token_t token);
     void                set_word(token_t token, std::string const & word, bool start_of_line = false);
-    void                set_integer(std::int64_t value);
-    void                set_float(double value);
+    void                set_integer(integer_t value);
+    void                set_float(float_t value);
     void                set_boolean(bool value);
     void                set_procedure_flags(procedure_flag_t flags);
     void                add_procedure_flags(procedure_flag_t flags);
@@ -137,8 +139,8 @@ public:
     token_t             get_token() const;
     bool                get_start_of_line() const;
     std::string const & get_word() const;
-    std::int64_t        get_integer() const;
-    double              get_float() const;
+    integer_t           get_integer() const;
+    float_t             get_float() const;
     bool                get_boolean() const;
     procedure_flag_t    get_procedure_flags() const;
     argument_count_t    get_min_args() const;
@@ -159,8 +161,8 @@ private:
     bool                f_start_of_line = false;
     bool                f_boolean = false;
     std::string         f_word = std::string();
-    std::int64_t        f_integer = 0;
-    double              f_float = 0.0;
+    integer_t           f_integer = 0;
+    float_t             f_float = 0.0;
     vector_t            f_list = vector_t();
     map_t               f_map = map_t();
     procedure_flag_t    f_procedure_flags = 0;

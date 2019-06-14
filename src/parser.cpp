@@ -518,7 +518,13 @@ void Parser::to_definition(Token::pointer_t keyword)
                         }
                         else if(flag_name == "control")
                         {
-                            procedure_flags |= PROCEDURE_FLAG_CONTROL;
+                            if((procedure_flags & PROCEDURE_FLAG_TYPE_MASK) != PROCEDURE_FLAG_PRIMITIVE)
+                            {
+                                f_current_token->error("the \"control\" flag can only be used with primitives.");
+                                return;
+                            }
+
+                            procedure_flags |= PROCEDURE_FLAG_CONTROL | PROCEDURE_FLAG_INLINE;
                         }
                         break;
 
@@ -1559,13 +1565,12 @@ void Parser::generate()
         {
             auto const max(p.second->get_list_size());
 
-            f_body = p.second->get_list_item(max - 1);
             f_function = p.second;
 
             std::string const cpp_name(logo_to_cpp_name(p.first));
             f_out << "void procedure_" << cpp_name << "(lpp::lpp__context::pointer_t context)\n";
             f_out << "{\n";
-            output_body();
+            output_body(p.second->get_list_item(max - 1));
             f_out << "}\n";
         }
     }
@@ -1575,38 +1580,30 @@ void Parser::generate()
     {
         f_out << "// Program Definition\n";
 
-        f_body = f_program;
         f_function.reset();
 
         f_out << "void lpp__startup(lpp::lpp__context::pointer_t context)\n";
         f_out << "{\n";
-        output_body();
+        output_body(f_program);
         f_out << "}\n";
     }
 }
 
 
-void Parser::output_body()
+void Parser::output_body(Token::pointer_t body)
 {
-    auto const max(f_body->get_list_size());
+    auto const max(body->get_list_size());
     for(std::remove_const<decltype(max)>::type c(0); c < max; ++c)
     {
         // a body is a list of commands (function calls)
         //
-        output_function_call(f_body->get_list_item(c));
+        output_function_call(body->get_list_item(c));
     }
 }
 
 
 void Parser::output_function_call(Token::pointer_t function_call, std::string const & result_var)
 {
-    std::string const context_name(get_unique_name());
-
-    f_out << "{\n"
-          << "lpp::lpp__context::pointer_t "
-          << context_name
-          << "(std::make_shared<lpp::lpp__context>());\n";
-
     // a command may have a list of arguments following it
     //
     auto const max_args(function_call->get_list_size());
@@ -1623,187 +1620,212 @@ void Parser::output_function_call(Token::pointer_t function_call, std::string co
     //declaration->add_list_item(optional_arguments);
     //declaration->add_list_item(rest_argument); -- optional
 
-    Token::pointer_t required_arguments(declaration->get_list_item(1));
-    Token::pointer_t optional_arguments(declaration->get_list_item(2));
-    Token::pointer_t rest_argument;
-    if(declaration->get_list_size() >= 4)
+    if((procedure_flags & PROCEDURE_FLAG_CONTROL) != 0)
     {
-        if((procedure_flags & PROCEDURE_FLAG_TYPE_MASK) != PROCEDURE_FLAG_PROCEDURE
-        || declaration->get_list_size() >= 5)
-        {
-            rest_argument = declaration->get_list_item(3);
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wpedantic"
+        control_t control_info = {
+            .m_function_call    = function_call,
+            .m_result_var       = result_var,
+            .m_max_args         = max_args,
+            .m_declaration      = declaration,
+            .m_procedure_flags  = procedure_flags
+        };
+#pragma GCC diagnostic pop
 
-            f_out << "lpp::lpp__value::vector_t rest;\n";
-            auto const reserve(max_args - required_arguments->get_list_size() - optional_arguments->get_list_size());
-            if(reserve > 0)
+        control(control_info);
+    }
+    else
+    {
+        std::string const context_name(get_unique_name());
+
+        f_out << "{\n"
+              << "lpp::lpp__context::pointer_t "
+              << context_name
+              << "(std::make_shared<lpp::lpp__context>());\n";
+
+        Token::pointer_t required_arguments(declaration->get_list_item(1));
+        Token::pointer_t optional_arguments(declaration->get_list_item(2));
+        Token::pointer_t rest_argument;
+        if(declaration->get_list_size() >= 4)
+        {
+            if((procedure_flags & PROCEDURE_FLAG_TYPE_MASK) != PROCEDURE_FLAG_PROCEDURE
+            || declaration->get_list_size() >= 5)
             {
-                f_out << "rest.reserve("
-                      << std::max(static_cast<size_t>(0), reserve)
+                rest_argument = declaration->get_list_item(3);
+
+                f_out << "lpp::lpp__value::vector_t rest;\n";
+                auto const reserve(max_args - required_arguments->get_list_size() - optional_arguments->get_list_size());
+                if(reserve > 0)
+                {
+                    f_out << "rest.reserve("
+                          << std::max(static_cast<size_t>(0), reserve)
+                          << ");\n";
+                }
+            }
+        }
+
+        for(std::remove_const<decltype(max_args)>::type a(0); a < max_args; ++a)
+        {
+            std::string const value_name(get_unique_name());
+            Token::pointer_t arg(function_call->get_list_item(a));
+
+            switch(arg->get_token())
+            {
+            case token_t::TOK_FUNCTION_CALL:
+                // the output of a function call will stack a parameter
+                //
+                f_out << "lpp::lpp__value::pointer_t "
+                      << value_name
+                      << ";\n";
+                output_function_call(arg, value_name);
+                break;
+
+            case token_t::TOK_BOOLEAN:
+                f_out << "lpp::lpp__value::pointer_t "
+                      << value_name
+                      << "(std::make_shared<lpp::lpp__value>("
+                      << arg->get_boolean()
+                      << "));\n";
+                break;
+
+            case token_t::TOK_INTEGER:
+                f_out << "lpp::lpp__value::pointer_t "
+                      << value_name
+                      << "(std::make_shared<lpp::lpp__value>(static_cast<lpp::lpp__integer_t>("
+                      << arg->get_integer()
+                      << "LL)));\n";
+                break;
+
+            case token_t::TOK_FLOAT:
+                f_out << "lpp::lpp__value::pointer_t "
+                      << value_name
+                      << "(std::make_shared<lpp::lpp__value>("
+                      << arg->get_float()
+                      << "));\n";
+                break;
+
+            case token_t::TOK_WORD:
+                f_out << "lpp::lpp__value::pointer_t "
+                      << value_name
+                      << "(std::make_shared<lpp::lpp__value>("
+                         "std::string("
+                      << word_to_cpp_literal_string(arg->get_word())
+                      << ")"
+                         ")"
+                         ");\n";
+                break;
+
+            case token_t::TOK_QUOTED:
+                f_out << "lpp::lpp__value::pointer_t "
+                      << value_name
+                      << "(std::make_shared<lpp::lpp__value>("
+                         "std::string("
+                      << word_to_cpp_literal_string(arg->get_word())
+                      << ")"
+                         ")"
+                         ");\n";
+                break;
+
+            case token_t::TOK_THING:
+                f_out << "lpp::lpp__value::pointer_t "
+                      << value_name
+                      << "(context->get_thing("
+                      << word_to_cpp_literal_string(arg->get_word())
+                      << ")->get_value());\n";
+                break;
+
+            case token_t::TOK_LIST:
+                f_out << "lpp::lpp__value::pointer_t "
+                      << value_name
+                      << "(";
+                build_list(arg);
+                f_out << ");\n";
+                break;
+
+            default:
+                arg->error("unexpected token type ("
+                          + to_string(arg->get_token())
+                          + ") in a list of arguments.");
+                return;
+
+            }
+
+            Token::pointer_t arg_name;
+            if(a < required_arguments->get_list_size())
+            {
+                arg_name = required_arguments->get_list_item(a);
+            }
+            else if(a - required_arguments->get_list_size() < optional_arguments->get_list_size())
+            {
+                arg_name = optional_arguments->get_list_item(a - required_arguments->get_list_size());
+            }
+            // else -- accumulate in the rest list
+
+            if(arg_name != nullptr)
+            {
+                f_out << context_name
+                      << "->set_thing("
+                      << word_to_cpp_literal_string(arg_name->get_word())
+                      << ","
+                      << value_name
+                      << ",lpp::lpp__thing_type_t::LPP__THING_TYPE_LOCAL);\n";
+            }
+            else
+            {
+                if(rest_argument == nullptr)
+                {
+                    throw std::logic_error("somehow we are attempting to add a rest argument when rest_argument == nullptr (maybe a primitive declaration is missing?)");
+                }
+
+                // add to rest list
+                f_out << "rest.push_back("
+                      << value_name
                       << ");\n";
             }
         }
-    }
 
-    for(std::remove_const<decltype(max_args)>::type a(0); a < max_args; ++a)
-    {
-        std::string const value_name(get_unique_name());
-        Token::pointer_t arg(function_call->get_list_item(a));
+        f_out << context_name
+              << "->attach(context);\n";
 
-        switch(arg->get_token())
-        {
-        case token_t::TOK_FUNCTION_CALL:
-            // the output of a function call will stack a parameter
-            //
-            f_out << "lpp::lpp__value::pointer_t "
-                  << value_name
-                  << ";\n";
-            output_function_call(arg, value_name);
-            break;
-
-        case token_t::TOK_BOOLEAN:
-            f_out << "lpp::lpp__value::pointer_t "
-                  << value_name
-                  << "(std::make_shared<lpp::lpp__value>("
-                  << arg->get_boolean()
-                  << "));\n";
-            break;
-
-        case token_t::TOK_INTEGER:
-            f_out << "lpp::lpp__value::pointer_t "
-                  << value_name
-                  << "(std::make_shared<lpp::lpp__value>(static_cast<lpp::lpp__integer_t>("
-                  << arg->get_integer()
-                  << "LL)));\n";
-            break;
-
-        case token_t::TOK_FLOAT:
-            f_out << "lpp::lpp__value::pointer_t "
-                  << value_name
-                  << "(std::make_shared<lpp::lpp__value>("
-                  << arg->get_float()
-                  << "));\n";
-            break;
-
-        case token_t::TOK_WORD:
-            f_out << "lpp::lpp__value::pointer_t "
-                  << value_name
-                  << "(std::make_shared<lpp::lpp__value>("
-                     "std::string("
-                  << word_to_cpp_literal_string(arg->get_word())
-                  << ")"
-                     ")"
-                     ");\n";
-            break;
-
-        case token_t::TOK_QUOTED:
-            f_out << "lpp::lpp__value::pointer_t "
-                  << value_name
-                  << "(std::make_shared<lpp::lpp__value>("
-                     "std::string("
-                  << word_to_cpp_literal_string(arg->get_word())
-                  << ")"
-                     ")"
-                     ");\n";
-            break;
-
-        case token_t::TOK_THING:
-            f_out << "lpp::lpp__value::pointer_t "
-                  << value_name
-                  << "(context->get_thing("
-                  << word_to_cpp_literal_string(arg->get_word())
-                  << ")->get_value());\n";
-            break;
-
-        case token_t::TOK_LIST:
-            f_out << "lpp::lpp__value::pointer_t "
-                  << value_name
-                  << "(";
-            build_list(arg);
-            f_out << ");\n";
-            break;
-
-        default:
-            arg->error("unexpected token type ("
-                      + to_string(arg->get_token())
-                      + ") in a list of arguments.");
-            return;
-
-        }
-
-        Token::pointer_t arg_name;
-        if(a < required_arguments->get_list_size())
-        {
-            arg_name = required_arguments->get_list_item(a);
-        }
-        else if(a - required_arguments->get_list_size() < optional_arguments->get_list_size())
-        {
-            arg_name = optional_arguments->get_list_item(a - required_arguments->get_list_size());
-        }
-        // else -- accumulate in the rest list
-
-        if(arg_name != nullptr)
+        if(rest_argument != nullptr)
         {
             f_out << context_name
                   << "->set_thing("
-                  << word_to_cpp_literal_string(arg_name->get_word())
-                  << ","
-                  << value_name
-                  << ",lpp::lpp__thing_type_t::LPP__THING_TYPE_LOCAL);\n";
+                  << word_to_cpp_literal_string(rest_argument->get_word())
+                  << ",std::make_shared<lpp::lpp__value>(rest),lpp::lpp__thing_type_t::LPP__THING_TYPE_LOCAL);\n";
         }
-        else
+
+        switch(procedure_flags & PROCEDURE_FLAG_TYPE_MASK)
         {
-            if(rest_argument == nullptr)
-            {
-                throw std::logic_error("somehow we are attempting to add a rest argument when rest_argument == nullptr (maybe a primitive declaration is missing?)");
-            }
+        case PROCEDURE_FLAG_PRIMITIVE:
+            f_out << "primitive_";
+            break;
 
-            // add to rest list
-            f_out << "rest.push_back("
-                  << value_name
-                  << ");\n";
+        case PROCEDURE_FLAG_PROCEDURE:
+        case PROCEDURE_FLAG_DECLARE:
+            f_out << "procedure_";
+            break;
+
+        case PROCEDURE_FLAG_C:  // C functions are called as is
+            break;
+
         }
-    }
-
-    if(rest_argument != nullptr)
-    {
-        f_out << context_name
-              << "->set_thing("
-              << word_to_cpp_literal_string(rest_argument->get_word())
-              << ",std::make_shared<lpp::lpp__value>(rest),lpp::lpp__thing_type_t::LPP__THING_TYPE_LOCAL);\n";
-    }
-
-    f_out << context_name
-          << "->attach(context);\n";
-
-    switch(procedure_flags & PROCEDURE_FLAG_TYPE_MASK)
-    {
-    case PROCEDURE_FLAG_PRIMITIVE:
-        f_out << "primitive_";
-        break;
-
-    case PROCEDURE_FLAG_PROCEDURE:
-    case PROCEDURE_FLAG_DECLARE:
-        f_out << "procedure_";
-        break;
-
-    case PROCEDURE_FLAG_C:  // C functions are called as is
-        break;
-
-    }
-    f_out << logo_to_cpp_name(function_call->get_word())
-          << "("
-          << context_name
-          << ");\n";
-
-    if(!result_var.empty())
-    {
-        f_out << result_var
-              << "="
+        f_out << logo_to_cpp_name(function_call->get_word())
+              << "("
               << context_name
-              << "->get_returned_value();\n";
-    }
+              << ");\n";
 
-    f_out << "}\n";
+        if(!result_var.empty())
+        {
+            f_out << result_var
+                  << "="
+                  << context_name
+                  << "->get_returned_value();\n";
+        }
+
+        f_out << "}\n";
+    }
 }
 
 
@@ -1842,6 +1864,8 @@ void Parser::build_list(Token::pointer_t list)
             break;
 
         case token_t::TOK_WORD:
+        case token_t::TOK_QUOTED:
+        case token_t::TOK_FUNCTION_CALL:    // operators get transformed in this way...
             f_out << "std::make_shared<lpp::lpp__value>("
                      "std::string("
                   << word_to_cpp_literal_string(item->get_word())

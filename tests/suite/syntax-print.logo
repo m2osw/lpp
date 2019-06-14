@@ -3,6 +3,10 @@ program
 end program
 
 to display :msg
-  type :msg "MORE -5 + 123 * 2 [Info] first [a b c]
-  print "|This too|
+  repeat 9 [type "-]
+  print "-
+  ;repeat 10 [print "-]
+  print :msg "MORE -5 + 123 * 2 [Info] first [a b c]
+  repeat 4 [type "-]
+  print "-
 end "display

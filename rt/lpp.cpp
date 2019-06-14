@@ -164,6 +164,41 @@ void lpp__context::set_return_value(lpp__value::pointer_t value)
 }
 
 
+void lpp__context::add_repeat_count(lpp__integer_t count)
+{
+    f_repeat_count.push_back(count);
+}
+
+
+void lpp__context::remove_last_repeat_count()
+{
+    if(f_repeat_count.empty())
+    {
+        throw std::logic_error("this context has no repeat count to remove.");
+    }
+
+    f_repeat_count.pop_back();
+}
+
+
+lpp__integer_t lpp__context::get_repeat_count() const
+{
+    lpp__context::const_pointer_t context(shared_from_this());
+    while(context != nullptr)
+    {
+        if(!context->f_repeat_count.empty())
+        {
+            return *f_repeat_count.rbegin();
+        }
+
+        context = context->f_parent;
+    }
+
+    throw lpp__error("error"
+                   , "no repeat counter found from this location.");
+}
+
+
 void lpp__context::attach(pointer_t parent)
 {
     if(f_parent != nullptr)
@@ -175,6 +210,20 @@ void lpp__context::attach(pointer_t parent)
     f_global = parent->f_global;
 }
 
+
+
+
+lpp__raii_repeat_count::lpp__raii_repeat_count(lpp__context::pointer_t context, lpp__integer_t count)
+    : f_context(context)
+{
+    f_context->add_repeat_count(count);
+}
+
+
+lpp__raii_repeat_count::~lpp__raii_repeat_count()
+{
+    f_context->remove_last_repeat_count();
+}
 
 
 } // lpp namespace
