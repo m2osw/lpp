@@ -20,43 +20,34 @@
 //
 #include "lpp.hpp"
 
+// C++ lib
+//
+#include <iostream>
 
 
-namespace lpp
+namespace
 {
 
-
-lpp__error::lpp__error(lpp__context::const_pointer_t context
-                     , std::string const & tag
-                     , std::string const & message
-                     , lpp::lpp__value::pointer_t value)
-    : std::runtime_error(message)
-    , f_tag(tag)
-    , f_value(value)
+template<typename T>
+T operation(T lhs, T rhs)
 {
-    if(context != nullptr)
-    {
-        f_filename  = context->get_filename();
-        f_procedure = context->get_procedure_name();
-        f_line      = context->get_current_line();
-        f_primitive = context->get_primitive_name();
-    }
+    // TODO: handle overflow/underflow
+    return lhs - rhs;
+}
+
+} // no name namespace
+
+
+void primitive_difference(lpp::lpp__context::pointer_t context)
+{
+    lpp::lpp__number::compute(
+              context
+            , "number1"
+            , "number2"
+            , "rest"
+            , operation<lpp::lpp__integer_t>
+            , operation<lpp::lpp__float_t>);
 }
 
 
-std::string const & lpp__error::tag() const
-{
-    return f_tag;
-}
-
-
-lpp__value::pointer_t lpp__error::value() const
-{
-    return f_value;
-}
-
-
-
-} // lpp namespace
 // vim: ts=4 sw=4 et nocindent
-

@@ -26,32 +26,29 @@
 
 
 
+namespace
+{
+
+template<typename T>
+T operation(T lhs, T ignore)
+{
+    // TODO: handle overflow/underflow
+    return -lhs;
+}
+
+} // no name namespace
+
+
 
 void primitive_minus(lpp::lpp__context::pointer_t context)
 {
-    // TODO: handle overflow/underflow
-
-    lpp::lpp__value::pointer_t n(context->get_thing("number")->get_value());
-
-    lpp::lpp__value::pointer_t result(std::make_shared<lpp::lpp__value>());
-
-    switch(n->type())
-    {
-    case lpp::lpp__value_type_t::LPP__VALUE_TYPE_INTEGER:
-        result->set_integer(-n->get_integer());
-        break;
-
-    case lpp::lpp__value_type_t::LPP__VALUE_TYPE_FLOAT:
-        result->set_float(-n->get_float());
-        break;
-
-    default:
-        throw lpp::lpp__error("error"
-                            , "minus used with an unexpected parameter type.");
-
-    }
-
-    context->set_return_value(result);
+    lpp::lpp__number::compute(
+              context
+            , "number"
+            , std::string()
+            , std::string()
+            , operation<lpp::lpp__integer_t>
+            , operation<lpp::lpp__float_t>);
 }
 
 

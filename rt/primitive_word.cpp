@@ -20,43 +20,34 @@
 //
 #include "lpp.hpp"
 
+// C++ lib
+//
+#include <iostream>
 
 
-namespace lpp
+
+
+void primitive_word(lpp::lpp__context::pointer_t context)
 {
+    lpp::lpp__value::pointer_t w1(context->get_thing("word1")->get_value());
+    std::string word(w1->to_word());
 
+    lpp::lpp__value::pointer_t w2(context->get_thing("word2")->get_value());
+    word += w2->to_word();
 
-lpp__error::lpp__error(lpp__context::const_pointer_t context
-                     , std::string const & tag
-                     , std::string const & message
-                     , lpp::lpp__value::pointer_t value)
-    : std::runtime_error(message)
-    , f_tag(tag)
-    , f_value(value)
-{
-    if(context != nullptr)
+    lpp::lpp__value::pointer_t rest(context->find_thing("rest")->get_value());
+    if(rest != nullptr)
     {
-        f_filename  = context->get_filename();
-        f_procedure = context->get_procedure_name();
-        f_line      = context->get_current_line();
-        f_primitive = context->get_primitive_name();
+        lpp::lpp__value::vector_t const & items(rest->get_list());
+        for(auto const & r : items)
+        {
+            word += r->to_word();
+        }
     }
+
+    lpp::lpp__value::pointer_t result(std::make_shared<lpp::lpp__value>(word));
+    context->set_return_value(result);
 }
 
 
-std::string const & lpp__error::tag() const
-{
-    return f_tag;
-}
-
-
-lpp__value::pointer_t lpp__error::value() const
-{
-    return f_value;
-}
-
-
-
-} // lpp namespace
 // vim: ts=4 sw=4 et nocindent
-

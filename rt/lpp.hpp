@@ -80,6 +80,9 @@ public:
 
     lpp__value_type_t       type() const;
     bool                    is_set() const;
+    bool                    represents_integer() const;
+    bool                    represents_float() const;
+
     bool                    get_boolean() const;
     lpp__integer_t          get_integer() const;
     lpp__float_t            get_float() const;
@@ -93,7 +96,10 @@ public:
     void                    set_word(std::string const & value);
     void                    set_list(vector_t const & value);
 
-    std::string             to_string(display_flag_t flags = 0, int depth = 0);
+    std::string             to_string(display_flag_t flags = 0, int depth = 0) const;
+    std::string             to_word(display_flag_t flags = 0) const;
+    lpp__integer_t          to_integer() const;
+    lpp__float_t            to_float() const;
 
 private:
     // WARNING: the order of the types is captured in the lpp__value_type_t
@@ -109,22 +115,6 @@ private:
 };
 
 
-
-class lpp__error
-    : public std::runtime_error
-{
-public:
-                            lpp__error(std::string const & tag
-                                     , std::string const & message
-                                     , lpp__value::pointer_t value = lpp__value::pointer_t());
-
-    std::string const &     tag() const;
-    lpp__value::pointer_t   value() const;
-
-private:
-    std::string             f_tag = std::string();
-    lpp__value::pointer_t   f_value = lpp__value::pointer_t();
-};
 
 
 
@@ -164,7 +154,13 @@ public:
     typedef std::weak_ptr<lpp__context>         weak_pointer_t;
     typedef std::shared_ptr<lpp__context const> const_pointer_t;
 
+                            lpp__context(std::string const & filename, std::string const & procedure, lpp__integer_t line, bool primitive);
                             ~lpp__context();
+
+    std::string const &     get_filename() const;
+    std::string             get_procedure_name() const;
+    lpp__integer_t          get_current_line() const;
+    std::string const &     get_primitive_name() const;
 
     void                    set_global(pointer_t global);
     pointer_t               get_global();
@@ -191,6 +187,10 @@ private:
     lpp__thing::map_t       f_things = lpp__thing::map_t();
     lpp__value::pointer_t   f_return_value = lpp__value::pointer_t();
     lpp__vector_integer_t   f_repeat_count = lpp__vector_integer_t();
+    std::string             f_filename = std::string();
+    std::string             f_procedure = std::string();
+    lpp__integer_t          f_line = 0;
+    bool                    f_primitive = false;
 };
 
 
@@ -207,18 +207,91 @@ private:
 
 
 
+class lpp__error
+    : public std::runtime_error
+{
+public:
+                            lpp__error(lpp__context::const_pointer_t context
+                                     , std::string const & tag
+                                     , std::string const & message
+                                     , lpp__value::pointer_t value = lpp__value::pointer_t());
+
+    std::string const &     tag() const;
+    lpp__value::pointer_t   value() const;
+
+private:
+    std::string             f_tag = std::string();
+    lpp__value::pointer_t   f_value = lpp__value::pointer_t();
+    std::string             f_filename = std::string();
+    std::string             f_procedure = std::string();
+    lpp__integer_t          f_line = 0;
+    std::string             f_primitive = std::string();
+};
+
+
+
+class lpp__number
+{
+public:
+                                lpp__number(lpp__context::pointer_t context);
+                                lpp__number(lpp__context::pointer_t context
+                                          , std::string const & number);
+                                lpp__number(lpp__context::pointer_t context
+                                          , lpp__value::pointer_t number);
+
+    bool                        is_integer() const;
+    lpp__integer_t              get_integer() const;
+    lpp__float_t                get_float() const;
+    lpp__value::pointer_t       to_value() const;
+    void                        save_as_return_value();
+
+    void                        apply_unary(
+                                          lpp__integer_t (*i)(lpp__integer_t lhs, lpp__integer_t rhs)
+                                        , lpp__float_t (*f)(lpp__float_t lhs, lpp__float_t rhs));
+    void                        apply_binary(
+                                          lpp__value::pointer_t number
+                                        , lpp__integer_t (*i)(lpp__integer_t lhs, lpp__integer_t rhs)
+                                        , lpp__float_t (*f)(lpp__float_t lhs, lpp__float_t rhs));
+
+    static void                 compute(
+                                          lpp__context::pointer_t context
+                                        , std::string const & lhs_name
+                                        , std::string const & rhs_name
+                                        , std::string const & rest_name
+                                        , lpp__integer_t (*i)(lpp__integer_t lhs, lpp__integer_t rhs)
+                                        , lpp__float_t (*f)(lpp__float_t lhs, lpp__float_t rhs));
+
+private:
+    lpp__context::pointer_t     f_context;
+    bool                        f_is_integer = true;
+    lpp__integer_t              f_integer = 0;
+    lpp__float_t                f_float = 0.0;
+};
+
+
+
+
+
 } // lpp namespace
 
 // primitives
 
+void primitive_difference(lpp::lpp__context::pointer_t context);
 void primitive_first(lpp::lpp__context::pointer_t context);
 void primitive_minus(lpp::lpp__context::pointer_t context);
 void primitive_print(lpp::lpp__context::pointer_t context);
 void primitive_product(lpp::lpp__context::pointer_t context);
+void primitive_repcount(lpp::lpp__context::pointer_t context);
 void primitive_show(lpp::lpp__context::pointer_t context);
 void primitive_sum(lpp::lpp__context::pointer_t context);
 void primitive_throw(lpp::lpp__context::pointer_t context);
 void primitive_type(lpp::lpp__context::pointer_t context);
+void primitive_word(lpp::lpp__context::pointer_t context);
 
+
+// helpers
+//
+
+std::ostream & operator << (std::ostream & out, lpp::lpp__value_type_t value_type);
 
 // vim: ts=4 sw=4 et nocindent

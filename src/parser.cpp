@@ -49,7 +49,7 @@ Parser::Parser()
     add_lexer(std::make_shared<Lexer>("primitives.logo",
             // A
             "primitive [function] allopen end \"allopen\n"
-            "primitive [function arithmetic inline] and :in1 :in2 [:rest] end\n"
+            "primitive [function logic inline] and :in1 :in2 [:rest] end\n"
             "primitive [function arithmetic inline] arctan :in1 [:in2] end\n"
             "primitive [function] arguments end\n"
             "primitive [function] arity :procedure_name end\n"
@@ -59,7 +59,7 @@ Parser::Parser()
             "primitive [function] backslashedp&backslashed? :thing end\n"
             "primitive [function] beforep&before? :word1 :word2 end\n"
             "primitive [function arithmetic inline] bitand :number1 :number2 [:rest] end\n"
-            "primitive [function arithmetic inline] bitnot :number1 end\n"
+            "primitive [function arithmetic inline] bitnot :number end\n"
             "primitive [function arithmetic inline] bitor :number1 :number2 [:rest] end\n"
             "primitive [function arithmetic inline] bitxor :number1 :number2 [:rest] end\n"
             "primitive [function inline] butfirst&bf :list end\n"
@@ -80,7 +80,7 @@ Parser::Parser()
             "primitive [function] cursor end\n"
             // D
             "primitive [function] definedp&defined? :thing end\n"
-            "primitive [function arithmetic inline] difference :thing end\n"
+            "primitive [function arithmetic inline] difference :number1 :number2 [:rest] end\n"
             "primitive [function inline] dequeue :queue end\n"
             "primitive [procedure control inline] do.until :boolean :once_and_if_false end\n"
             "primitive [procedure control inline] do.while :boolean :once_and_if_true end\n"
@@ -94,6 +94,7 @@ Parser::Parser()
             "primitive [function] filep&file? :filename end\n"
             "primitive [function inline] first :thing end\n"
             "primitive [function inline] firsts :list end\n"
+            "primitive [function] floatp&float? :thing end\n"
             "primitive [procedure control inline] for :control :instructions end\n"
             "primitive [procedure control inline] forever :instructions end\n"
             "primitive [function] fput :item :list end\n"
@@ -101,14 +102,16 @@ Parser::Parser()
             "primitive [procedure] gc [:flag void] end\n"
             "primitive [function] gensym end\n"
             "primitive [procedure inline] global :name [:rest] end\n"
-            // I
             "primitive [procedure control inline] goto :tag end\n"
             "primitive [function] gprop :plistname :propname end\n"
+            // I
             "primitive [procedure control inline] if :boolean :if_true [:if_false void] 3 end\n"
             "primitive [procedure control inline] ifelse :boolean :if_true :if_false end\n"
             "primitive [procedure control inline] iffalse&iff :if_false end\n"
             "primitive [procedure control inline] iftrue&ift :if_true end\n"
             "primitive [procedure control inline] ignore :thing end\n"
+            "primitive [function] int :number end\n"
+            "primitive [function] integerp&integer? :thing end\n"
             "primitive [function inline] item :number :list end\n"
             // K
             "primitive [function] keyp&key? end\n"
@@ -128,6 +131,7 @@ Parser::Parser()
             "primitive [function] member :thing1 :thing2 end\n"
             "primitive [function] memberp&member? :thing end\n"
             "primitive [function arithmetic inline] minus :number end\n"
+            "primitive [function arithmetic inline] modulo :number1 :number2 end\n"
             // N
             "primitive [procedure inline] name :thing :name end\n"
             "primitive [function] namedp&named? :name end\n"
@@ -140,6 +144,7 @@ Parser::Parser()
             "primitive [procedure] openread :filename end\n"
             "primitive [procedure] openupdate :filename end\n"
             "primitive [procedure] openwrite :filename end\n"
+            "primitive [function logic inline] or :number1 :number2 [:rest] end\n"
             "primitive [procedure] output&op :thing end\n"
             // P
             "primitive [procedure] parse :word end\n"
@@ -168,6 +173,7 @@ Parser::Parser()
             "primitive [function arithmetic inline] radcos :number1 end\n"
             "primitive [function arithmetic inline] radtan :number1 [:number2] end\n"
             "primitive [function arithmetic inline] radsin :number1 end\n"
+            "primitive [function inline] random :number [:rest] end\n"
             "primitive [function inline] rawascii :char end\n"
             "primitive [function] readchar&rc end\n"
             "primitive [function] readchars&rcs :number end\n"
@@ -176,11 +182,13 @@ Parser::Parser()
             "primitive [function] readpos end\n"
             "primitive [function] readrawline end\n"
             "primitive [function] readword&rw end\n"
+            "primitive [function arithmetic inline] remainder :number1 :number2 end\n"
             "primitive [function] remdup :list end\n"
             "primitive [function] remove :thing :list end\n"
             "primitive [procedure] remprop :plistname :propname end\n"
             "primitive [function inline] repcount end\n"
             "primitive [procedure control inline] repeat :number :instructions end\n"
+            "primitive [function inline] rerandom [:rest] end\n"
             "primitive [function] reverse :list end\n"
             "primitive [function] runresult :instructions end\n"
             // S
@@ -532,6 +540,16 @@ void Parser::to_definition(Token::pointer_t keyword)
                         if(flag_name == "inline")
                         {
                             procedure_flags |= PROCEDURE_FLAG_INLINE;
+                        }
+                        break;
+
+                    case 'l':
+                        if(flag_name == "logic")
+                        {
+                            // logic is considered the same as arithmetic
+                            // (we probably mean "expression" in a way...)
+                            //
+                            procedure_flags |= PROCEDURE_FLAG_ARITHMETIC;
                         }
                         break;
 
@@ -1642,7 +1660,15 @@ void Parser::output_function_call(Token::pointer_t function_call, std::string co
         f_out << "{\n"
               << "lpp::lpp__context::pointer_t "
               << context_name
-              << "(std::make_shared<lpp::lpp__context>());\n";
+              << "(std::make_shared<lpp::lpp__context>(\""
+              << function_call->get_filename()
+              << "\",\""
+              << logo_to_cpp_name(function_call->get_word())
+              << "\","
+              << function_call->get_line()
+              << ","
+              << ((procedure_flags & PROCEDURE_FLAG_PRIMITIVE) != 0 ? "true" : "false")
+              << "));\n";
 
         Token::pointer_t required_arguments(declaration->get_list_item(1));
         Token::pointer_t optional_arguments(declaration->get_list_item(2));
@@ -1775,7 +1801,11 @@ void Parser::output_function_call(Token::pointer_t function_call, std::string co
             {
                 if(rest_argument == nullptr)
                 {
-                    throw std::logic_error("somehow we are attempting to add a rest argument when rest_argument == nullptr (maybe a primitive declaration is missing?)");
+                    throw std::logic_error("while working on \""
+                                         + function_call->get_word()
+                                         + "\" item number "
+                                         + std::to_string(a)
+                                         + " we are somehow attempting to add a rest argument when rest_argument == nullptr (maybe a primitive declaration is missing?)");
                 }
 
                 // add to rest list

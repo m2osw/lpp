@@ -25,76 +25,28 @@
 #include <iostream>
 
 
-#define T1T2(t1, t2) (static_cast<int>(t1) * 256 + static_cast<int>(t2))
+namespace
+{
+
+template<typename T>
+T operation(T lhs, T rhs)
+{
+    // TODO: handle overflow/underflow
+    return lhs * rhs;
+}
+
+} // no name namespace
 
 
 void primitive_product(lpp::lpp__context::pointer_t context)
 {
-    // TODO: handle overflow/underflow
-
-    lpp::lpp__value::pointer_t n1(context->get_thing("number1")->get_value());
-    lpp::lpp__value::pointer_t n2(context->get_thing("number2")->get_value());
-
-    lpp::lpp__value::pointer_t result(std::make_shared<lpp::lpp__value>());
-
-    switch(T1T2(n1->type(), n2->type()))
-    {
-    case T1T2(lpp::lpp__value_type_t::LPP__VALUE_TYPE_INTEGER, lpp::lpp__value_type_t::LPP__VALUE_TYPE_INTEGER):
-        result->set_integer(n1->get_integer() * n2->get_integer());
-        break;
-
-    case T1T2(lpp::lpp__value_type_t::LPP__VALUE_TYPE_INTEGER, lpp::lpp__value_type_t::LPP__VALUE_TYPE_FLOAT):
-        result->set_float(n1->get_integer() * n2->get_float());
-        break;
-
-    case T1T2(lpp::lpp__value_type_t::LPP__VALUE_TYPE_FLOAT, lpp::lpp__value_type_t::LPP__VALUE_TYPE_INTEGER):
-        result->set_float(n1->get_float() * n2->get_integer());
-        break;
-
-    case T1T2(lpp::lpp__value_type_t::LPP__VALUE_TYPE_FLOAT, lpp::lpp__value_type_t::LPP__VALUE_TYPE_FLOAT):
-        result->set_float(n1->get_float() * n2->get_float());
-        break;
-
-    default:
-        throw lpp::lpp__error("error"
-                            , "product used with an unexpected parameter type.");
-
-    }
-
-    lpp::lpp__value::pointer_t rest(context->find_thing("rest")->get_value());
-    if(rest != nullptr)
-    {
-        lpp::lpp__value::vector_t const & items(rest->get_list());
-        auto const max(items.size());
-        for(auto const & r : items)
-        {
-            switch(T1T2(result->type(), r->type()))
-            {
-            case T1T2(lpp::lpp__value_type_t::LPP__VALUE_TYPE_INTEGER, lpp::lpp__value_type_t::LPP__VALUE_TYPE_INTEGER):
-                result->set_integer(result->get_integer() * r->get_integer());
-                break;
-
-            case T1T2(lpp::lpp__value_type_t::LPP__VALUE_TYPE_INTEGER, lpp::lpp__value_type_t::LPP__VALUE_TYPE_FLOAT):
-                result->set_float(result->get_integer() * r->get_float());
-                break;
-
-            case T1T2(lpp::lpp__value_type_t::LPP__VALUE_TYPE_FLOAT, lpp::lpp__value_type_t::LPP__VALUE_TYPE_INTEGER):
-                result->set_float(result->get_float() * r->get_integer());
-                break;
-
-            case T1T2(lpp::lpp__value_type_t::LPP__VALUE_TYPE_FLOAT, lpp::lpp__value_type_t::LPP__VALUE_TYPE_FLOAT):
-                result->set_float(result->get_float() * r->get_float());
-                break;
-
-            default:
-                throw lpp::lpp__error("error"
-                                    , "product used with an unexpected parameter type.");
-
-            }
-        }
-    }
-
-    context->set_return_value(result);
+    lpp::lpp__number::compute(
+              context
+            , "number1"
+            , "number2"
+            , "rest"
+            , operation<lpp::lpp__integer_t>
+            , operation<lpp::lpp__float_t>);
 }
 
 

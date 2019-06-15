@@ -153,11 +153,11 @@ void Parser::control_repeat(control_t & control_info)
               << "->get_float()));\n"
                  "break;\n"
                  "default:\n"
-                 "throw lpp__error(\"error\",\"repeat count must be a number.\");\n"
+                 "throw lpp::lpp__error(context,\"error\",\"repeat count must be a number.\");\n"
                  "}\n"
                  "for(lpp::lpp__integer_t "
               << repeat_var
-              << ";"
+              << "(0);"
               << repeat_var
               << "<"
               << count_var
@@ -169,7 +169,9 @@ void Parser::control_repeat(control_t & control_info)
 
     // for the `repcount` primitive
     //
-    f_out << "lpp::lpp__raii_repeat_count(context,"
+    f_out << "lpp::lpp__raii_repeat_count "
+          << get_unique_name()
+          << "(context,"
           << repeat_var
           << ");\n";
 

@@ -20,43 +20,29 @@
 //
 #include "lpp.hpp"
 
+// C++ lib
+//
+#include <cmath>
+#include <iostream>
 
 
-namespace lpp
+
+
+void primitive_int(lpp::lpp__context::pointer_t context)
 {
-
-
-lpp__error::lpp__error(lpp__context::const_pointer_t context
-                     , std::string const & tag
-                     , std::string const & message
-                     , lpp::lpp__value::pointer_t value)
-    : std::runtime_error(message)
-    , f_tag(tag)
-    , f_value(value)
-{
-    if(context != nullptr)
+    lpp::lpp__value::pointer_t number(context->get_thing("number")->get_value());
+    lpp::lpp__number n(context, number);
+    if(n.is_integer())
     {
-        f_filename  = context->get_filename();
-        f_procedure = context->get_procedure_name();
-        f_line      = context->get_current_line();
-        f_primitive = context->get_primitive_name();
+        context->set_return_value(number);
+    }
+    else
+    {
+        lpp::lpp__integer_t i(static_cast<lpp::lpp__integer_t>(std::floor(n.get_float())));
+        lpp::lpp__value::pointer_t result(std::make_shared<lpp::lpp__value>(i));
+        context->set_return_value(result);
     }
 }
 
 
-std::string const & lpp__error::tag() const
-{
-    return f_tag;
-}
-
-
-lpp__value::pointer_t lpp__error::value() const
-{
-    return f_value;
-}
-
-
-
-} // lpp namespace
 // vim: ts=4 sw=4 et nocindent
-

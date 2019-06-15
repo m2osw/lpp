@@ -20,6 +20,9 @@
 //
 #include "lpp.hpp"
 
+// C++ lib
+//
+#include <iostream>
 
 
 namespace lpp
@@ -36,8 +39,50 @@ namespace
 
 
 
+lpp__context::lpp__context(std::string const & filename, std::string const & procedure, lpp__integer_t line, bool primitive)
+    : f_filename(filename)
+    , f_procedure(procedure)
+    , f_line(line)
+    , f_primitive(primitive)
+{
+}
+
+
 lpp__context::~lpp__context()
 {
+}
+
+
+std::string const & lpp__context::get_filename() const
+{
+    return f_filename;
+}
+
+
+std::string lpp__context::get_procedure_name() const
+{
+    lpp__context::const_pointer_t context(shared_from_this());
+    while(context->f_primitive)
+    {
+        context = context->f_parent;
+        if(context == nullptr)
+        {
+            return std::string();
+        }
+    }
+    return context->f_procedure;
+}
+
+
+lpp__integer_t lpp__context::get_current_line() const
+{
+    return f_line;
+}
+
+
+std::string const & lpp__context::get_primitive_name() const
+{
+    return f_procedure;
 }
 
 
@@ -75,7 +120,8 @@ lpp__thing::pointer_t lpp__context::get_thing(std::string const & name) const
     lpp__thing::pointer_t thing(find_thing(name));
     if(thing == nullptr)
     {
-        throw lpp__error("error"
+        throw lpp__error(shared_from_this()
+                       , "error"
                        , "thing named \"" + name + " not found.");
     }
     return thing;
@@ -150,7 +196,8 @@ lpp__value::pointer_t lpp__context::get_returned_value() const
 {
     if(f_return_value == nullptr)
     {
-        throw lpp__error("error"
+        throw lpp__error(shared_from_this()
+                       , "error"
                        , "nothing was returned.");
     }
 
@@ -166,7 +213,7 @@ void lpp__context::set_return_value(lpp__value::pointer_t value)
 
 void lpp__context::add_repeat_count(lpp__integer_t count)
 {
-    f_repeat_count.push_back(count);
+    f_repeat_count.push_back(count + 1); // logo expect counter to be 1, 2, 3 ...
 }
 
 
@@ -188,14 +235,15 @@ lpp__integer_t lpp__context::get_repeat_count() const
     {
         if(!context->f_repeat_count.empty())
         {
-            return *f_repeat_count.rbegin();
+            return context->f_repeat_count.back();
         }
 
         context = context->f_parent;
     }
 
-    throw lpp__error("error"
-                   , "no repeat counter found from this location.");
+    throw lpp__error(shared_from_this()
+                   , "error"
+                   , "no repeat count found.");
 }
 
 
@@ -227,4 +275,38 @@ lpp__raii_repeat_count::~lpp__raii_repeat_count()
 
 
 } // lpp namespace
+
+
+std::ostream & operator << (std::ostream & out, lpp::lpp__value_type_t value_type)
+{
+    switch(value_type)
+    {
+    case lpp::lpp__value_type_t::LPP__VALUE_TYPE_SPECIAL:
+        out << "LPP__VALUE_TYPE_SPECIAL";
+        break;
+
+    case lpp::lpp__value_type_t::LPP__VALUE_TYPE_BOOLEAN:
+        out << "_VALUE_TYPE_BOOLEAN";
+        break;
+
+    case lpp::lpp__value_type_t::LPP__VALUE_TYPE_INTEGER:
+        out << "LPP__VALUE_TYPE_INTEGER";
+        break;
+
+    case lpp::lpp__value_type_t::LPP__VALUE_TYPE_FLOAT:
+        out << "LPP__VALUE_TYPE_FLOAT";
+        break;
+
+    case lpp::lpp__value_type_t::LPP__VALUE_TYPE_WORD:
+        out << "LPP__VALUE_TYPE_WORD";
+        break;
+
+    case lpp::lpp__value_type_t::LPP__VALUE_TYPE_LIST:
+        out << "LPP__VALUE_TYPE_LIST";
+        break;
+
+    }
+}
+
+
 // vim: ts=4 sw=4 et nocindent

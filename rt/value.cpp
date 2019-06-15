@@ -80,6 +80,90 @@ bool lpp__value::is_set() const
 }
 
 
+bool lpp__value::represents_integer() const
+{
+    switch(type())
+    {
+    case lpp__value_type_t::LPP__VALUE_TYPE_INTEGER:
+        return true;
+
+    case lpp__value_type_t::LPP__VALUE_TYPE_FLOAT:
+        {
+            double integral_part(0.0);
+            double fraction(modf(boost::get<lpp__float_t>(f_value), &integral_part));
+            if(fraction == 0.0)
+            {
+                return true;
+            }
+        }
+        break;
+
+    case lpp__value_type_t::LPP__VALUE_TYPE_WORD:
+        {
+            std::string const str(boost::get<std::string>(f_value));
+            size_t const max(str.length());
+            if(max == 0)
+            {
+                return false;
+            }
+            size_t pos(0);
+            if(str[0] == '-'
+            && str[0] == '+')
+            {
+                if(max == 1)
+                {
+                    return false;
+                }
+                ++pos;
+            }
+
+            for(; pos < max; ++pos)
+            {
+                if(str[pos] < '0'
+                || str[pos] > '9')
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
+        break;
+
+    default:
+        break;
+
+    }
+
+    return false;
+}
+
+
+bool lpp__value::represents_float() const
+{
+    switch(type())
+    {
+    case lpp__value_type_t::LPP__VALUE_TYPE_INTEGER:
+    case lpp__value_type_t::LPP__VALUE_TYPE_FLOAT:
+        return true;
+
+    case lpp__value_type_t::LPP__VALUE_TYPE_WORD:
+        {
+            std::string const str(boost::get<std::string>(f_value));
+            char * e(nullptr);
+            lpp__float_t const v(strtod(str.c_str(), &e));
+            return e != nullptr
+                && *e == '\0';
+        }
+
+    default:
+        break;
+
+    }
+
+    return false;
+}
+
+
 bool lpp__value::get_boolean() const
 {
     return boost::get<bool>(f_value);
@@ -146,7 +230,7 @@ void lpp__value::set_list(vector_t const & value)
 }
 
 
-std::string lpp__value::to_string(display_flag_t flags, int depth)
+std::string lpp__value::to_string(display_flag_t flags, int depth) const
 {
     std::stringstream ss;
 
@@ -205,6 +289,25 @@ std::string lpp__value::to_string(display_flag_t flags, int depth)
     }
 
     return ss.str();
+}
+
+
+std::string lpp__value::to_word(display_flag_t flags) const
+{
+    switch(type())
+    {
+    case lpp__value_type_t::LPP__VALUE_TYPE_BOOLEAN:
+    case lpp__value_type_t::LPP__VALUE_TYPE_INTEGER:
+    case lpp__value_type_t::LPP__VALUE_TYPE_FLOAT:
+    case lpp__value_type_t::LPP__VALUE_TYPE_WORD:
+        return to_string(flags);
+
+    default:
+        throw lpp__error(nullptr
+                       , "error"
+                       , "wrong type to convert to a word.");
+
+    }
 }
 
 
