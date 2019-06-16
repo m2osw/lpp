@@ -25,28 +25,27 @@
 #include <iostream>
 
 
+
 namespace
 {
 
-template<typename T>
-T operation(lpp::lpp__context::pointer_t , T lhs, T rhs)
+bool operation(bool lhs, bool rhs)
 {
-    // TODO: handle overflow/underflow
-    return lhs * rhs;
+    return lhs != rhs;
 }
 
 } // no name namespace
 
 
-void primitive_product(lpp::lpp__context::pointer_t context)
+
+void primitive_xor(lpp::lpp__context::pointer_t context)
 {
-    lpp::lpp__number::compute(
+    lpp::lpp__number::logical(
               context
-            , "number1"
-            , "number2"
+            , "boolean1"
+            , "boolean2"
             , "rest"
-            , operation<lpp::lpp__integer_t>
-            , operation<lpp::lpp__float_t>);
+            , operation);
 }
 
 

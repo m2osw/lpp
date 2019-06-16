@@ -49,24 +49,22 @@ Parser::Parser()
     add_lexer(std::make_shared<Lexer>("primitives.logo",
             // A
             "primitive [function] allopen end \"allopen\n"
-            "primitive [function logic inline] and :in1 :in2 [:rest] end\n"
-            "primitive [function arithmetic inline] arctan :in1 [:in2] end\n"
-            "primitive [function] arguments end\n"
-            "primitive [function] arity :procedure_name end\n"
+            "primitive [function logic inline] and :boolean1 :boolean2 [:rest] end\n"
+            "primitive [function arithmetic inline] arccos :number1 end\n"
+            "primitive [function arithmetic inline] arcsin :number1 end\n"
+            "primitive [function arithmetic inline] arctan :number1 [:number2] end\n"
             "primitive [function inline] ascii :char end\n"
             "primitive [function arithmetic inline] ashift :number :shift end\n"
             // B
-            "primitive [function] backslashedp&backslashed? :thing end\n"
+            "primitive [function] backslashedp&backslashed? :char end\n"
             "primitive [function] beforep&before? :word1 :word2 end\n"
             "primitive [function arithmetic inline] bitand :number1 :number2 [:rest] end\n"
             "primitive [function arithmetic inline] bitnot :number end\n"
             "primitive [function arithmetic inline] bitor :number1 :number2 [:rest] end\n"
             "primitive [function arithmetic inline] bitxor :number1 :number2 [:rest] end\n"
             "primitive [function inline] butfirst&bf :list end\n"
-            "primitive [function inline] butfirsts&bfs :list end\n"
             "primitive [function inline] butlast&bl :list end\n"
-            "primitive [function inline] butlasts&bls :list end\n"
-            "primitive [procedure control inline] bye [:code 0] end\n"
+            "primitive [procedure inline] bye [:code 0] end\n"
             // C
             "primitive [procedure control inline] case :value :clauses end\n"
             "primitive [procedure control inline] catch :tag :instructions end\n"
@@ -75,6 +73,7 @@ Parser::Parser()
             "primitive [procedure] close :filename end\n"
             "primitive [procedure] closeall end\n"
             "primitive [function] combine :thing1 :thing2 end\n"
+            "primitive [function arithmetic inline] comparablep&comparable? :number1 :number2 end\n"
             "primitive [procedure control inline] cond :clauses end\n"
             "primitive [function inline] count :thing end\n"
             "primitive [function] cursor end\n"
@@ -104,6 +103,8 @@ Parser::Parser()
             "primitive [procedure inline] global :name [:rest] end\n"
             "primitive [procedure control inline] goto :tag end\n"
             "primitive [function] gprop :plistname :propname end\n"
+            "primitive [function inline] greaterequalp&greaterequal? :thing1 :thing2 [:rest] end\n"
+            "primitive [function inline] greaterp&greater? :thing1 :thing2 [:rest] end\n"
             // I
             "primitive [procedure control inline] if :boolean :if_true [:if_false void] 3 end\n"
             "primitive [procedure control inline] ifelse :boolean :if_true :if_false end\n"
@@ -118,6 +119,8 @@ Parser::Parser()
             // L
             "primitive [function inline] last :list end\n"
             "primitive [function inline] lasts :list end\n"
+            "primitive [function inline] lessequalp&lessequal? :thing1 :thing2 [:rest] end\n"
+            "primitive [function inline] lessp&less? :thing1 :thing2 [:rest] end\n"
             "primitive [function inline] list :thing1 :thing2 [:rest] end\n"
             "primitive [function] listp&list? :thing end\n"
             "primitive [procedure inline] local :name [:rest] end\n"
@@ -137,6 +140,7 @@ Parser::Parser()
             "primitive [function] namedp&named? :name end\n"
             "primitive [function] names end\n"
             "primitive [function] nodes end\n" // return free memory?
+            "primitive [function inline] not :boolean end\n"
             "primitive [function inline] notequalp&notequal? :thing end\n"
             "primitive [function] numberp&number? :thing end\n"
             // O
@@ -144,7 +148,8 @@ Parser::Parser()
             "primitive [procedure] openread :filename end\n"
             "primitive [procedure] openupdate :filename end\n"
             "primitive [procedure] openwrite :filename end\n"
-            "primitive [function logic inline] or :number1 :number2 [:rest] end\n"
+            "primitive [function logic inline] or :boolean1 :boolean2 [:rest] end\n"
+            "primitive [function arithmetic inline] orderedp&ordered? :number1 :number2 end\n"
             "primitive [procedure] output&op :thing end\n"
             // P
             "primitive [procedure] parse :word end\n"
@@ -207,6 +212,7 @@ Parser::Parser()
             "primitive [procedure] setwritepos :number end\n"
             "primitive [function] shell :command [:wordflag] end\n"
             "primitive [procedure inline] show :thing [:rest] end\n"
+            "primitive [function arithmetic inline] sqrt :number end\n"
             "primitive [procedure inline] standout :thing end\n"
             "primitive [procedure control inline] stop end\n"
             "primitive [function] substringp&substring? :thing end\n"
@@ -220,6 +226,7 @@ Parser::Parser()
             "primitive [function] tracedp&traced? :list end\n"
             "primitive [procedure inline] type :thing [:rest] end\n"
             // U
+            "primitive [function arithmetic inline] unorderedp&unordered? :number1 :number2 end\n"
             "primitive [procedure control inline] until :boolean :if_false end\n"
             "primitive [procedure] untrace :list end\n"
             "primitive [function] uppercase :word end\n"
@@ -230,6 +237,8 @@ Parser::Parser()
             "primitive [function] wordp&word? :thing end\n"
             "primitive [function] writepos end \"writepos\n"
             "primitive [function] writer end\n"
+            // X
+            "primitive [function logic inline] xor :boolean1 :boolean2 [:rest] end\n"
 
             // this is part of the run-time context
             //
@@ -278,24 +287,28 @@ void Parser::add_lexer(Lexer::pointer_t lexer)
  *
  * line:
  *     program
- *   | to_definition
+ *   | procedure
  *   | declaration
- *   | primitive
  *
  * program:
  *     PROGRAM list_of_lines END
  *
- * to_definition:
- *     TO procedure_flags WORD thing_list optional_thing_list rest_thing
+ * procedure:
+ *     to_proc_func procedure_flags WORD thing_list optional_thing_list rest_thing
  *                 default_number_of_inputs list_of_lines END procedure_name
  *
+ * to_proc_func:
+ *     TO
+ *   | PROCEDURE
+ *   | FUNCTION
+ *
  * declaration:
- *     DECLARE procedure_flags WORD thing_list optional_thing_list rest_thing
+ *     declare_primitive procedure_flags WORD thing_list optional_thing_list rest_thing
  *                               default_number_of_inputs END procedure_name
  *
- * primitive:
- *     PRIMITIVE procedure_flags WORD thing_list optional_thing_list rest_thing
- *                               default_number_of_inputs END procedure_name
+ * declare_primitive:
+ *     DECLARE
+ *     PRIMITIVE
  *
  * procedure_flags:
  *     <empty>
@@ -443,7 +456,7 @@ void Parser::line()
     case token_t::TOK_PRIMITIVE:
     case token_t::TOK_PROCEDURE:
     case token_t::TOK_FUNCTION:
-        to_definition(f_current_token);
+        procedure(f_current_token);
         break;
 
     case token_t::TOK_PROGRAM:
@@ -460,7 +473,7 @@ void Parser::line()
 }
 
 
-void Parser::to_definition(Token::pointer_t keyword)
+void Parser::procedure(Token::pointer_t keyword)
 {
     bool const declaration_only(keyword->get_token() != token_t::TOK_TO);
     bool const primitive(keyword->get_token() == token_t::TOK_PRIMITIVE);
@@ -758,28 +771,30 @@ void Parser::to_definition(Token::pointer_t keyword)
         arg = next_lexer_token();
     }
 
-//std::cerr << to_string(keyword->get_token())
-//          << " [0x"
-//          << std::hex << procedure_flags << std::dec
-//          << "] "
-//          << *name
-//          << " (long: "
-//          << long_name
-//          << " & short: "
-//          << short_name
-//          << ") -- {REQUIRED: "
-//          << *required_arguments
-//          << "} {OPTIONAL: "
-//          << *optional_arguments
-//          << "} {REST: "
-//          << (rest_argument == nullptr ? std::string() : "[:" + rest_argument->get_word() + "]")
-//          << "} {min/def/max: "
-//          << min_args
-//          << "/"
-//          << def_args
-//          << "/"
-//          << max_args
-//          << "} ...\n";
+#if 0
+std::cerr << to_string(keyword->get_token())
+          << " [0x"
+          << std::hex << procedure_flags << std::dec
+          << "] "
+          << *name
+          << " (long: "
+          << long_name
+          << " & short: "
+          << short_name
+          << ") -- {REQUIRED: "
+          << *required_arguments
+          << "} {OPTIONAL: "
+          << *optional_arguments
+          << "} {REST: "
+          << (rest_argument == nullptr ? std::string() : "[:" + rest_argument->get_word() + "]")
+          << "} {min/def/max: "
+          << min_args
+          << "/"
+          << def_args
+          << "/"
+          << max_args
+          << "} ...\n";
+#endif
 
     // TO WORD thing_list [ THING expr ] [ THING ] default_number_of_inputs
     //                                             ^
@@ -1187,12 +1202,16 @@ Token::pointer_t Parser::call_function(bool must_return)
     }
 
     argument_count_t min_args(declaration->get_min_args());
-    //argument_count_t def_args(declaration->get_def_args());
-    argument_count_t max_args(std::numeric_limits<argument_count_t>::max());
-    //if(!parenthesis)
-    //{
-    //    max_args = def_args;
-    //}
+    argument_count_t def_args(declaration->get_def_args());
+    argument_count_t max_args(declaration->get_max_args());
+
+std::cerr << "----- working on [" << func_call->get_word() << "] "
+          << min_args
+          << "/"
+          << def_args
+          << "/"
+          << max_args
+          << "\n";
 
     // change the WORD into a FUNCTION-CALL
     //
@@ -1223,7 +1242,30 @@ Token::pointer_t Parser::call_function(bool must_return)
             // EOF found?
             //
             bool eoa(f_current_token->get_token() == token_t::TOK_EOF);
-std::cerr << "checking eoa -- " << (eoa ? "TOK_EOF" : "") << "\n";
+std::cerr << "checking eoa -- " << (eoa ? "TOK_EOF" : "no EOF") << " -- count/max: " << func_call->get_list_size() << "/" << max_args << "\n";
+
+            // we found the maximum number of arguments supported
+            // anything else will create an error (i.e. use IGNORE ...)
+            // if additional functions/literals follow
+            //
+            if(!eoa
+            && func_call->get_list_size() >= max_args)
+            {
+std::cerr << "   eoa -- max_args reached " << max_args << "\n";
+                eoa = true;
+            }
+
+            // a function called within an expression uses at most def_args
+            // unless you used parenthesis; so only the outmost procedure
+            // receives many args, not inside functions
+            //
+            if(!eoa
+            && must_return
+            && func_call->get_list_size() >= def_args)
+            {
+std::cerr << "   eoa -- def_args reached " << def_args << "\n";
+                eoa = true;
+            }
 
             // next token is a WORD which represents procedure?
             //
@@ -1562,7 +1604,7 @@ void Parser::generate()
     }
 
     f_out << "// AUTO-GENERATED FILE\n"
-          << "#include <lpp.hpp>\n";
+          << "#include <lpp/lpp.hpp>\n";
 
     {
         f_out << "// Function Declarations\n";
@@ -1691,91 +1733,13 @@ void Parser::output_function_call(Token::pointer_t function_call, std::string co
             }
         }
 
-        for(std::remove_const<decltype(max_args)>::type a(0); a < max_args; ++a)
+        std::remove_const<decltype(max_args)>::type a(0);
+        for(; a < max_args; ++a)
         {
             std::string const value_name(get_unique_name());
             Token::pointer_t arg(function_call->get_list_item(a));
 
-            switch(arg->get_token())
-            {
-            case token_t::TOK_FUNCTION_CALL:
-                // the output of a function call will stack a parameter
-                //
-                f_out << "lpp::lpp__value::pointer_t "
-                      << value_name
-                      << ";\n";
-                output_function_call(arg, value_name);
-                break;
-
-            case token_t::TOK_BOOLEAN:
-                f_out << "lpp::lpp__value::pointer_t "
-                      << value_name
-                      << "(std::make_shared<lpp::lpp__value>("
-                      << arg->get_boolean()
-                      << "));\n";
-                break;
-
-            case token_t::TOK_INTEGER:
-                f_out << "lpp::lpp__value::pointer_t "
-                      << value_name
-                      << "(std::make_shared<lpp::lpp__value>(static_cast<lpp::lpp__integer_t>("
-                      << arg->get_integer()
-                      << "LL)));\n";
-                break;
-
-            case token_t::TOK_FLOAT:
-                f_out << "lpp::lpp__value::pointer_t "
-                      << value_name
-                      << "(std::make_shared<lpp::lpp__value>("
-                      << arg->get_float()
-                      << "));\n";
-                break;
-
-            case token_t::TOK_WORD:
-                f_out << "lpp::lpp__value::pointer_t "
-                      << value_name
-                      << "(std::make_shared<lpp::lpp__value>("
-                         "std::string("
-                      << word_to_cpp_literal_string(arg->get_word())
-                      << ")"
-                         ")"
-                         ");\n";
-                break;
-
-            case token_t::TOK_QUOTED:
-                f_out << "lpp::lpp__value::pointer_t "
-                      << value_name
-                      << "(std::make_shared<lpp::lpp__value>("
-                         "std::string("
-                      << word_to_cpp_literal_string(arg->get_word())
-                      << ")"
-                         ")"
-                         ");\n";
-                break;
-
-            case token_t::TOK_THING:
-                f_out << "lpp::lpp__value::pointer_t "
-                      << value_name
-                      << "(context->get_thing("
-                      << word_to_cpp_literal_string(arg->get_word())
-                      << ")->get_value());\n";
-                break;
-
-            case token_t::TOK_LIST:
-                f_out << "lpp::lpp__value::pointer_t "
-                      << value_name
-                      << "(";
-                build_list(arg);
-                f_out << ");\n";
-                break;
-
-            default:
-                arg->error("unexpected token type ("
-                          + to_string(arg->get_token())
-                          + ") in a list of arguments.");
-                return;
-
-            }
+            output_argument(arg, value_name);
 
             Token::pointer_t arg_name;
             if(a < required_arguments->get_list_size())
@@ -1784,7 +1748,8 @@ void Parser::output_function_call(Token::pointer_t function_call, std::string co
             }
             else if(a - required_arguments->get_list_size() < optional_arguments->get_list_size())
             {
-                arg_name = optional_arguments->get_list_item(a - required_arguments->get_list_size());
+                Token::pointer_t opt_arg(optional_arguments->get_list_item(a - required_arguments->get_list_size()));
+                arg_name = opt_arg->get_list_item(0);
             }
             // else -- accumulate in the rest list
 
@@ -1817,6 +1782,24 @@ void Parser::output_function_call(Token::pointer_t function_call, std::string co
 
         f_out << context_name
               << "->attach(context);\n";
+
+        decltype(max_args) max_opt(required_arguments->get_list_size() + optional_arguments->get_list_size());
+        for(; a < max_opt; ++a)
+        {
+            Token::pointer_t opt_arg(optional_arguments->get_list_item(a - required_arguments->get_list_size()));
+            Token::pointer_t arg_name(opt_arg->get_list_item(0));
+            Token::pointer_t def_expr(opt_arg->get_list_item(1));
+
+            std::string const value_name(get_unique_name());
+            output_argument(opt_arg->get_list_item(1), value_name);
+
+            f_out << context_name
+                  << "->set_thing("
+                  << word_to_cpp_literal_string(arg_name->get_word())
+                  << ","
+                  << value_name
+                  << ",lpp::lpp__thing_type_t::LPP__THING_TYPE_LOCAL);\n";
+        }
 
         if(rest_argument != nullptr)
         {
@@ -1857,6 +1840,92 @@ void Parser::output_function_call(Token::pointer_t function_call, std::string co
         f_out << "}\n";
     }
 }
+
+
+void Parser::output_argument(Token::pointer_t arg, std::string const & value_name)
+{
+    switch(arg->get_token())
+    {
+    case token_t::TOK_FUNCTION_CALL:
+        // the output of a function call will stack a parameter
+        //
+        f_out << "lpp::lpp__value::pointer_t "
+              << value_name
+              << ";\n";
+        output_function_call(arg, value_name);
+        break;
+
+    case token_t::TOK_BOOLEAN:
+        f_out << "lpp::lpp__value::pointer_t "
+              << value_name
+              << "(std::make_shared<lpp::lpp__value>("
+              << arg->get_boolean()
+              << "));\n";
+        break;
+
+    case token_t::TOK_INTEGER:
+        f_out << "lpp::lpp__value::pointer_t "
+              << value_name
+              << "(std::make_shared<lpp::lpp__value>(static_cast<lpp::lpp__integer_t>("
+              << arg->get_integer()
+              << "LL)));\n";
+        break;
+
+    case token_t::TOK_FLOAT:
+        f_out << "lpp::lpp__value::pointer_t "
+              << value_name
+              << "(std::make_shared<lpp::lpp__value>("
+              << arg->get_float()
+              << "));\n";
+        break;
+
+    case token_t::TOK_WORD:
+        f_out << "lpp::lpp__value::pointer_t "
+              << value_name
+              << "(std::make_shared<lpp::lpp__value>("
+                 "std::string("
+              << word_to_cpp_literal_string(arg->get_word())
+              << ")"
+                 ")"
+                 ");\n";
+        break;
+
+    case token_t::TOK_QUOTED:
+        f_out << "lpp::lpp__value::pointer_t "
+              << value_name
+              << "(std::make_shared<lpp::lpp__value>("
+                 "std::string("
+              << word_to_cpp_literal_string(arg->get_word())
+              << ")"
+                 ")"
+                 ");\n";
+        break;
+
+    case token_t::TOK_THING:
+        f_out << "lpp::lpp__value::pointer_t "
+              << value_name
+              << "(context->get_thing("
+              << word_to_cpp_literal_string(arg->get_word())
+              << ")->get_value());\n";
+        break;
+
+    case token_t::TOK_LIST:
+        f_out << "lpp::lpp__value::pointer_t "
+              << value_name
+              << "(";
+        build_list(arg);
+        f_out << ");\n";
+        break;
+
+    default:
+        arg->error("unexpected token type ("
+                  + to_string(arg->get_token())
+                  + ") in a list of arguments.");
+        return;
+
+    }
+}
+
 
 
 void Parser::build_list(Token::pointer_t list)

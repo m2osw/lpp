@@ -64,7 +64,7 @@ void primitive_last(lpp::lpp__context::pointer_t context)
 
     case lpp::lpp__value_type_t::LPP__VALUE_TYPE_LIST:
         {
-            lpp::lpp__value::vector_t const l(thing->get_list());
+            lpp::lpp__value::vector_t const & l(thing->get_list());
             if(l.empty())
             {
                 throw lpp::lpp__error(context

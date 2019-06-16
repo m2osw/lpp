@@ -29,15 +29,31 @@
 namespace
 {
 
-lpp::lpp__integer_t int_remainder(lpp::lpp__integer_t lhs, lpp::lpp__integer_t rhs)
+lpp::lpp__integer_t int_remainder(lpp::lpp__context::pointer_t context, lpp::lpp__integer_t lhs, lpp::lpp__integer_t rhs)
 {
     // TODO: handle overflow/underflow
+    if(rhs == 0)
+    {
+        throw lpp::lpp__error(context
+                            , "error"
+                            , "divisor cannot be zero.");
+    }
     return lhs % std::abs(rhs);
 }
 
-lpp::lpp__float_t flt_remainder(lpp::lpp__float_t lhs, lpp::lpp__float_t rhs)
+lpp::lpp__float_t flt_remainder(lpp::lpp__context::pointer_t context, lpp::lpp__float_t lhs, lpp::lpp__float_t rhs)
 {
-    return fmod(lhs, fabs(rhs));
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wfloat-equal"
+    if(rhs == 0.0)
+    {
+        throw lpp::lpp__error(context
+                            , "error"
+                            , "divisor cannot be zero.");
+    }
+#pragma GCC diagnostic pop
+
+    return fmod(lhs, std::fabs(rhs));
 }
 
 } // no name namespace

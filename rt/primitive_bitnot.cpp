@@ -29,7 +29,7 @@
 namespace
 {
 
-lpp::lpp__integer_t int_operation(lpp::lpp__integer_t lhs, lpp::lpp__integer_t ignore)
+lpp::lpp__integer_t int_operation(lpp::lpp__context::pointer_t , lpp::lpp__integer_t lhs, lpp::lpp__integer_t )
 {
     // TODO: handle overflow/underflow
     return ~lhs;

@@ -28,10 +28,19 @@
 namespace
 {
 
-template<typename T>
-T operation(T lhs, T rhs)
+lpp::lpp__float_t flt_operation(lpp::lpp__context::pointer_t context, lpp::lpp__float_t lhs, lpp::lpp__float_t rhs)
 {
     // TODO: handle overflow/underflow
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wfloat-equal"
+    if(rhs == 0.0)
+    {
+        throw lpp::lpp__error(context
+                            , "error"
+                            , "divisor cannot be zero.");
+    }
+#pragma GCC diagnostic pop
+
     return lhs / rhs;
 }
 
@@ -48,8 +57,8 @@ void primitive_quotient(lpp::lpp__context::pointer_t context)
             , "number1"
             , "number2"
             , "rest"
-            , operation<lpp::lpp__integer_t>
-            , operation<lpp::lpp__float_t>);
+            , nullptr
+            , flt_operation);
 }
 
 

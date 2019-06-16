@@ -1,11 +1,13 @@
 program
-  display [Hello  World! [note: list of list]]
+  ;display [Hello  World! [note: list of list]]
+  display :arguments
 end program
 
 to display :msg
   repeat 10 - 1 [type  word "- repcount]
   print "-
-  print :msg "MORE -5 + 123 * 2 [Info] first [a b c]
+  print :msg "MORE sqrt -21 + 123 * 2 [Info] first [a b c]
   repeat 2 * 2 [type "-]
   print "-
+  bye
 end "display

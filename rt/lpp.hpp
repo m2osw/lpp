@@ -51,6 +51,11 @@ enum class lpp__value_type_t
     LPP__VALUE_TYPE_LIST
 };
 
+constexpr int mix_value_types(lpp__value_type_t a, lpp__value_type_t b)
+{
+    return static_cast<int>(a) * 256 + static_cast<int>(b);
+}
+
 
 typedef std::uint_fast32_t      display_flag_t;
 
@@ -235,9 +240,10 @@ class lpp__number
 public:
                                 lpp__number(lpp__context::pointer_t context);
                                 lpp__number(lpp__context::pointer_t context
-                                          , std::string const & number);
-                                lpp__number(lpp__context::pointer_t context
                                           , lpp__value::pointer_t number);
+
+    bool                        from_string(std::string const & number);
+    bool                        from_value(lpp__value::pointer_t number);
 
     bool                        is_integer() const;
     lpp__integer_t              get_integer() const;
@@ -246,20 +252,35 @@ public:
     void                        save_as_return_value();
 
     void                        apply_unary(
-                                          lpp__integer_t (*i)(lpp__integer_t lhs, lpp__integer_t rhs)
-                                        , lpp__float_t (*f)(lpp__float_t lhs, lpp__float_t rhs));
+                                          std::function<lpp__integer_t(lpp__context::pointer_t context, lpp__integer_t lhs, lpp__integer_t rhs)> i
+                                        , std::function<lpp__float_t(lpp__context::pointer_t context, lpp__float_t lhs, lpp__float_t rhs)> f);
     void                        apply_binary(
                                           lpp__value::pointer_t number
-                                        , lpp__integer_t (*i)(lpp__integer_t lhs, lpp__integer_t rhs)
-                                        , lpp__float_t (*f)(lpp__float_t lhs, lpp__float_t rhs));
+                                        , std::function<lpp__integer_t(lpp__context::pointer_t context, lpp__integer_t lhs, lpp__integer_t rhs)> i
+                                        , std::function<lpp__float_t(lpp__context::pointer_t context, lpp__float_t lhs, lpp__float_t rhs)> f);
 
     static void                 compute(
                                           lpp__context::pointer_t context
                                         , std::string const & lhs_name
                                         , std::string const & rhs_name
                                         , std::string const & rest_name
-                                        , lpp__integer_t (*i)(lpp__integer_t lhs, lpp__integer_t rhs)
-                                        , lpp__float_t (*f)(lpp__float_t lhs, lpp__float_t rhs));
+                                        , std::function<lpp__integer_t(lpp__context::pointer_t context, lpp__integer_t lhs, lpp__integer_t rhs)> i
+                                        , std::function<lpp__float_t(lpp__context::pointer_t context, lpp__float_t lhs, lpp__float_t rhs)> f);
+
+    static void                 compare(
+                                          lpp__context::pointer_t context
+                                        , std::string const & lhs_name
+                                        , std::string const & rhs_name
+                                        , std::string const & rest_name
+                                        , std::function<bool(lpp__integer_t compare)> f
+                                        , bool characters = false);
+
+    static void                 logical(
+                                          lpp__context::pointer_t context
+                                        , std::string const & lhs_name
+                                        , std::string const & rhs_name
+                                        , std::string const & rest_name
+                                        , std::function<bool(bool lhs, bool rhs)> b);
 
 private:
     lpp__context::pointer_t     f_context;
@@ -276,17 +297,106 @@ private:
 
 // primitives
 
+// A
+void primitive_and(lpp::lpp__context::pointer_t context);
+void primitive_arccos(lpp::lpp__context::pointer_t context);
+void primitive_arcsin(lpp::lpp__context::pointer_t context);
+void primitive_arctan(lpp::lpp__context::pointer_t context);
+void primitive_ascii(lpp::lpp__context::pointer_t context);
+void primitive_ashift(lpp::lpp__context::pointer_t context);
+
+// B
+void primitive_backslashedp(lpp::lpp__context::pointer_t context);
+void primitive_bitand(lpp::lpp__context::pointer_t context);
+void primitive_bitnot(lpp::lpp__context::pointer_t context);
+void primitive_bitor(lpp::lpp__context::pointer_t context);
+void primitive_bitxor(lpp::lpp__context::pointer_t context);
+void primitive_butfirst(lpp::lpp__context::pointer_t context);
+void primitive_butlast(lpp::lpp__context::pointer_t context);
+void primitive_bye(lpp::lpp__context::pointer_t context);
+
+// C
+void primitive_cos(lpp::lpp__context::pointer_t context);
+
+// D
 void primitive_difference(lpp::lpp__context::pointer_t context);
+
+// E
+void primitive_emptyp(lpp::lpp__context::pointer_t context);
+void primitive_equalp(lpp::lpp__context::pointer_t context);
+void primitive_exp(lpp::lpp__context::pointer_t context);
+
+// F
 void primitive_first(lpp::lpp__context::pointer_t context);
+void primitive_floatp(lpp::lpp__context::pointer_t context);
+
+// G
+void primitive_greaterequalp(lpp::lpp__context::pointer_t context);
+void primitive_greaterp(lpp::lpp__context::pointer_t context);
+
+// I
+void primitive_int(lpp::lpp__context::pointer_t context);
+void primitive_integerp(lpp::lpp__context::pointer_t context);
+void primitive_iseq(lpp::lpp__context::pointer_t context);
+
+// L
+void primitive_last(lpp::lpp__context::pointer_t context);
+void primitive_lessequalp(lpp::lpp__context::pointer_t context);
+void primitive_lessp(lpp::lpp__context::pointer_t context);
+void primitive_ln(lpp::lpp__context::pointer_t context);
+void primitive_log(lpp::lpp__context::pointer_t context);
+void primitive_lshift(lpp::lpp__context::pointer_t context);
+
+// M
 void primitive_minus(lpp::lpp__context::pointer_t context);
+void primitive_modulo(lpp::lpp__context::pointer_t context);
+
+// N
+void primitive_numberp(lpp::lpp__context::pointer_t context);
+
+// O
+void primitive_or(lpp::lpp__context::pointer_t context);
+
+// P
+void primitive_plus(lpp::lpp__context::pointer_t context);
+void primitive_power(lpp::lpp__context::pointer_t context);
 void primitive_print(lpp::lpp__context::pointer_t context);
 void primitive_product(lpp::lpp__context::pointer_t context);
+
+// Q
+void primitive_quotient(lpp::lpp__context::pointer_t context);
+
+// R
+void primitive_radarccos(lpp::lpp__context::pointer_t context);
+void primitive_radarcsin(lpp::lpp__context::pointer_t context);
+void primitive_radarctan(lpp::lpp__context::pointer_t context);
+void primitive_radcos(lpp::lpp__context::pointer_t context);
+void primitive_radsin(lpp::lpp__context::pointer_t context);
+void primitive_radtan(lpp::lpp__context::pointer_t context);
+void primitive_random(lpp::lpp__context::pointer_t context);
+void primitive_remainder(lpp::lpp__context::pointer_t context);
 void primitive_repcount(lpp::lpp__context::pointer_t context);
+void primitive_rerandom(lpp::lpp__context::pointer_t context);
+void primitive_round(lpp::lpp__context::pointer_t context);
+void primitive_rseq(lpp::lpp__context::pointer_t context);
+
+// S
 void primitive_show(lpp::lpp__context::pointer_t context);
+void primitive_sin(lpp::lpp__context::pointer_t context);
+void primitive_sqrt(lpp::lpp__context::pointer_t context);
 void primitive_sum(lpp::lpp__context::pointer_t context);
+
+// T
+void primitive_tan(lpp::lpp__context::pointer_t context);
 void primitive_throw(lpp::lpp__context::pointer_t context);
 void primitive_type(lpp::lpp__context::pointer_t context);
+
+// W
 void primitive_word(lpp::lpp__context::pointer_t context);
+void primitive_wordp(lpp::lpp__context::pointer_t context);
+
+// X
+void primitive_xor(lpp::lpp__context::pointer_t context);
 
 
 // helpers

@@ -306,6 +306,8 @@ std::ostream & operator << (std::ostream & out, lpp::lpp__value_type_t value_typ
         break;
 
     }
+
+    return out;
 }
 
 

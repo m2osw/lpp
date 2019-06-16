@@ -28,25 +28,31 @@
 namespace
 {
 
-template<typename T>
-T operation(lpp::lpp__context::pointer_t , T lhs, T rhs)
+lpp::lpp__float_t flt_operation(lpp::lpp__context::pointer_t context, lpp::lpp__float_t lhs, lpp::lpp__float_t )
 {
     // TODO: handle overflow/underflow
-    return lhs * rhs;
+    if(lhs < -1.0
+    || lhs >  1.0)
+    {
+        throw lpp::lpp__error(context
+                            , "error"
+                            , "arcsin() input must be between -1.0 and +1.0 inclusive.");
+    }
+    return asin(lhs) * 180.0 / M_PI;
 }
 
 } // no name namespace
 
 
-void primitive_product(lpp::lpp__context::pointer_t context)
+void primitive_arcsin(lpp::lpp__context::pointer_t context)
 {
     lpp::lpp__number::compute(
               context
             , "number1"
-            , "number2"
-            , "rest"
-            , operation<lpp::lpp__integer_t>
-            , operation<lpp::lpp__float_t>);
+            , std::string()
+            , std::string()
+            , nullptr
+            , flt_operation);
 }
 
 

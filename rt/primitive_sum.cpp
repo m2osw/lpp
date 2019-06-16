@@ -29,7 +29,7 @@ namespace
 {
 
 template<typename T>
-T operation(T lhs, T rhs)
+T operation(lpp::lpp__context::pointer_t , T lhs, T rhs)
 {
     // TODO: handle overflow/underflow
     return lhs + rhs;

@@ -27,7 +27,7 @@
 
 
 
-void primitive_first(lpp::lpp__context::pointer_t context)
+void primitive_butfirst(lpp::lpp__context::pointer_t context)
 {
     lpp::lpp__value::pointer_t thing(context->get_thing("thing")->get_value());
 
@@ -38,14 +38,14 @@ void primitive_first(lpp::lpp__context::pointer_t context)
     case lpp::lpp__value_type_t::LPP__VALUE_TYPE_INTEGER:
         {
             std::string const n(std::to_string(thing->get_integer()));
-            result->set_word(n.substr(0, 1));
+            result->set_word(n.substr(1));
         }
         break;
 
     case lpp::lpp__value_type_t::LPP__VALUE_TYPE_FLOAT:
         {
             std::string const n(std::to_string(thing->get_float()));
-            result->set_word(n.substr(0, 1));
+            result->set_word(n.substr(1));
         }
         break;
 
@@ -56,30 +56,30 @@ void primitive_first(lpp::lpp__context::pointer_t context)
             {
                 throw lpp::lpp__error(context
                                     , "error"
-                                    , "first cannot be used against an empty string.");
+                                    , "butfirst cannot be used against an empty string.");
             }
-            result->set_word(n.substr(0, 1));
+            result->set_word(n.substr(1));
         }
         break;
 
     case lpp::lpp__value_type_t::LPP__VALUE_TYPE_LIST:
         {
-            lpp::lpp__value::vector_t const & l(thing->get_list());
+            lpp::lpp__value::vector_t l(thing->get_list());
             if(l.empty())
             {
                 throw lpp::lpp__error(context
                                     , "error"
-                                    , "first cannot be used against an empty list.");
+                                    , "butfirst cannot be used against an empty list.");
             }
-            lpp::lpp__value::vector_t first_item({l[0]});
-            result->set_list(first_item);
+            l.erase(l.begin());
+            result->set_list(l);
         }
         break;
 
     default:
         throw lpp::lpp__error(context
                             , "error"
-                            , "first used with an unexpected parameter type.");
+                            , "butfirst used with an unexpected parameter type.");
 
     }
 

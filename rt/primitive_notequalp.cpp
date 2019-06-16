@@ -25,28 +25,27 @@
 #include <iostream>
 
 
+
 namespace
 {
 
-template<typename T>
-T operation(lpp::lpp__context::pointer_t , T lhs, T rhs)
+lpp::lpp__integer_t operation(lpp::lpp__integer_t compare)
 {
-    // TODO: handle overflow/underflow
-    return lhs * rhs;
+    return compare == -1 || compare == 1;
 }
 
 } // no name namespace
 
 
-void primitive_product(lpp::lpp__context::pointer_t context)
+
+void primitive_notequalp(lpp::lpp__context::pointer_t context)
 {
-    lpp::lpp__number::compute(
+    lpp::lpp__number::compare(
               context
-            , "number1"
-            , "number2"
+            , "thing1"
+            , "thing2"
             , "rest"
-            , operation<lpp::lpp__integer_t>
-            , operation<lpp::lpp__float_t>);
+            , operation);
 }
 
 

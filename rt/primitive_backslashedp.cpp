@@ -25,28 +25,50 @@
 #include <iostream>
 
 
-namespace
+
+
+void primitive_backslashedp(lpp::lpp__context::pointer_t context)
 {
+    lpp::lpp__value::pointer_t thing(context->get_thing("char")->get_value());
 
-template<typename T>
-T operation(lpp::lpp__context::pointer_t , T lhs, T rhs)
-{
-    // TODO: handle overflow/underflow
-    return lhs * rhs;
-}
+    std::string const word(thing->to_word());
 
-} // no name namespace
+    bool boolean(false);
+    switch(word[0])
+    {
+    case ' ':
+    case '\t':
+    case '\n':
+    case '\r':
+    case '(':
+    case ')':
+    case '[':
+    case ']':
+    case '+':
+    case '-':
+    case '*':
+    case '/':
+    case '=':
+    case '<':
+    case '>':
+    case '"':
+    case ':':
+    case ';':
+    case '\\':
+    case '~':
+    case '?':
+    case '|':
+        boolean = true;
+        break;
 
+    default:
+        break;
 
-void primitive_product(lpp::lpp__context::pointer_t context)
-{
-    lpp::lpp__number::compute(
-              context
-            , "number1"
-            , "number2"
-            , "rest"
-            , operation<lpp::lpp__integer_t>
-            , operation<lpp::lpp__float_t>);
+    }
+
+    lpp::lpp__value::pointer_t result(std::make_shared<lpp::lpp__value>(static_cast<lpp::lpp__integer_t>(boolean)));
+
+    context->set_return_value(result);
 }
 
 

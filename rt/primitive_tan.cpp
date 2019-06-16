@@ -28,25 +28,24 @@
 namespace
 {
 
-template<typename T>
-T operation(lpp::lpp__context::pointer_t , T lhs, T rhs)
+lpp::lpp__float_t flt_operation(lpp::lpp__context::pointer_t , lpp::lpp__float_t lhs, lpp::lpp__float_t )
 {
     // TODO: handle overflow/underflow
-    return lhs * rhs;
+    return tan(lhs * M_PI / 180.0);
 }
 
 } // no name namespace
 
 
-void primitive_product(lpp::lpp__context::pointer_t context)
+void primitive_tan(lpp::lpp__context::pointer_t context)
 {
     lpp::lpp__number::compute(
               context
             , "number1"
-            , "number2"
-            , "rest"
-            , operation<lpp::lpp__integer_t>
-            , operation<lpp::lpp__float_t>);
+            , std::string()
+            , std::string()
+            , nullptr
+            , flt_operation);
 }
 
 

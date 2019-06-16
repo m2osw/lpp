@@ -62,7 +62,7 @@ private:
     Token::pointer_t        next_body_token();
     void                    input_lines();
     void                    line();
-    void                    to_definition(Token::pointer_t keyword);
+    void                    procedure(Token::pointer_t keyword);
     void                    program();
     Token::pointer_t        call_function(bool must_return);
     Token::pointer_t        expression();
@@ -73,6 +73,7 @@ private:
     Token::pointer_t        unary_expression();
     void                    output_body(Token::pointer_t body);
     void                    output_function_call(Token::pointer_t function_call, std::string const & result_var = std::string());
+    void                    output_argument(Token::pointer_t arg, std::string const & value_name);
     void                    build_list(Token::pointer_t list);
     void                    control(control_t & control_info);
     void                    control_repeat(control_t & control_info);

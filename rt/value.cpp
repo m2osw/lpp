@@ -67,7 +67,7 @@ lpp__value::lpp__value(vector_t const & value)
 }
 
 
-lpp::lpp__value_type_t lpp__value::type() const
+lpp__value_type_t lpp__value::type() const
 {
     return static_cast<lpp__value_type_t>(f_value.which());
 }
@@ -91,43 +91,25 @@ bool lpp__value::represents_integer() const
         {
             double integral_part(0.0);
             double fraction(modf(boost::get<lpp__float_t>(f_value), &integral_part));
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wfloat-equal"
             if(fraction == 0.0)
             {
                 return true;
             }
+#pragma GCC diagnostic pop
         }
         break;
 
     case lpp__value_type_t::LPP__VALUE_TYPE_WORD:
         {
-            std::string const str(boost::get<std::string>(f_value));
-            size_t const max(str.length());
-            if(max == 0)
-            {
-                return false;
-            }
-            size_t pos(0);
-            if(str[0] == '-'
-            && str[0] == '+')
-            {
-                if(max == 1)
-                {
-                    return false;
-                }
-                ++pos;
-            }
-
-            for(; pos < max; ++pos)
-            {
-                if(str[pos] < '0'
-                || str[pos] > '9')
-                {
-                    return false;
-                }
-            }
-            return true;
+            std::string const word(boost::get<std::string>(f_value));
+            char * end(nullptr);
+            static_cast<void>(std::strtoll(word.c_str(), &end, 10));
+            return end != nullptr
+                && word.c_str() != end
+                && *end == '\0';
         }
-        break;
 
     default:
         break;
@@ -149,10 +131,11 @@ bool lpp__value::represents_float() const
     case lpp__value_type_t::LPP__VALUE_TYPE_WORD:
         {
             std::string const str(boost::get<std::string>(f_value));
-            char * e(nullptr);
-            lpp__float_t const v(strtod(str.c_str(), &e));
-            return e != nullptr
-                && *e == '\0';
+            char * end(nullptr);
+            static_cast<void>(strtod(str.c_str(), &end));
+            return end != nullptr
+                && str.c_str() != end
+                && *end == '\0';
         }
 
     default:
@@ -308,6 +291,87 @@ std::string lpp__value::to_word(display_flag_t flags) const
                        , "wrong type to convert to a word.");
 
     }
+}
+
+
+lpp__integer_t lpp__value::to_integer() const
+{
+    switch(type())
+    {
+    case lpp__value_type_t::LPP__VALUE_TYPE_INTEGER:
+        return boost::get<lpp__float_t>(f_value);
+
+    case lpp__value_type_t::LPP__VALUE_TYPE_FLOAT:
+        {
+            double integral_part(0.0);
+            double fraction(modf(boost::get<lpp__float_t>(f_value), &integral_part));
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wfloat-equal"
+            if(fraction == 0.0)
+            {
+                // TODO: test for overflow/underflow
+                return static_cast<lpp__integer_t>(integral_part);
+            }
+#pragma GCC diagnostic pop
+        }
+        break;
+
+    case lpp__value_type_t::LPP__VALUE_TYPE_WORD:
+        {
+            std::string const word(boost::get<std::string>(f_value));
+            char * end(nullptr);
+            lpp__integer_t const value(std::strtoll(word.c_str(), &end, 10));
+            if(end != nullptr
+            && word.c_str() != end
+            && *end == '\0')
+            {
+                return value;
+            }
+        }
+        break;
+
+    default:
+        break;
+
+    }
+
+    // to know whether -1.0 is an error, call represents_integer()
+    //
+    return -1;
+}
+
+
+lpp__float_t lpp__value::to_float() const
+{
+    switch(type())
+    {
+    case lpp__value_type_t::LPP__VALUE_TYPE_INTEGER:
+        return boost::get<lpp__integer_t>(f_value);
+
+    case lpp__value_type_t::LPP__VALUE_TYPE_FLOAT:
+        return boost::get<lpp__float_t>(f_value);
+
+    case lpp__value_type_t::LPP__VALUE_TYPE_WORD:
+        {
+            std::string const word(boost::get<std::string>(f_value));
+            char * end(nullptr);
+            lpp__float_t value(strtod(word.c_str(), &end));
+            if(end != nullptr
+            && word.c_str() != end
+            && *end == '\0')
+            {
+                return value;
+            }
+        }
+
+    default:
+        break;
+
+    }
+
+    // to know whether -1.0 is an error, call represents_float()
+    //
+    return -1.0;
 }
 
 

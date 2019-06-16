@@ -7,10 +7,18 @@ mkdir -p BUILD/Debug
 mkdir -p BUILD/Release
 
 cd BUILD/Debug
-cmake ../../lpp
-make
+DIST=`pwd`/dist
+cmake \
+	-DCMAKE_INSTALL_PREFIX:PATH=${DIST} \
+	-DCMAKE_PREFIX_PATH:PATH=${DIST} \
+	../../lpp
+make install
 
 cd ../../BUILD/Release
-cmake ../../lpp
-make
+DIST=`pwd`/dist
+cmake \
+	-DCMAKE_INSTALL_PREFIX:PATH=${DIST} \
+	-DCMAKE_PREFIX_PATH:PATH=${DIST} \
+	../../lpp
+make install
 

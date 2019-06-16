@@ -25,28 +25,34 @@
 #include <iostream>
 
 
+
 namespace
 {
 
-template<typename T>
-T operation(lpp::lpp__context::pointer_t , T lhs, T rhs)
+lpp::lpp__float_t flt_operation(lpp::lpp__context::pointer_t context, lpp::lpp__float_t lhs, lpp::lpp__float_t )
 {
-    // TODO: handle overflow/underflow
-    return lhs * rhs;
+    if(lhs < 0)
+    {
+        throw lpp::lpp__error(context
+                            , "error"
+                            , "sqrt does not accept negative numbers.");
+    }
+    return sqrt(lhs);
 }
 
 } // no name namespace
 
 
-void primitive_product(lpp::lpp__context::pointer_t context)
+
+void primitive_sqrt(lpp::lpp__context::pointer_t context)
 {
     lpp::lpp__number::compute(
               context
-            , "number1"
-            , "number2"
-            , "rest"
-            , operation<lpp::lpp__integer_t>
-            , operation<lpp::lpp__float_t>);
+            , "number"
+            , std::string()
+            , std::string()
+            , nullptr
+            , flt_operation);
 }
 
 

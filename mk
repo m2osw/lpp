@@ -19,11 +19,22 @@ case "$1" in
 
 "-t")
 	echo "-- Building..."
-	make -C ../BUILD/Debug
+	make -C ../BUILD/Debug install
 	echo "-- lpp compiling..."
-	../BUILD/Debug/src/lpp tests/suite/syntax-print.logo
+	../BUILD/Debug/dist/bin/lpp tests/suite/syntax-print.logo
 	echo "-- g++ compiling..."
-	g++ -std=c++14 -I rt l.cpp rt/*.cpp
+
+	# The -rpath is just as a developer, when lpp is installed
+	# we can just access the library under /usr/lib so it would
+	# not help
+	#
+	g++ -std=c++14 -I ../BUILD/Debug/dist/include \
+			l.cpp \
+			../BUILD/Debug/dist/lib/lpp/main.cpp \
+			-Xlinker -rpath \
+			-Xlinker `cd ../BUILD/Debug/dist/lib; pwd` \
+			-L ../BUILD/Debug/dist/lib \
+			-llpprt
 	;;
 
 *)

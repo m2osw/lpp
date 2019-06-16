@@ -30,7 +30,7 @@ namespace
 {
 
 template<typename T>
-T operation(T lhs, T ignore)
+T operation(lpp::lpp__context::pointer_t , T lhs, T )
 {
     // TODO: handle overflow/underflow
     return -lhs;

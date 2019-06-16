@@ -25,28 +25,19 @@
 #include <iostream>
 
 
-namespace
+
+void primitive_not(lpp::lpp__context::pointer_t context)
 {
+    lpp::lpp__value::pointer_t lhs(context->get_thing("boolean")->get_value());
+    if(lhs->type() != lpp::lpp__value_type_t::LPP__VALUE_TYPE_BOOLEAN)
+    {
+        throw lpp::lpp__error(context
+                            , "error"
+                            , "logical functions expects boolean values only.");
+    }
 
-template<typename T>
-T operation(lpp::lpp__context::pointer_t , T lhs, T rhs)
-{
-    // TODO: handle overflow/underflow
-    return lhs * rhs;
-}
-
-} // no name namespace
-
-
-void primitive_product(lpp::lpp__context::pointer_t context)
-{
-    lpp::lpp__number::compute(
-              context
-            , "number1"
-            , "number2"
-            , "rest"
-            , operation<lpp::lpp__integer_t>
-            , operation<lpp::lpp__float_t>);
+    lpp::lpp__value::pointer_t result(std::make_shared<lpp::lpp__value>(!lhs->get_boolean()));
+    context->set_return_value(result);
 }
 
 

@@ -18,7 +18,7 @@
 
 // self
 //
-#include "lpp.hpp"
+#include <lpp/lpp.hpp>
 
 // C++ lib
 //
@@ -39,6 +39,24 @@ int main(int argc, char * argv[])
         lpp::lpp__context::pointer_t context(std::make_shared<lpp::lpp__context>(std::string(), "program", 0, false));
         context->set_global(context);
 
+        lpp::lpp__value::vector_t argument_list;
+        for(int i(0); i < argc; ++i)
+        {
+            lpp::lpp__value::pointer_t arg(std::make_shared<lpp::lpp__value>(std::string(argv[i])));
+            if(arg->represents_integer())
+            {
+                arg->set_integer(arg->to_integer());
+            }
+            else if(arg->represents_float())
+            {
+                arg->set_float(arg->to_float());
+            }
+            argument_list.push_back(arg);
+        }
+        lpp::lpp__value::pointer_t arguments(std::make_shared<lpp::lpp__value>(argument_list));
+
+        context->set_thing("arguments", arguments, lpp::lpp__thing_type_t::LPP__THING_TYPE_GLOBAL);
+
         lpp__startup(context);
 
         if(context->has_returned_value())
@@ -51,7 +69,7 @@ int main(int argc, char * argv[])
             }
             else
             {
-std::cout << "-- got an exit code! --\n";
+std::cout << "-- got an exit code! " << exit_code->get_integer() << " --\n";
                 return exit_code->get_integer();
             }
         }
