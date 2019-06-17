@@ -35,8 +35,9 @@ lpp::lpp__float_t flt_operation(lpp::lpp__context::pointer_t context, lpp::lpp__
     || lhs >  1.0)
     {
         throw lpp::lpp__error(context
+                            , lpp::lpp__error_code_t::ERROR_CODE_ARITHMETIC_ERROR
                             , "error"
-                            , "arcsin() input must be between -1.0 and +1.0 inclusive.");
+                            , "arccos() input must be between -1.0 and +1.0 inclusive.");
     }
     return acos(lhs);
 }

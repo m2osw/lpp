@@ -80,6 +80,25 @@ bool lpp__value::is_set() const
 }
 
 
+bool lpp__value::represents_word() const
+{
+    switch(type())
+    {
+    case lpp__value_type_t::LPP__VALUE_TYPE_BOOLEAN:
+    case lpp__value_type_t::LPP__VALUE_TYPE_INTEGER:
+    case lpp__value_type_t::LPP__VALUE_TYPE_FLOAT:
+    case lpp__value_type_t::LPP__VALUE_TYPE_WORD:
+        return true;
+
+    default:
+        break;
+
+    }
+
+    return false;
+}
+
+
 bool lpp__value::represents_integer() const
 {
     switch(type())
@@ -287,6 +306,7 @@ std::string lpp__value::to_word(display_flag_t flags) const
 
     default:
         throw lpp__error(nullptr
+                       , lpp__error_code_t::ERROR_CODE_INVALID_DATUM
                        , "error"
                        , "wrong type to convert to a word.");
 
@@ -375,6 +395,17 @@ lpp__float_t lpp__value::to_float() const
 }
 
 
+void lpp__value::add_prop(std::string const & name
+                        , lpp__value::pointer_t value)
+{
+    vector_t & list(boost::get<vector_t>(f_value));
+
+    lpp__value::pointer_t prop_name(std::make_shared<lpp::lpp__value>());
+    prop_name->set_word(name);
+    list.push_back(prop_name);
+
+    list.push_back(value);
+}
 
 
 

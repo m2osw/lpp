@@ -35,6 +35,10 @@ void primitive_last(lpp::lpp__context::pointer_t context)
 
     switch(thing->type())
     {
+    case lpp::lpp__value_type_t::LPP__VALUE_TYPE_BOOLEAN:
+        result->set_word("e");
+        break;
+
     case lpp::lpp__value_type_t::LPP__VALUE_TYPE_INTEGER:
         {
             std::string const n(std::to_string(thing->get_integer()));
@@ -55,6 +59,7 @@ void primitive_last(lpp::lpp__context::pointer_t context)
             if(n.empty())
             {
                 throw lpp::lpp__error(context
+                                    , lpp::lpp__error_code_t::ERROR_CODE_INVALID_DATUM
                                     , "error"
                                     , "last cannot be used against an empty string.");
             }
@@ -68,16 +73,17 @@ void primitive_last(lpp::lpp__context::pointer_t context)
             if(l.empty())
             {
                 throw lpp::lpp__error(context
+                                    , lpp::lpp__error_code_t::ERROR_CODE_INVALID_DATUM
                                     , "error"
                                     , "last cannot be used against an empty list.");
             }
-            lpp::lpp__value::vector_t last_item({l[l.size() - 1]});
-            result->set_list(last_item);
+            result = l[l.size() - 1];
         }
         break;
 
     default:
         throw lpp::lpp__error(context
+                            , lpp::lpp__error_code_t::ERROR_CODE_FATAL_INVALID_DATUM
                             , "error"
                             , "last used with an unexpected parameter type.");
 

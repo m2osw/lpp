@@ -32,6 +32,7 @@ void primitive_not(lpp::lpp__context::pointer_t context)
     if(lhs->type() != lpp::lpp__value_type_t::LPP__VALUE_TYPE_BOOLEAN)
     {
         throw lpp::lpp__error(context
+                            , lpp::lpp__error_code_t::ERROR_CODE_INVALID_DATUM
                             , "error"
                             , "logical functions expects boolean values only.");
     }

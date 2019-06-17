@@ -27,69 +27,69 @@
 
 
 
-void primitive_butlast(lpp::lpp__context::pointer_t context)
+void primitive_item(lpp::lpp__context::pointer_t context)
 {
+    lpp::lpp__value::pointer_t number(context->get_thing("number")->get_value());
     lpp::lpp__value::pointer_t thing(context->get_thing("thing")->get_value());
+
+    if(!number->represents_float())
+    {
+        throw lpp::lpp__error(context
+                            , lpp::lpp__error_code_t::ERROR_CODE_INVALID_DATUM
+                            , "error"
+                            , "item first parameter is expected to be a number.");
+    }
+
+    lpp::lpp__integer_t position(static_cast<lpp::lpp__integer_t>(number->to_float()));
+    if(position <= 0)
+    {
+        throw lpp::lpp__error(context
+                            , lpp::lpp__error_code_t::ERROR_CODE_INVALID_DATUM
+                            , "error"
+                            , "item first parameter must be a valid position (a positive number).");
+    }
+    --position;     // C++ position start at 0
 
     lpp::lpp__value::pointer_t result(std::make_shared<lpp::lpp__value>());
 
     switch(thing->type())
     {
     case lpp::lpp__value_type_t::LPP__VALUE_TYPE_BOOLEAN:
-        {
-            std::string const n(thing->to_word());
-            result->set_word(n.substr(0, n.length() - 1));
-        }
-        break;
-
     case lpp::lpp__value_type_t::LPP__VALUE_TYPE_INTEGER:
-        {
-            std::string const n(std::to_string(thing->get_integer()));
-            result->set_word(n.substr(0, n.length() - 1));
-        }
-        break;
-
     case lpp::lpp__value_type_t::LPP__VALUE_TYPE_FLOAT:
-        {
-            std::string const n(std::to_string(thing->get_float()));
-            result->set_word(n.substr(0, n.length() - 1));
-        }
-        break;
-
     case lpp::lpp__value_type_t::LPP__VALUE_TYPE_WORD:
         {
-            std::string const n(thing->get_word());
-            if(n.empty())
+            std::string const word(thing->to_word());
+            if(static_cast<size_t>(position) >= word.length())
             {
                 throw lpp::lpp__error(context
                                     , lpp::lpp__error_code_t::ERROR_CODE_INVALID_DATUM
                                     , "error"
-                                    , "butlast cannot be used against an empty string.");
+                                    , "item first parameter must be a positive number within the number of items.");
             }
-            result->set_word(n.substr(0, n.length() - 1));
+            result->set_word(word.substr(position, 1));
         }
         break;
 
     case lpp::lpp__value_type_t::LPP__VALUE_TYPE_LIST:
         {
-            lpp::lpp__value::vector_t l(thing->get_list());
-            if(l.empty())
+            lpp::lpp__value::vector_t const & l(thing->get_list());
+            if(static_cast<size_t>(position) >= l.size())
             {
                 throw lpp::lpp__error(context
                                     , lpp::lpp__error_code_t::ERROR_CODE_INVALID_DATUM
                                     , "error"
-                                    , "butlast cannot be used against an empty list.");
+                                    , "item first parameter must be a positive number within the number of items.");
             }
-            l.erase(l.end() - 1);
-            result->set_list(l);
+            result = l[position];
         }
         break;
 
     default:
         throw lpp::lpp__error(context
-                            , lpp::lpp__error_code_t::ERROR_CODE_FATAL_INVALID_DATUM
+                            , lpp::lpp__error_code_t::ERROR_CODE_INVALID_DATUM
                             , "error"
-                            , "butlast used with an unexpected parameter type.");
+                            , "item used with an unexpected second parameter type.");
 
     }
 

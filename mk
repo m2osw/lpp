@@ -19,7 +19,9 @@ case "$1" in
 
 "-t")
 	echo "-- Building..."
-	make -C ../BUILD/Debug install
+	make -j4 -C ../BUILD/Debug
+	echo "-- Installing..."
+	make -C ../BUILD/Debug install >../BUILD/Debug/install.log
 	echo "-- lpp compiling..."
 	../BUILD/Debug/dist/bin/lpp tests/suite/syntax-print.logo
 	echo "-- g++ compiling..."

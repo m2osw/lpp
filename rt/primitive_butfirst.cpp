@@ -35,6 +35,13 @@ void primitive_butfirst(lpp::lpp__context::pointer_t context)
 
     switch(thing->type())
     {
+    case lpp::lpp__value_type_t::LPP__VALUE_TYPE_BOOLEAN:
+        {
+            std::string const n(thing->to_word());
+            result->set_word(n.substr(1));
+        }
+        break;
+
     case lpp::lpp__value_type_t::LPP__VALUE_TYPE_INTEGER:
         {
             std::string const n(std::to_string(thing->get_integer()));
@@ -55,6 +62,7 @@ void primitive_butfirst(lpp::lpp__context::pointer_t context)
             if(n.empty())
             {
                 throw lpp::lpp__error(context
+                                    , lpp::lpp__error_code_t::ERROR_CODE_INVALID_DATUM
                                     , "error"
                                     , "butfirst cannot be used against an empty string.");
             }
@@ -68,6 +76,7 @@ void primitive_butfirst(lpp::lpp__context::pointer_t context)
             if(l.empty())
             {
                 throw lpp::lpp__error(context
+                                    , lpp::lpp__error_code_t::ERROR_CODE_INVALID_DATUM
                                     , "error"
                                     , "butfirst cannot be used against an empty list.");
             }
@@ -78,6 +87,7 @@ void primitive_butfirst(lpp::lpp__context::pointer_t context)
 
     default:
         throw lpp::lpp__error(context
+                            , lpp::lpp__error_code_t::ERROR_CODE_FATAL_INVALID_DATUM
                             , "error"
                             , "butfirst used with an unexpected parameter type.");
 

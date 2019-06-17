@@ -1,13 +1,36 @@
 program
-  ;display [Hello  World! [note: list of list]]
-  display :arguments
+  make "global 123
+  test # :arguments > 2
+  ift [make "global item 2 :arguments]
+  type "wait...
+  wait 1.0
+  print "
+  print "this\ ift?
+  ift [safe bf :arguments]
+  print "or\ iff?
+  iff [display [Hello  World! [note: list of list]]]
 end program
+
+to safe :msg
+  print "BEFORE\ CATCH
+  catch "test [display :msg]
+  print "AFTER\ CATCH
+  show error
+  print "
+end safe
 
 to display :msg
   repeat 10 - 1 [type  word "- repcount]
   print "-
-  print :msg "MORE sqrt -21 + 123 * 2 [Info] first [a b c]
+  print :msg "MORE sqrt -21 + square :global * 2 [Info] first [a b c]
+  iftrue [stop]
   repeat 2 * 2 [type "-]
   print "-
-  bye
-end "display
+  bye 5
+end display
+
+to square :x
+  if :x < 0 [throw "test]
+  if :x = 0 [output 0]
+  op :x * :x
+end "square

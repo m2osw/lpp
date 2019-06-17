@@ -75,11 +75,21 @@ private:
     void                    output_function_call(Token::pointer_t function_call, std::string const & result_var = std::string());
     void                    output_argument(Token::pointer_t arg, std::string const & value_name);
     void                    build_list(Token::pointer_t list);
-    void                    control(control_t & control_info);
-    void                    control_repeat(control_t & control_info);
+    void                    control_primitive(control_t & control_info);
+    bool                    inline_primitive(control_t & control_info);
     std::string             logo_to_cpp_name(std::string const & name);
     std::string             word_to_cpp_literal_string(std::string const & word);
     std::string             get_unique_name();
+
+    void                    control_catch(control_t & control_info);
+    void                    control_if(control_t & control_info);
+    void                    control_if_test(control_t & control_info, bool true_or_false);
+    void                    control_output(control_t & control_info);
+    void                    control_repeat(control_t & control_info);
+    void                    control_stop(control_t & control_info);
+    void                    control_throw(control_t & control_info);
+
+    void                    primitive_wait(control_t & control_info);
 
     bool                    f_output_object = false;
     bool                    f_enable_trace = false;

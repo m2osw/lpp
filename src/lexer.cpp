@@ -213,18 +213,20 @@ Token::pointer_t Lexer::next_token()
     {
         char_type c(getc());
 
-        if(f_start_of_line
-        && c == '#')
-        {
-            // skip comments ('#' has to be in column 1)
-            // this allows for "#!/usr/bin/lpp" in your scripts
-            do
-            {
-                c = getc();
-            }
-            while(c != std::istream::traits_type::eof() && c != '\n');
-            continue;
-        }
+        // this doesn't make sense since our logo is compiled
+        // (i.e. a "#!/usr/bin/lpp" comment at the start would not work)
+        //if(f_start_of_line
+        //&& c == '#')
+        //{
+        //    // skip comments ('#' has to be in column 1)
+        //    // this allows for "#!/usr/bin/lpp" in your scripts
+        //    do
+        //    {
+        //        c = getc();
+        //    }
+        //    while(c != std::istream::traits_type::eof() && c != '\n');
+        //    continue;
+        //}
 
         bool const start_of_line(f_start_of_line); // for WORD
         f_start_of_line = false;
@@ -249,6 +251,10 @@ Token::pointer_t Lexer::next_token()
             // skip white space
             f_start_of_line = true;
             break;
+
+        case '#':
+            result->set_token(token_t::TOK_COUNT);
+            return result;
 
         case '+':
             c = getc();

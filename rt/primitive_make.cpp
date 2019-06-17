@@ -27,16 +27,22 @@
 
 
 
-void primitive_throw(lpp::lpp__context::pointer_t context)
+void primitive_make(lpp::lpp__context::pointer_t context)
 {
-    lpp::lpp__value::pointer_t tag(context->get_thing("tag")->get_value());
-    lpp::lpp__value::pointer_t value(context->get_thing("value")->get_value());
+    lpp::lpp__value::pointer_t name(context->get_thing("name")->get_value());
+    lpp::lpp__value::pointer_t thing(context->get_thing("thing")->get_value());
 
-    throw lpp::lpp__error(context
-                        , lpp::lpp__error_code_t::ERROR_CODE_THROW
-                        , tag->get_word()
-                        , "User Error"
-                        , value);
+    if(name->type() != lpp::lpp__value_type_t::LPP__VALUE_TYPE_WORD)
+    {
+        throw lpp::lpp__error(context
+                            , lpp::lpp__error_code_t::ERROR_CODE_INVALID_DATUM
+                            , "error"
+                            , "\"make\" and \"name\" expect the variable name to be a word.");
+    }
+
+    context->set_thing(name->get_word()
+                     , thing
+                     , lpp::lpp__thing_type_t::LPP__THING_TYPE_DEFAULT);
 }
 
 

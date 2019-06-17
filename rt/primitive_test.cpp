@@ -25,35 +25,22 @@
 #include <iostream>
 
 
-namespace
-{
 
-lpp::lpp__float_t flt_operation(lpp::lpp__context::pointer_t context, lpp::lpp__float_t lhs, lpp::lpp__float_t )
+
+void primitive_test(lpp::lpp__context::pointer_t context)
 {
-    // TODO: handle overflow/underflow
-    if(lhs < -1.0
-    || lhs >  1.0)
+    lpp::lpp__value::pointer_t boolean(context->get_thing("boolean")->get_value());
+    if(boolean->type() != lpp::lpp__value_type_t::LPP__VALUE_TYPE_BOOLEAN)
     {
         throw lpp::lpp__error(context
-                            , lpp::lpp__error_code_t::ERROR_CODE_ARITHMETIC_ERROR
+                            , lpp::lpp__error_code_t::ERROR_CODE_INVALID_DATUM
                             , "error"
-                            , "arcsin() input must be between -1.0 and +1.0 inclusive.");
+                            , "test expected a boolean parameter.");
     }
-    return asin(lhs) * 180.0 / M_PI;
-}
 
-} // no name namespace
-
-
-void primitive_arcsin(lpp::lpp__context::pointer_t context)
-{
-    lpp::lpp__number::compute(
-              context
-            , "number1"
-            , std::string()
-            , std::string()
-            , nullptr
-            , flt_operation);
+    context->set_test(boolean->get_boolean()
+                            ? lpp::test_t::TEST_TRUE
+                            : lpp::test_t::TEST_FALSE);
 }
 
 

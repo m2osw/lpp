@@ -34,6 +34,7 @@ void primitive_rseq(lpp::lpp__context::pointer_t context)
     if(!n3.is_integer())
     {
         throw lpp::lpp__error(context
+                            , lpp::lpp__error_code_t::ERROR_CODE_INVALID_DATUM
                             , "error"
                             , "rseq only accepts an integer as its third parameter.");
     }
@@ -41,6 +42,7 @@ void primitive_rseq(lpp::lpp__context::pointer_t context)
     if(count < 0)
     {
         throw lpp::lpp__error(context
+                            , lpp::lpp__error_code_t::ERROR_CODE_INVALID_DATUM
                             , "error"
                             , "rseq expect the count parameter to be a positive number.");
     }

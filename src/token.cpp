@@ -40,6 +40,7 @@ char const * const g_token_to_string[] =
     [static_cast<int>(token_t::TOK_BOOLEAN)]           = "BOOLEAN",
     [static_cast<int>(token_t::TOK_CLOSE_LIST)]        = "CLOSE_LIST",
     [static_cast<int>(token_t::TOK_CLOSE_PARENTHESIS)] = "CLOSE_PARENTHESIS",
+    [static_cast<int>(token_t::TOK_COUNT)]             = "COUNT",
     [static_cast<int>(token_t::TOK_DECLARE)]           = "DECLARE",
     [static_cast<int>(token_t::TOK_DIFFERENCE)]        = "DIFFERENCE",
     [static_cast<int>(token_t::TOK_END)]               = "END",
@@ -319,7 +320,7 @@ bool Token::get_start_of_line() const
 }
 
 
-std::string const & Token::get_word() const
+std::string Token::get_word() const
 {
     switch(f_token)
     {
@@ -329,6 +330,22 @@ std::string const & Token::get_word() const
     case token_t::TOK_FUNCTION_CALL:
         break;
 
+    case token_t::TOK_LIST:
+        if(!f_list.empty()
+        && f_list[0]->f_token == token_t::TOK_WORD)
+        {
+            // special case for output_function_call() to print the
+            // long name only
+            //
+            std::string const & name(f_list[0]->f_word);
+            std::string::size_type const pos(name.find('&'));
+            if(pos == std::string::npos)
+            {
+                return name;
+            }
+            return name.substr(0, pos);
+        }
+        /*[[fallthrough]]*/
     default:
         throw std::logic_error("get_word() called when the token type is TOK_"
                              + to_string(f_token)
@@ -515,13 +532,20 @@ std::ostream & operator << (std::ostream & out, lpp::Token const & token)
 {
     switch(token.get_token())
     {
+    case lpp::token_t::TOK_FUNCTION_CALL:
+        out << token.get_word() << " args:";
     case lpp::token_t::TOK_LIST:
         {
             out << "[";
             auto const max(token.get_list_size());
-            for(std::remove_const<decltype(max)>::type idx(0); idx < max; ++idx)
+            if(max > 0)
             {
-                out << *token.get_list_item(idx);
+                out << *token.get_list_item(0);
+                for(std::remove_const<decltype(max)>::type idx(1); idx < max; ++idx)
+                {
+                    out << " ";
+                    out << *token.get_list_item(idx);
+                }
             }
             out << "]";
         }

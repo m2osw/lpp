@@ -85,6 +85,7 @@ public:
 
     lpp__value_type_t       type() const;
     bool                    is_set() const;
+    bool                    represents_word() const;
     bool                    represents_integer() const;
     bool                    represents_float() const;
 
@@ -106,6 +107,9 @@ public:
     lpp__integer_t          to_integer() const;
     lpp__float_t            to_float() const;
 
+    void                    add_prop(std::string const & name
+                                   , lpp__value::pointer_t value);
+
 private:
     // WARNING: the order of the types is captured in the lpp__value_type_t
     //          and it must match one to one
@@ -125,8 +129,9 @@ private:
 
 enum class lpp__thing_type_t
 {
-    LPP__THING_TYPE_DEFAULT,     // if variable exists anywhere in the context, use that variable
-    LPP__THING_TYPE_LOCAL,       // make variable locally (inside current procedure)
+    LPP__THING_TYPE_DEFAULT,     // if variable exists anywhere in the context, use that variable, otherwise like GLOBAL
+    LPP__THING_TYPE_CONTEXT,     // make variable locally (inside current context)
+    LPP__THING_TYPE_PROCEDURE,   // make variable locally (inside current procedure)
     LPP__THING_TYPE_GLOBAL       // access the global variable
 };
 
@@ -148,6 +153,90 @@ public:
 private:
     lpp__thing_type_t       f_type = lpp__thing_type_t::LPP__THING_TYPE_DEFAULT;
     lpp__value::pointer_t   f_value = lpp__value::pointer_t();
+};
+
+
+
+class lpp__context;
+
+
+enum class lpp__error_code_t
+{
+    ERROR_CODE_NONE = -1,                   //      no error
+    ERROR_CODE_FATAL,                       //  0   Fatal internal error (can't be caught)
+    ERROR_CODE_OUT_OF_MEMORY,               //  1   Out of memory
+    ERROR_CODE_STACK_OVERFLOW,              //  2   Stack overflow
+    ERROR_CODE_TURTLE_OUT_OF_BOUNDS,        //  3   Turtle out of bounds                             [NOT RELEVANT]
+    ERROR_CODE_FATAL_INVALID_DATUM,         //  4   PROC doesn't like DATUM as input (not recoverable)
+    ERROR_CODE_OUTPUT_EXPECTED,             //  5   PROC didn't output to PROC
+    ERROR_CODE_MISSING_ARGUMENTS,           //  6   Not enough inputs to PROC                        [NOT RELEVANT]
+    ERROR_CODE_INVALID_DATUM,               //  7   PROC doesn't like DATUM as input (recoverable)
+    ERROR_CODE_TOO_MANY_PARENTHESIS,        //  8   Too much inside ()'s                             [NOT RELEVANT]
+    ERROR_CODE_TOO_MANY_INPUTS,             //  9   You don't say what to do with DATUM              [NOT RELEVANT]
+    ERROR_CODE_MISSING_CLOSE_PARENTHESIS,   // 10   ')' not found                                    [NOT RELEVANT]
+    ERROR_CODE_VARIABLE_NOT_SET,            // 11   VAR has no value
+    ERROR_CODE_UNEXPECTED_CLOSE_PARENTHESIS,// 12   Unexpected ')'                                   [NOT RELEVANT]
+    ERROR_CODE_UNKNOWN_PROCEDURE,           // 13   I don't know how to PROC (recoverable)           [NOT RELEVANT]
+    ERROR_CODE_CATCH_TAG_NOT_FOUND,         // 14   Can't find catch tag for THROWTAG
+    ERROR_CODE_PROCEDURE_ALREADY_DEFINED,   // 15   PROC is already defined                          [NOT RELEVANT]
+    ERROR_CODE_STOPPED,                     // 16   Stopped                                          [NOT RELEVANT]
+    ERROR_CODE_ALREADY_DRIBBLING,           // 17   Already dribbling
+    ERROR_CODE_FILE_SYSTEM_ERROR,           // 18   File system error
+    ERROR_CODE_ASSUMING_IFELSE,             // 19   Assuming you mean IFELSE, not IF (warning only)
+    ERROR_CODE_VARIABLE_SHADOWED,           // 20   VAR shadowed by local in procedure call (warning only)
+    ERROR_CODE_THROW,                       // 21   Throw "Error
+    ERROR_CODE_PROCEDURE_IS_A_PRIMITIVE,    // 22   PROC is a primitive                              [NOT RELEVANT]
+    ERROR_CODE_CANNOT_USE__TO__HERE,        // 23   Can't use TO inside a procedure                  [NOT RELEVANT]
+    ERROR_CODE_FATAL_UNKNOWN_PROCEDURE,     // 24   I don't know how to PROC (not recoverable)       [NOT RELEVANT]
+    ERROR_CODE_IFTRUE_IFFALSE_WITHOUT_TEST, // 25   IFTRUE/IFFALSE without TEST
+    ERROR_CODE_UNEXPECTED_CLOSE_LIST,       // 26   Unexpected ']'                                   [NOT RELEVANT]
+    ERROR_CODE_UNEXPECTED_CLOSE_BRACKET,    // 27   Unexpected '}'                                   [NOT RELEVANT]
+    ERROR_CODE_NO_GRAPHICS_AVAILABLE,       // 28   Couldn't initialize graphics                     [NOT RELEVANT]
+    ERROR_CODE_INVALID_MACRO_RETURNED_VALUE,// 29   Macro returned VALUE instead of a list
+    ERROR_CODE_VALUE_ON_ITS_OWN,            // 30   You don't say what to do with VALUE              [NOT RELEVANT]
+    ERROR_CODE_STOP_OR_OUTPUT_ONLY,         // 31   Can only use STOP or OUTPUT inside a procedure   [NOT RELEVANT]
+    ERROR_CODE_APPLY_DID_NOT_LIKE_BAD_THING,// 32   APPLY doesn't like BADTHING as input
+    ERROR_CODE_UNEXPECTED_END,              // 33   END inside multi-line instruction                [NOT RELEVANT]
+    ERROR_CODE_REALLY_OUT_OF_MEMORY,        // 34   Really out of memory (can't be caught)
+    ERROR_CODE_ARITHMETIC_ERROR,            // 35   --added to lpp--
+};
+
+
+class lpp__error
+    : public std::runtime_error
+{
+public:
+                            lpp__error();
+                            lpp__error(std::shared_ptr<lpp__context const> context
+                                     , lpp__error_code_t code
+                                     , std::string const & tag
+                                     , std::string const & message
+                                     , lpp__value::pointer_t value = lpp__value::pointer_t());
+
+    lpp__error_code_t       code() const;
+    std::string const &     tag() const;
+    lpp__value::pointer_t   value() const;
+    std::string const &     filename() const;
+    std::string const &     procedure() const;
+    lpp__integer_t          line() const;
+    std::string const &     primitive() const;
+
+private:
+    lpp__error_code_t       f_code = lpp__error_code_t::ERROR_CODE_NONE;
+    std::string             f_tag = std::string();
+    lpp__value::pointer_t   f_value = lpp__value::pointer_t();
+    std::string             f_filename = std::string();
+    std::string             f_procedure = std::string();
+    lpp__integer_t          f_line = 0;
+    std::string             f_primitive = std::string();
+};
+
+
+enum class test_t : std::int8_t
+{
+    TEST_UNDEFINED,
+    TEST_TRUE,
+    TEST_FALSE
 };
 
 
@@ -180,9 +269,15 @@ public:
     lpp__value::pointer_t   get_returned_value() const; // throw if not set (i.e. last call did a STOP not an OUTPUT)
     void                    set_return_value(lpp__value::pointer_t value);
 
+    void                    set_error(lpp__error const & e) const;
+    lpp__error const &      get_error() const;
+
     void                    add_repeat_count(lpp__integer_t count);
     void                    remove_last_repeat_count();
     lpp__integer_t          get_repeat_count() const;
+
+    void                    set_test(test_t value);
+    test_t                  get_test() const;
 
     void                    attach(pointer_t parent);
 
@@ -196,6 +291,8 @@ private:
     std::string             f_procedure = std::string();
     lpp__integer_t          f_line = 0;
     bool                    f_primitive = false;
+    test_t                  f_test = test_t::TEST_UNDEFINED;
+    mutable lpp__error      f_last_error = lpp__error();
 };
 
 
@@ -210,28 +307,6 @@ private:
     lpp__context::pointer_t f_context;
 };
 
-
-
-class lpp__error
-    : public std::runtime_error
-{
-public:
-                            lpp__error(lpp__context::const_pointer_t context
-                                     , std::string const & tag
-                                     , std::string const & message
-                                     , lpp__value::pointer_t value = lpp__value::pointer_t());
-
-    std::string const &     tag() const;
-    lpp__value::pointer_t   value() const;
-
-private:
-    std::string             f_tag = std::string();
-    lpp__value::pointer_t   f_value = lpp__value::pointer_t();
-    std::string             f_filename = std::string();
-    std::string             f_procedure = std::string();
-    lpp__integer_t          f_line = 0;
-    std::string             f_primitive = std::string();
-};
 
 
 
@@ -317,6 +392,7 @@ void primitive_bye(lpp::lpp__context::pointer_t context);
 
 // C
 void primitive_cos(lpp::lpp__context::pointer_t context);
+void primitive_count(lpp::lpp__context::pointer_t context);
 
 // D
 void primitive_difference(lpp::lpp__context::pointer_t context);
@@ -324,6 +400,7 @@ void primitive_difference(lpp::lpp__context::pointer_t context);
 // E
 void primitive_emptyp(lpp::lpp__context::pointer_t context);
 void primitive_equalp(lpp::lpp__context::pointer_t context);
+void primitive_error(lpp::lpp__context::pointer_t context);
 void primitive_exp(lpp::lpp__context::pointer_t context);
 
 // F
@@ -338,6 +415,7 @@ void primitive_greaterp(lpp::lpp__context::pointer_t context);
 void primitive_int(lpp::lpp__context::pointer_t context);
 void primitive_integerp(lpp::lpp__context::pointer_t context);
 void primitive_iseq(lpp::lpp__context::pointer_t context);
+void primitive_item(lpp::lpp__context::pointer_t context);
 
 // L
 void primitive_last(lpp::lpp__context::pointer_t context);
@@ -348,11 +426,13 @@ void primitive_log(lpp::lpp__context::pointer_t context);
 void primitive_lshift(lpp::lpp__context::pointer_t context);
 
 // M
+void primitive_make(lpp::lpp__context::pointer_t context);
 void primitive_minus(lpp::lpp__context::pointer_t context);
 void primitive_modulo(lpp::lpp__context::pointer_t context);
 
 // N
 void primitive_numberp(lpp::lpp__context::pointer_t context);
+inline void primitive_name(lpp::lpp__context::pointer_t context) { primitive_make(context); }
 
 // O
 void primitive_or(lpp::lpp__context::pointer_t context);
@@ -388,7 +468,7 @@ void primitive_sum(lpp::lpp__context::pointer_t context);
 
 // T
 void primitive_tan(lpp::lpp__context::pointer_t context);
-void primitive_throw(lpp::lpp__context::pointer_t context);
+void primitive_test(lpp::lpp__context::pointer_t context);
 void primitive_type(lpp::lpp__context::pointer_t context);
 
 // W

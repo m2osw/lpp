@@ -50,6 +50,7 @@ void primitive_random(lpp::lpp__context::pointer_t context)
     if(!start.is_integer())
     {
         throw lpp::lpp__error(context
+                            , lpp::lpp__error_code_t::ERROR_CODE_INVALID_DATUM
                             , "error"
                             , "random only accepts integers.");
     }
@@ -64,6 +65,7 @@ void primitive_random(lpp::lpp__context::pointer_t context)
             if(items.size() > 1)
             {
                 throw lpp::lpp__error(context
+                                    , lpp::lpp__error_code_t::ERROR_CODE_TOO_MANY_INPUTS
                                     , "error"
                                     , "random accepts 1 or 2 integers only.");
             }
@@ -72,6 +74,7 @@ void primitive_random(lpp::lpp__context::pointer_t context)
             if(!end.is_integer())
             {
                 throw lpp::lpp__error(context
+                                    , lpp::lpp__error_code_t::ERROR_CODE_INVALID_DATUM
                                     , "error"
                                     , "random only accepts integers.");
             }

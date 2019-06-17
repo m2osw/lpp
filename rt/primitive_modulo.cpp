@@ -34,6 +34,7 @@ lpp::lpp__integer_t int_modulo(lpp::lpp__context::pointer_t context, lpp::lpp__i
     if(rhs == 0)
     {
         throw lpp::lpp__error(context
+                            , lpp::lpp__error_code_t::ERROR_CODE_ARITHMETIC_ERROR
                             , "error"
                             , "divisor cannot be zero.");
     }
@@ -48,6 +49,7 @@ lpp::lpp__float_t flt_modulo(lpp::lpp__context::pointer_t context, lpp::lpp__flo
     if(rhs == 0.0)
     {
         throw lpp::lpp__error(context
+                            , lpp::lpp__error_code_t::ERROR_CODE_ARITHMETIC_ERROR
                             , "error"
                             , "divisor cannot be zero.");
     }

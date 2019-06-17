@@ -50,6 +50,7 @@ lpp__number::lpp__number(lpp__context::pointer_t context, lpp__value::pointer_t 
     if(!from_value(number))
     {
         throw lpp__error(f_context
+                       , lpp__error_code_t::ERROR_CODE_INVALID_DATUM
                        , "error"
                        , "argument was expected to represent a number");
     }
@@ -158,6 +159,7 @@ void lpp__number::apply_unary(
     && f == nullptr)
     {
         throw lpp__error(f_context
+                       , lpp__error_code_t::ERROR_CODE_INVALID_DATUM
                        , "error"
                        , "function not valid against floating points");
         return;
@@ -200,6 +202,7 @@ void lpp__number::apply_binary(lpp__value::pointer_t number
     && f == nullptr)
     {
         throw lpp__error(f_context
+                       , lpp__error_code_t::ERROR_CODE_INVALID_DATUM
                        , "error"
                        , "function not valid against floating points");
         return;
@@ -272,6 +275,7 @@ void lpp__number::compute(
                 if(items.size() != 1)
                 {
                     throw lpp__error(context
+                                   , lpp__error_code_t::ERROR_CODE_INVALID_DATUM
                                    , "error"
                                    , "unexpected number of arguments passed to function.");
                 }
@@ -441,6 +445,7 @@ void lpp__number::logical(
     || rhs->type() != lpp__value_type_t::LPP__VALUE_TYPE_BOOLEAN)
     {
         throw lpp__error(context
+                       , lpp__error_code_t::ERROR_CODE_INVALID_DATUM
                        , "error"
                        , "logical functions expects boolean values only.");
     }
@@ -461,6 +466,7 @@ void lpp__number::logical(
                 if(it->type() != lpp__value_type_t::LPP__VALUE_TYPE_BOOLEAN)
                 {
                     throw lpp__error(context
+                                   , lpp__error_code_t::ERROR_CODE_INVALID_DATUM
                                    , "error"
                                    , "logical functions expects boolean values only.");
                 }

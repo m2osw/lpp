@@ -121,6 +121,7 @@ lpp__thing::pointer_t lpp__context::get_thing(std::string const & name) const
     if(thing == nullptr)
     {
         throw lpp__error(shared_from_this()
+                       , lpp__error_code_t::ERROR_CODE_VARIABLE_NOT_SET
                        , "error"
                        , "thing named \"" + name + " not found.");
     }
@@ -149,14 +150,47 @@ void lpp__context::set_thing(std::string const & name, lpp__value::pointer_t val
         }
         break;
 
-    case lpp__thing_type_t::LPP__THING_TYPE_LOCAL:
+    case lpp__thing_type_t::LPP__THING_TYPE_CONTEXT:
         {
             auto it(f_things.find(name));
             if(it == f_things.end())
             {
                 lpp__thing::pointer_t thing(std::make_shared<lpp__thing>());
-                thing->set_value(value, lpp__thing_type_t::LPP__THING_TYPE_LOCAL);
+                thing->set_value(value, lpp__thing_type_t::LPP__THING_TYPE_CONTEXT);
                 f_things[name] = thing;
+            }
+            else
+            {
+                it->second->set_value(value);
+            }
+        }
+        break;
+
+    case lpp__thing_type_t::LPP__THING_TYPE_PROCEDURE:
+        {
+            auto it(f_things.find(name));
+            if(it == f_things.end())
+            {
+                lpp__thing::pointer_t thing(std::make_shared<lpp__thing>());
+                thing->set_value(value, lpp__thing_type_t::LPP__THING_TYPE_PROCEDURE);
+
+                // make sure to save it in a procedure context, not primitive
+                //
+                lpp__context::pointer_t context(shared_from_this());
+                while(context != nullptr)
+                {
+                    if(!context->f_primitive)
+                    {
+                        context->f_things[name] = thing;
+                        return;
+                    }
+
+                    context = context->f_parent;
+                }
+
+                throw std::logic_error("could not set thing \""
+                                     + name
+                                     + " in a procedure context.");
             }
             else
             {
@@ -197,6 +231,7 @@ lpp__value::pointer_t lpp__context::get_returned_value() const
     if(f_return_value == nullptr)
     {
         throw lpp__error(shared_from_this()
+                       , lpp__error_code_t::ERROR_CODE_OUTPUT_EXPECTED
                        , "error"
                        , "nothing was returned.");
     }
@@ -208,6 +243,44 @@ lpp__value::pointer_t lpp__context::get_returned_value() const
 void lpp__context::set_return_value(lpp__value::pointer_t value)
 {
     f_return_value = value;
+}
+
+
+void lpp__context::set_error(lpp__error const & e) const
+{
+    lpp__context::const_pointer_t context(shared_from_this());
+    while(context != nullptr)
+    {
+        if(!context->f_primitive)
+        {
+            context->f_last_error = e;
+            return;
+        }
+
+        context = context->f_parent;
+    }
+}
+
+
+lpp__error const & lpp__context::get_error() const
+{
+    lpp__context::const_pointer_t context(shared_from_this());
+    while(context != nullptr)
+    {
+        if(!context->f_primitive)
+        {
+            // for error a sub-procedure cannot see an error of a
+            // super-procedure
+            //
+            return context->f_last_error;
+        }
+
+        context = context->f_parent;
+    }
+
+    // this one will be empty but that way we can return a reference
+    //
+    return f_last_error;
 }
 
 
@@ -242,8 +315,52 @@ lpp__integer_t lpp__context::get_repeat_count() const
     }
 
     throw lpp__error(shared_from_this()
+                   , lpp__error_code_t::ERROR_CODE_VARIABLE_NOT_SET
                    , "error"
                    , "no repeat count found.");
+}
+
+
+void lpp__context::set_test(test_t value)
+{
+    if(value == test_t::TEST_UNDEFINED)
+    {
+        throw std::logic_error("set_test() called with TEST_UNDEFINED.");
+    }
+
+    lpp__context::pointer_t context(shared_from_this());
+    while(context != nullptr)
+    {
+        if(!context->f_primitive)
+        {
+            context->f_test = value;
+            return;
+        }
+
+        context = context->f_parent;
+    }
+
+    throw std::logic_error("set_test() no procedure found.");
+}
+
+
+test_t lpp__context::get_test() const
+{
+    lpp__context::const_pointer_t context(shared_from_this());
+    while(context != nullptr)
+    {
+        if(context->f_test != test_t::TEST_UNDEFINED)
+        {
+            return context->f_test;
+        }
+
+        context = context->f_parent;
+    }
+
+    throw lpp__error(shared_from_this()
+                   , lpp__error_code_t::ERROR_CODE_IFTRUE_IFFALSE_WITHOUT_TEST
+                   , "error"
+                   , "TEST never called, you cannot use IFTRUE or IFFALSE.");
 }
 
 

@@ -45,9 +45,11 @@ add_library(
         primitive_butlast.cpp
         primitive_bye.cpp
         primitive_cos.cpp
+        primitive_count.cpp
         primitive_difference.cpp
         primitive_emptyp.cpp
         primitive_equalp.cpp
+        primitive_error.cpp
         primitive_exp.cpp
         primitive_first.cpp
         primitive_floatp.cpp
@@ -56,12 +58,14 @@ add_library(
         primitive_int.cpp
         primitive_integerp.cpp
         primitive_iseq.cpp
+        primitive_item.cpp
         primitive_last.cpp
         primitive_lessequalp.cpp
         primitive_lessp.cpp
         primitive_ln.cpp
         primitive_log.cpp
         primitive_lshift.cpp
+        primitive_make.cpp
         primitive_minus.cpp
         primitive_modulo.cpp
         primitive_not.cpp
@@ -89,7 +93,7 @@ add_library(
         primitive_sqrt.cpp
         primitive_sum.cpp
         primitive_tan.cpp
-        primitive_throw.cpp
+        primitive_test.cpp
         primitive_type.cpp
         primitive_word.cpp
         primitive_wordp.cpp

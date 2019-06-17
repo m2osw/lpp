@@ -49,50 +49,50 @@ Parser::Parser()
     add_lexer(std::make_shared<Lexer>("primitives.logo",
             // A
             "primitive [function] allopen end \"allopen\n"
-            "primitive [function logic inline] and :boolean1 :boolean2 [:rest] end\n"
-            "primitive [function arithmetic inline] arccos :number1 end\n"
-            "primitive [function arithmetic inline] arcsin :number1 end\n"
-            "primitive [function arithmetic inline] arctan :number1 [:number2] end\n"
-            "primitive [function inline] ascii :char end\n"
-            "primitive [function arithmetic inline] ashift :number :shift end\n"
+            "primitive [function logic] and :boolean1 :boolean2 [:rest] end\n"
+            "primitive [function arithmetic] arccos :number1 end\n"
+            "primitive [function arithmetic] arcsin :number1 end\n"
+            "primitive [function arithmetic] arctan :number1 [:number2] end\n"
+            "primitive [function] ascii :char end\n"
+            "primitive [function arithmetic] ashift :number :shift end\n"
             // B
             "primitive [function] backslashedp&backslashed? :char end\n"
             "primitive [function] beforep&before? :word1 :word2 end\n"
-            "primitive [function arithmetic inline] bitand :number1 :number2 [:rest] end\n"
-            "primitive [function arithmetic inline] bitnot :number end\n"
-            "primitive [function arithmetic inline] bitor :number1 :number2 [:rest] end\n"
-            "primitive [function arithmetic inline] bitxor :number1 :number2 [:rest] end\n"
-            "primitive [function inline] butfirst&bf :list end\n"
-            "primitive [function inline] butlast&bl :list end\n"
-            "primitive [procedure inline] bye [:code 0] end\n"
+            "primitive [function arithmetic] bitand :number1 :number2 [:rest] end\n"
+            "primitive [function arithmetic] bitnot :number end\n"
+            "primitive [function arithmetic] bitor :number1 :number2 [:rest] end\n"
+            "primitive [function arithmetic] bitxor :number1 :number2 [:rest] end\n"
+            "primitive [function] butfirst&bf :thing end\n"
+            "primitive [function] butlast&bl :thing end\n"
+            "primitive [procedure] bye [:code 0] end\n"
             // C
             "primitive [procedure control inline] case :value :clauses end\n"
             "primitive [procedure control inline] catch :tag :instructions end\n"
-            "primitive [function inline] char :number end\n"
-            "primitive [procedure inline] cleartext&ct end\n"
+            "primitive [function] char :number end\n"
+            "primitive [procedure] cleartext&ct end\n"
             "primitive [procedure] close :filename end\n"
             "primitive [procedure] closeall end\n"
             "primitive [function] combine :thing1 :thing2 end\n"
-            "primitive [function arithmetic inline] comparablep&comparable? :number1 :number2 end\n"
+            "primitive [function arithmetic] comparablep&comparable? :number1 :number2 end\n"
             "primitive [procedure control inline] cond :clauses end\n"
-            "primitive [function inline] count :thing end\n"
+            "primitive [function] count :thing end\n"
             "primitive [function] cursor end\n"
             // D
             "primitive [function] definedp&defined? :thing end\n"
-            "primitive [function arithmetic inline] difference :number1 :number2 [:rest] end\n"
-            "primitive [function inline] dequeue :queue end\n"
+            "primitive [function arithmetic] difference :number1 :number2 [:rest] end\n"
+            "primitive [function] dequeue :queue end\n"
             "primitive [procedure control inline] do.until :boolean :once_and_if_false end\n"
             "primitive [procedure control inline] do.while :boolean :once_and_if_true end\n"
             // E
-            "primitive [function inline] emptyp&empty? :thing end\n"
-            "primitive [function inline] equalp&equal? :thing end\n"
+            "primitive [function] emptyp&empty? :thing end\n"
+            "primitive [function] equalp&equal? :thing1 :thing2 end\n"
             "primitive [function] eofp end\n"
             "primitive [procedure] erasefile&erf :filename end\n"
-            "primitive [function control inline] error end\n"
+            "primitive [function] error end\n"
             // F
             "primitive [function] filep&file? :filename end\n"
-            "primitive [function inline] first :thing end\n"
-            "primitive [function inline] firsts :list end\n"
+            "primitive [function] first :thing end\n"
+            "primitive [function] firsts :list end\n"
             "primitive [function] floatp&float? :thing end\n"
             "primitive [procedure control inline] for :control :instructions end\n"
             "primitive [procedure control inline] forever :instructions end\n"
@@ -100,86 +100,86 @@ Parser::Parser()
             // G
             "primitive [procedure] gc [:flag void] end\n"
             "primitive [function] gensym end\n"
-            "primitive [procedure inline] global :name [:rest] end\n"
+            "primitive [procedure] global :name [:rest] end\n"
             "primitive [procedure control inline] goto :tag end\n"
             "primitive [function] gprop :plistname :propname end\n"
-            "primitive [function inline] greaterequalp&greaterequal? :thing1 :thing2 [:rest] end\n"
-            "primitive [function inline] greaterp&greater? :thing1 :thing2 [:rest] end\n"
+            "primitive [function] greaterequalp&greaterequal? :thing1 :thing2 [:rest] end\n"
+            "primitive [function] greaterp&greater? :thing1 :thing2 [:rest] end\n"
             // I
             "primitive [procedure control inline] if :boolean :if_true [:if_false void] 3 end\n"
             "primitive [procedure control inline] ifelse :boolean :if_true :if_false end\n"
             "primitive [procedure control inline] iffalse&iff :if_false end\n"
             "primitive [procedure control inline] iftrue&ift :if_true end\n"
-            "primitive [procedure control inline] ignore :thing end\n"
+            "primitive [procedure inline] ignore :thing end\n"
             "primitive [function] int :number end\n"
             "primitive [function] integerp&integer? :thing end\n"
-            "primitive [function inline] item :number :list end\n"
+            "primitive [function] item :number :thing end\n"
             // K
             "primitive [function] keyp&key? end\n"
             // L
-            "primitive [function inline] last :list end\n"
-            "primitive [function inline] lasts :list end\n"
-            "primitive [function inline] lessequalp&lessequal? :thing1 :thing2 [:rest] end\n"
-            "primitive [function inline] lessp&less? :thing1 :thing2 [:rest] end\n"
-            "primitive [function inline] list :thing1 :thing2 [:rest] end\n"
+            "primitive [function] last :list end\n"
+            "primitive [function] lasts :list end\n"
+            "primitive [function] lessequalp&lessequal? :thing1 :thing2 [:rest] end\n"
+            "primitive [function] lessp&less? :thing1 :thing2 [:rest] end\n"
+            "primitive [function] list :thing1 :thing2 [:rest] end\n"
             "primitive [function] listp&list? :thing end\n"
-            "primitive [procedure inline] local :name [:rest] end\n"
-            "primitive [procedure inline] localmake :name :value end\n"
+            "primitive [procedure] local :name [:rest] end\n"
+            "primitive [procedure] localmake :name :value end\n"
             "primitive [function] lowercase :word end\n"
-            "primitive [function inline] lput :item :list end\n"
-            "primitive [function arithmetic inline] lshift :number :shift end\n"
+            "primitive [function] lput :item :list end\n"
+            "primitive [function arithmetic] lshift :number :shift end\n"
             // M
-            "primitive [procedure inline] make :name :thing end\n"
+            "primitive [procedure] make :name :thing end\n"
             "primitive [procedure] mdsetitem :list_of_positions :list :value end\n"
             "primitive [function] member :thing1 :thing2 end\n"
             "primitive [function] memberp&member? :thing end\n"
-            "primitive [function arithmetic inline] minus :number end\n"
-            "primitive [function arithmetic inline] modulo :number1 :number2 end\n"
+            "primitive [function arithmetic] minus :number end\n"
+            "primitive [function arithmetic] modulo :number1 :number2 end\n"
             // N
-            "primitive [procedure inline] name :thing :name end\n"
+            "primitive [procedure] name :thing :name end\n"
             "primitive [function] namedp&named? :name end\n"
             "primitive [function] names end\n"
             "primitive [function] nodes end\n" // return free memory?
-            "primitive [function inline] not :boolean end\n"
-            "primitive [function inline] notequalp&notequal? :thing end\n"
+            "primitive [function] not :boolean end\n"
+            "primitive [function] notequalp&notequal? :thing end\n"
             "primitive [function] numberp&number? :thing end\n"
             // O
             "primitive [procedure] openappend :filename end\n"
             "primitive [procedure] openread :filename end\n"
             "primitive [procedure] openupdate :filename end\n"
             "primitive [procedure] openwrite :filename end\n"
-            "primitive [function logic inline] or :boolean1 :boolean2 [:rest] end\n"
-            "primitive [function arithmetic inline] orderedp&ordered? :number1 :number2 end\n"
-            "primitive [procedure] output&op :thing end\n"
+            "primitive [function logic] or :boolean1 :boolean2 [:rest] end\n"
+            "primitive [function arithmetic] orderedp&ordered? :number1 :number2 end\n"
+            "primitive [procedure control inline] output&op :thing end\n"
             // P
             "primitive [procedure] parse :word end\n"
             "primitive [function] pick :list end\n"
             "primitive [function] plistp&plist? :name end\n"
             "primitive [function] plists end\n"
-            "primitive [function arithmetic inline] plus :number end\n"
-            "primitive [function inline] pop :stack end\n"
+            "primitive [function arithmetic] plus :number end\n"
+            "primitive [function] pop :stack end\n"
             "primitive [procedure] pprop :plistname :propname :value end\n"
             "primitive [function] prefix end\n"
             "primitive [function] primitivep&primitive? :thing end\n"
             "primitive [function] primitives end\n"
-            "primitive [procedure inline] print&pr :thing [:rest] end\n"
+            "primitive [procedure] print&pr :thing [:rest] end\n"
             "primitive [function] procedurep&procedure? :thing end\n"
             "primitive [function] procedures end\n"
-            "primitive [function arithmetic inline] product :number1 :number2 [:rest] end\n"
-            "primitive [procedure inline] push :stack :thing end\n"
+            "primitive [function arithmetic] product :number1 :number2 [:rest] end\n"
+            "primitive [procedure] push :stack :thing end\n"
             // Q
-            "primitive [procedure inline] queue :queue :thing end\n"
+            "primitive [procedure] queue :queue :thing end\n"
             "primitive [function] quoted :thing end\n"
-            "primitive [function arithmetic inline] quotient :number1 :number2 [:rest] end\n"
+            "primitive [function arithmetic] quotient :number1 :number2 [:rest] end\n"
             // R
-            "primitive [function arithmetic inline] radarccos :number1 end\n"
-            "primitive [function arithmetic inline] radarctan :number1 [:number2] end\n"
-            "primitive [function arithmetic inline] radarcsin :number1 end\n"
-            "primitive [function arithmetic inline] radcos :number1 end\n"
-            "primitive [function arithmetic inline] radtan :number1 [:number2] end\n"
-            "primitive [function arithmetic inline] radsin :number1 end\n"
-            "primitive [function inline] random :number [:rest] end\n"
-            "primitive [function inline] rawascii :char end\n"
+            "primitive [function arithmetic] radarccos :number1 end\n"
+            "primitive [function arithmetic] radarctan :number1 [:number2] end\n"
+            "primitive [function arithmetic] radarcsin :number1 end\n"
+            "primitive [function arithmetic] radcos :number1 end\n"
+            "primitive [function arithmetic] radtan :number1 [:number2] end\n"
+            "primitive [function arithmetic] radsin :number1 end\n"
+            "primitive [function] random :number [:rest] end\n"
+            "primitive [function] rawascii :char end\n"
             "primitive [function] readchar&rc end\n"
             "primitive [function] readchars&rcs :number end\n"
             "primitive [function] reader end\n"
@@ -187,22 +187,22 @@ Parser::Parser()
             "primitive [function] readpos end\n"
             "primitive [function] readrawline end\n"
             "primitive [function] readword&rw end\n"
-            "primitive [function arithmetic inline] remainder :number1 :number2 end\n"
+            "primitive [function arithmetic] remainder :number1 :number2 end\n"
             "primitive [function] remdup :list end\n"
             "primitive [function] remove :thing :list end\n"
             "primitive [procedure] remprop :plistname :propname end\n"
-            "primitive [function inline] repcount end\n"
+            "primitive [function] repcount end\n"
             "primitive [procedure control inline] repeat :number :instructions end\n"
-            "primitive [function inline] rerandom [:rest] end\n"
+            "primitive [function] rerandom [:rest] end\n"
             "primitive [function] reverse :list end\n"
             "primitive [function] runresult :instructions end\n"
             // S
-            "primitive [function inline] sentence&se :thing1 :thing2 [:rest] end\n"
+            "primitive [function] sentence&se :thing1 :thing2 [:rest] end\n"
             "primitive [procedure] setcursor :position end\n"
             "primitive [inline] .setfirst :list :value end\n"
             "primitive [function ] .setbf :list :value end\n"
-            "primitive [procedure inline] setitem :position :list :value end\n"
-            "primitive [procedure inline] .setitem :position :list :value end\n"
+            "primitive [procedure] setitem :position :list :value end\n"
+            "primitive [procedure] .setitem :position :list :value end\n"
             "primitive [procedure] setmargins :dimensions end\n"
             "primitive [procedure] setprefix :prefix end\n"
             "primitive [procedure] setread :filename end\n"
@@ -211,34 +211,34 @@ Parser::Parser()
             "primitive [procedure] setwrite :filename end\n"
             "primitive [procedure] setwritepos :number end\n"
             "primitive [function] shell :command [:wordflag] end\n"
-            "primitive [procedure inline] show :thing [:rest] end\n"
-            "primitive [function arithmetic inline] sqrt :number end\n"
-            "primitive [procedure inline] standout :thing end\n"
+            "primitive [procedure] show :thing [:rest] end\n"
+            "primitive [function arithmetic] sqrt :number end\n"
+            "primitive [procedure] standout :thing end\n"
             "primitive [procedure control inline] stop end\n"
             "primitive [function] substringp&substring? :thing end\n"
-            "primitive [function arithmetic inline] sum :number1 :number2 [:rest] end\n"
+            "primitive [function arithmetic] sum :number1 :number2 [:rest] end\n"
             // T
             "primitive [procedure control inline] tag :tag end\n"
-            "primitive [procedure inline] test :boolean end\n"
-            "primitive [function inline] thing :name end\n"
-            "primitive [procedure inline] throw :tag [:value void] 2 end\n"
+            "primitive [procedure] test :boolean end\n"
+            "primitive [function] thing :name end\n"
+            "primitive [procedure control inline] throw :tag [:value void] 2 end\n"
             "primitive [procedure] trace :list end\n"
             "primitive [function] tracedp&traced? :list end\n"
-            "primitive [procedure inline] type :thing [:rest] end\n"
+            "primitive [procedure] type :thing [:rest] end\n"
             // U
-            "primitive [function arithmetic inline] unorderedp&unordered? :number1 :number2 end\n"
+            "primitive [function arithmetic] unorderedp&unordered? :number1 :number2 end\n"
             "primitive [procedure control inline] until :boolean :if_false end\n"
             "primitive [procedure] untrace :list end\n"
             "primitive [function] uppercase :word end\n"
             // W
             "primitive [procedure inline] wait :seconds end\n"
             "primitive [procedure control inline] while :boolean :if_true end\n"
-            "primitive [function inline] word :word1 :word2 [:rest] end\n"
+            "primitive [function] word :word1 :word2 [:rest] end\n"
             "primitive [function] wordp&word? :thing end\n"
             "primitive [function] writepos end \"writepos\n"
             "primitive [function] writer end\n"
             // X
-            "primitive [function logic inline] xor :boolean1 :boolean2 [:rest] end\n"
+            "primitive [function logic] xor :boolean1 :boolean2 [:rest] end\n"
 
             // this is part of the run-time context
             //
@@ -377,8 +377,9 @@ void Parser::add_lexer(Lexer::pointer_t lexer)
  *   | FLOAT
  *   | BOOLEAN
  *   | QUOTED
- *   | SUM unary_expression
- *   | DIFFERENCE unary_expression
+ *   | PLUS unary_expression
+ *   | MINUS unary_expression
+ *   | COUNT unary_expression
  *   | OPEN_PARENTHESIS expression CLOSE_PARENTHESIS
  *   | OPEN_LIST expression_list CLOSE_LIST
  *   | call_function
@@ -954,7 +955,8 @@ std::cerr << to_string(keyword->get_token())
     // has to match the TO <name>
     //
     next_lexer_token();
-    if(f_current_token->get_token() == token_t::TOK_QUOTED)
+    if(f_current_token->get_token() == token_t::TOK_WORD
+    || f_current_token->get_token() == token_t::TOK_QUOTED)
     {
         if(f_current_token->get_word() != long_name)
         {
@@ -1518,6 +1520,19 @@ Token::pointer_t Parser::unary_expression()
         }
         break;
 
+    case token_t::TOK_COUNT:
+        {
+            next_body_token();
+            Token::pointer_t rhs(unary_expression());
+
+            Token::pointer_t op(std::make_shared<Token>(token_t::TOK_EOF, rhs));
+            op->set_word(token_t::TOK_FUNCTION_CALL, "count");
+            op->set_declaration(f_declarations->get_map_item("count"));
+            op->add_list_item(rhs);
+            return op;
+        }
+        break;
+
     case token_t::TOK_OPEN_PARENTHESIS:
         {
             next_body_token();
@@ -1568,6 +1583,13 @@ Token::pointer_t Parser::unary_expression()
         }
         return call_function(true);
 
+    case token_t::TOK_LIST:
+        {
+            Token::pointer_t result(f_current_token);
+            next_body_token();
+            return result;
+        }
+
     default:
         f_current_token->error("unexpected token ("
                              + to_string(f_current_token->get_token())
@@ -1613,7 +1635,7 @@ void Parser::generate()
         for(auto p : procedures)
         {
             std::string const cpp_name(logo_to_cpp_name(p.first));
-            f_out << "void " << cpp_name << "();\n";
+            f_out << "void procedure_" << cpp_name << "(lpp::lpp__context::pointer_t);\n";
         }
     }
 
@@ -1693,151 +1715,167 @@ void Parser::output_function_call(Token::pointer_t function_call, std::string co
         };
 #pragma GCC diagnostic pop
 
-        control(control_info);
+        control_primitive(control_info);
     }
     else
     {
-        std::string const context_name(get_unique_name());
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wpedantic"
+        control_t control_info = {
+            .m_function_call    = function_call,
+            .m_result_var       = result_var,
+            .m_max_args         = max_args,
+            .m_declaration      = declaration,
+            .m_procedure_flags  = procedure_flags
+        };
+#pragma GCC diagnostic pop
 
-        f_out << "{\n"
-              << "lpp::lpp__context::pointer_t "
-              << context_name
-              << "(std::make_shared<lpp::lpp__context>(\""
-              << function_call->get_filename()
-              << "\",\""
-              << logo_to_cpp_name(function_call->get_word())
-              << "\","
-              << function_call->get_line()
-              << ","
-              << ((procedure_flags & PROCEDURE_FLAG_PRIMITIVE) != 0 ? "true" : "false")
-              << "));\n";
-
-        Token::pointer_t required_arguments(declaration->get_list_item(1));
-        Token::pointer_t optional_arguments(declaration->get_list_item(2));
-        Token::pointer_t rest_argument;
-        if(declaration->get_list_size() >= 4)
+        if(!inline_primitive(control_info))
         {
-            if((procedure_flags & PROCEDURE_FLAG_TYPE_MASK) != PROCEDURE_FLAG_PROCEDURE
-            || declaration->get_list_size() >= 5)
-            {
-                rest_argument = declaration->get_list_item(3);
+            std::string const context_name(get_unique_name());
 
-                f_out << "lpp::lpp__value::vector_t rest;\n";
-                auto const reserve(max_args - required_arguments->get_list_size() - optional_arguments->get_list_size());
-                if(reserve > 0)
+            f_out << "{\n"
+                  << "lpp::lpp__context::pointer_t "
+                  << context_name
+                  << "(std::make_shared<lpp::lpp__context>(\""
+                  << function_call->get_filename()
+                  << "\",\""
+                  << logo_to_cpp_name(function_call->get_word())
+                  << "\","
+                  << function_call->get_line()
+                  << ","
+                  << ((procedure_flags & PROCEDURE_FLAG_TYPE_MASK) == PROCEDURE_FLAG_PRIMITIVE ? "true" : "false")
+                  << "));\n";
+
+            Token::pointer_t required_arguments(declaration->get_list_item(1));
+            Token::pointer_t optional_arguments(declaration->get_list_item(2));
+            Token::pointer_t rest_argument;
+            if(declaration->get_list_size() >= 4)
+            {
+                if((procedure_flags & PROCEDURE_FLAG_TYPE_MASK) != PROCEDURE_FLAG_PROCEDURE
+                || declaration->get_list_size() >= 5)
                 {
-                    f_out << "rest.reserve("
-                          << std::max(static_cast<size_t>(0), reserve)
+                    rest_argument = declaration->get_list_item(3);
+
+                    f_out << "lpp::lpp__value::vector_t rest;\n";
+                    auto const reserve(max_args - required_arguments->get_list_size() - optional_arguments->get_list_size());
+                    if(reserve > 0)
+                    {
+                        f_out << "rest.reserve("
+                              << std::max(static_cast<size_t>(0), reserve)
+                              << ");\n";
+                    }
+                }
+            }
+
+            std::remove_const<decltype(max_args)>::type a(0);
+            for(; a < max_args; ++a)
+            {
+                std::string const value_name(get_unique_name());
+                Token::pointer_t arg(function_call->get_list_item(a));
+
+                output_argument(arg, value_name);
+
+                Token::pointer_t arg_name;
+                if(a < required_arguments->get_list_size())
+                {
+                    arg_name = required_arguments->get_list_item(a);
+                }
+                else if(a - required_arguments->get_list_size() < optional_arguments->get_list_size())
+                {
+                    Token::pointer_t opt_arg(optional_arguments->get_list_item(a - required_arguments->get_list_size()));
+                    arg_name = opt_arg->get_list_item(0);
+                }
+                // else -- accumulate in the rest list
+
+                if(arg_name != nullptr)
+                {
+std::cerr << "    -> set param \"" << arg_name->get_word() << "\"\n";
+                    f_out << context_name
+                          << "->set_thing("
+                          << word_to_cpp_literal_string(arg_name->get_word())
+                          << ","
+                          << value_name
+                          << ",lpp::lpp__thing_type_t::LPP__THING_TYPE_CONTEXT);\n";
+                }
+                else
+                {
+                    if(rest_argument == nullptr)
+                    {
+                        throw std::logic_error("while working on \""
+                                             + function_call->get_word()
+                                             + "\" item number "
+                                             + std::to_string(a)
+                                             + " we are somehow attempting to add a rest argument when rest_argument == nullptr (maybe a primitive declaration is missing?)");
+                    }
+
+                    // add to rest list
+                    f_out << "rest.push_back("
+                          << value_name
                           << ");\n";
                 }
             }
-        }
 
-        std::remove_const<decltype(max_args)>::type a(0);
-        for(; a < max_args; ++a)
-        {
-            std::string const value_name(get_unique_name());
-            Token::pointer_t arg(function_call->get_list_item(a));
+            f_out << context_name
+                  << "->attach(context);\n";
 
-            output_argument(arg, value_name);
-
-            Token::pointer_t arg_name;
-            if(a < required_arguments->get_list_size())
-            {
-                arg_name = required_arguments->get_list_item(a);
-            }
-            else if(a - required_arguments->get_list_size() < optional_arguments->get_list_size())
+            decltype(max_args) max_opt(required_arguments->get_list_size() + optional_arguments->get_list_size());
+            for(; a < max_opt; ++a)
             {
                 Token::pointer_t opt_arg(optional_arguments->get_list_item(a - required_arguments->get_list_size()));
-                arg_name = opt_arg->get_list_item(0);
-            }
-            // else -- accumulate in the rest list
+                Token::pointer_t arg_name(opt_arg->get_list_item(0));
+                Token::pointer_t def_expr(opt_arg->get_list_item(1));
 
-            if(arg_name != nullptr)
-            {
+                std::string const value_name(get_unique_name());
+                output_argument(opt_arg->get_list_item(1), value_name);
+
                 f_out << context_name
                       << "->set_thing("
                       << word_to_cpp_literal_string(arg_name->get_word())
                       << ","
                       << value_name
-                      << ",lpp::lpp__thing_type_t::LPP__THING_TYPE_LOCAL);\n";
+                      << ",lpp::lpp__thing_type_t::LPP__THING_TYPE_CONTEXT);\n";
             }
-            else
+
+            if(rest_argument != nullptr)
             {
-                if(rest_argument == nullptr)
-                {
-                    throw std::logic_error("while working on \""
-                                         + function_call->get_word()
-                                         + "\" item number "
-                                         + std::to_string(a)
-                                         + " we are somehow attempting to add a rest argument when rest_argument == nullptr (maybe a primitive declaration is missing?)");
-                }
-
-                // add to rest list
-                f_out << "rest.push_back("
-                      << value_name
-                      << ");\n";
+                f_out << context_name
+                      << "->set_thing("
+                      << word_to_cpp_literal_string(rest_argument->get_word())
+                      << ",std::make_shared<lpp::lpp__value>(rest),lpp::lpp__thing_type_t::LPP__THING_TYPE_CONTEXT);\n";
             }
-        }
 
-        f_out << context_name
-              << "->attach(context);\n";
+            switch(procedure_flags & PROCEDURE_FLAG_TYPE_MASK)
+            {
+            case PROCEDURE_FLAG_PRIMITIVE:
+                f_out << "primitive_";
+                break;
 
-        decltype(max_args) max_opt(required_arguments->get_list_size() + optional_arguments->get_list_size());
-        for(; a < max_opt; ++a)
-        {
-            Token::pointer_t opt_arg(optional_arguments->get_list_item(a - required_arguments->get_list_size()));
-            Token::pointer_t arg_name(opt_arg->get_list_item(0));
-            Token::pointer_t def_expr(opt_arg->get_list_item(1));
+            case PROCEDURE_FLAG_PROCEDURE:
+            case PROCEDURE_FLAG_DECLARE:
+                f_out << "procedure_";
+                break;
 
-            std::string const value_name(get_unique_name());
-            output_argument(opt_arg->get_list_item(1), value_name);
+            case PROCEDURE_FLAG_C:  // C functions are called as is
+                break;
 
-            f_out << context_name
-                  << "->set_thing("
-                  << word_to_cpp_literal_string(arg_name->get_word())
-                  << ","
-                  << value_name
-                  << ",lpp::lpp__thing_type_t::LPP__THING_TYPE_LOCAL);\n";
-        }
-
-        if(rest_argument != nullptr)
-        {
-            f_out << context_name
-                  << "->set_thing("
-                  << word_to_cpp_literal_string(rest_argument->get_word())
-                  << ",std::make_shared<lpp::lpp__value>(rest),lpp::lpp__thing_type_t::LPP__THING_TYPE_LOCAL);\n";
-        }
-
-        switch(procedure_flags & PROCEDURE_FLAG_TYPE_MASK)
-        {
-        case PROCEDURE_FLAG_PRIMITIVE:
-            f_out << "primitive_";
-            break;
-
-        case PROCEDURE_FLAG_PROCEDURE:
-        case PROCEDURE_FLAG_DECLARE:
-            f_out << "procedure_";
-            break;
-
-        case PROCEDURE_FLAG_C:  // C functions are called as is
-            break;
-
-        }
-        f_out << logo_to_cpp_name(function_call->get_word())
-              << "("
-              << context_name
-              << ");\n";
-
-        if(!result_var.empty())
-        {
-            f_out << result_var
-                  << "="
+            }
+std::cerr << "    -> call func. \"" << declaration->get_word() << "\"\n";
+            f_out << logo_to_cpp_name(declaration->get_word())
+                  << "("
                   << context_name
-                  << "->get_returned_value();\n";
-        }
+                  << ");\n";
 
-        f_out << "}\n";
+            if(!result_var.empty())
+            {
+                f_out << result_var
+                      << "="
+                      << context_name
+                      << "->get_returned_value();\n";
+            }
+
+            f_out << "}\n";
+        }
     }
 }
 

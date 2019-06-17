@@ -39,6 +39,7 @@ void primitive_rerandom(lpp::lpp__context::pointer_t context)
             if(items.size() > 1)
             {
                 throw lpp::lpp__error(context
+                                    , lpp::lpp__error_code_t::ERROR_CODE_TOO_MANY_INPUTS
                                     , "error"
                                     , "rerandom accepts 0 or 1 integer only.");
             }
@@ -47,8 +48,9 @@ void primitive_rerandom(lpp::lpp__context::pointer_t context)
             if(!seed_number.is_integer())
             {
                 throw lpp::lpp__error(context
+                                    , lpp::lpp__error_code_t::ERROR_CODE_INVALID_DATUM
                                     , "error"
-                                    , "random only accepts integers.");
+                                    , "rerandom only accepts integers.");
             }
             seed = seed_number.get_integer();
         }

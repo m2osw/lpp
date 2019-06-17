@@ -38,6 +38,7 @@ void primitive_iseq(lpp::lpp__context::pointer_t context)
     || !n2.is_integer())
     {
         throw lpp::lpp__error(context
+                            , lpp::lpp__error_code_t::ERROR_CODE_INVALID_DATUM
                             , "error"
                             , "iseq only accepts integers.");
     }

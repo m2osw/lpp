@@ -35,6 +35,17 @@ void primitive_first(lpp::lpp__context::pointer_t context)
 
     switch(thing->type())
     {
+    case lpp::lpp__value_type_t::LPP__VALUE_TYPE_BOOLEAN:
+        if(thing->get_boolean())
+        {
+            result->set_word("t");
+        }
+        else
+        {
+            result->set_word("f");
+        }
+        break;
+
     case lpp::lpp__value_type_t::LPP__VALUE_TYPE_INTEGER:
         {
             std::string const n(std::to_string(thing->get_integer()));
@@ -55,6 +66,7 @@ void primitive_first(lpp::lpp__context::pointer_t context)
             if(n.empty())
             {
                 throw lpp::lpp__error(context
+                                    , lpp::lpp__error_code_t::ERROR_CODE_INVALID_DATUM
                                     , "error"
                                     , "first cannot be used against an empty string.");
             }
@@ -68,16 +80,17 @@ void primitive_first(lpp::lpp__context::pointer_t context)
             if(l.empty())
             {
                 throw lpp::lpp__error(context
+                                    , lpp::lpp__error_code_t::ERROR_CODE_INVALID_DATUM
                                     , "error"
                                     , "first cannot be used against an empty list.");
             }
-            lpp::lpp__value::vector_t first_item({l[0]});
-            result->set_list(first_item);
+            result = l[0];
         }
         break;
 
     default:
         throw lpp::lpp__error(context
+                            , lpp::lpp__error_code_t::ERROR_CODE_FATAL_INVALID_DATUM
                             , "error"
                             , "first used with an unexpected parameter type.");
 

@@ -53,6 +53,7 @@ enum class token_t
     TOK_BOOLEAN,                    // "TRUE" or "FALSE"
     TOK_CLOSE_LIST,                 // ]
     TOK_CLOSE_PARENTHESIS,          // )
+    TOK_COUNT,                      // #
     TOK_DECLARE,                    // "DECLARE" word
     TOK_DIFFERENCE,                 // -
     TOK_END,                        // "END" word
@@ -138,7 +139,7 @@ public:
 
     token_t             get_token() const;
     bool                get_start_of_line() const;
-    std::string const & get_word() const;
+    std::string         get_word() const;
     integer_t           get_integer() const;
     float_t             get_float() const;
     bool                get_boolean() const;

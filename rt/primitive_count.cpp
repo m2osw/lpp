@@ -27,61 +27,45 @@
 
 
 
-void primitive_butlast(lpp::lpp__context::pointer_t context)
+void primitive_count(lpp::lpp__context::pointer_t context)
 {
     lpp::lpp__value::pointer_t thing(context->get_thing("thing")->get_value());
 
-    lpp::lpp__value::pointer_t result(std::make_shared<lpp::lpp__value>());
-
+    lpp::lpp__integer_t count(0);
     switch(thing->type())
     {
     case lpp::lpp__value_type_t::LPP__VALUE_TYPE_BOOLEAN:
         {
             std::string const n(thing->to_word());
-            result->set_word(n.substr(0, n.length() - 1));
+            count = n.length();
         }
         break;
 
     case lpp::lpp__value_type_t::LPP__VALUE_TYPE_INTEGER:
         {
             std::string const n(std::to_string(thing->get_integer()));
-            result->set_word(n.substr(0, n.length() - 1));
+            count = n.length();
         }
         break;
 
     case lpp::lpp__value_type_t::LPP__VALUE_TYPE_FLOAT:
         {
             std::string const n(std::to_string(thing->get_float()));
-            result->set_word(n.substr(0, n.length() - 1));
+            count = n.length();
         }
         break;
 
     case lpp::lpp__value_type_t::LPP__VALUE_TYPE_WORD:
         {
             std::string const n(thing->get_word());
-            if(n.empty())
-            {
-                throw lpp::lpp__error(context
-                                    , lpp::lpp__error_code_t::ERROR_CODE_INVALID_DATUM
-                                    , "error"
-                                    , "butlast cannot be used against an empty string.");
-            }
-            result->set_word(n.substr(0, n.length() - 1));
+            count = n.length();
         }
         break;
 
     case lpp::lpp__value_type_t::LPP__VALUE_TYPE_LIST:
         {
-            lpp::lpp__value::vector_t l(thing->get_list());
-            if(l.empty())
-            {
-                throw lpp::lpp__error(context
-                                    , lpp::lpp__error_code_t::ERROR_CODE_INVALID_DATUM
-                                    , "error"
-                                    , "butlast cannot be used against an empty list.");
-            }
-            l.erase(l.end() - 1);
-            result->set_list(l);
+            lpp::lpp__value::vector_t const & l(thing->get_list());
+            count = l.size();
         }
         break;
 
@@ -89,10 +73,11 @@ void primitive_butlast(lpp::lpp__context::pointer_t context)
         throw lpp::lpp__error(context
                             , lpp::lpp__error_code_t::ERROR_CODE_FATAL_INVALID_DATUM
                             , "error"
-                            , "butlast used with an unexpected parameter type.");
+                            , "count used with an unexpected parameter type.");
 
     }
 
+    lpp::lpp__value::pointer_t result(std::make_shared<lpp::lpp__value>(count));
     context->set_return_value(result);
 }
 

@@ -34,8 +34,17 @@ void primitive_show(lpp::lpp__context::pointer_t context)
     lpp::lpp__value::pointer_t rest(context->find_thing("rest")->get_value());
     if(rest != nullptr)
     {
-        std::cout << " ";
-        std::cout << rest->to_string(lpp::DISPLAY_FLAG_TYPED);
+        auto const & list(rest->get_list());
+        size_t const max(list.size());
+
+        // We have to print each item "manually" otherwise it adds
+        // the :REST list is an internal details
+        //
+        for(size_t idx(0); idx < max; ++idx)
+        {
+            std::cout << " ";
+            std::cout << list[idx]->to_string(lpp::DISPLAY_FLAG_TYPED);
+        }
     }
     std::cout << "\n";
 }
