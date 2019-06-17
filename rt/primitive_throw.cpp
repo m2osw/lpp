@@ -33,6 +33,7 @@ void primitive_throw(lpp::lpp__context::pointer_t context)
     lpp::lpp__value::pointer_t value(context->get_thing("value")->get_value());
 
     throw lpp::lpp__error(context
+                        , lpp::lpp__error_code_t::ERROR_CODE_THROW
                         , tag->get_word()
                         , "User Error"
                         , value);
