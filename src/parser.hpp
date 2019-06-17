@@ -82,6 +82,7 @@ private:
     std::string             get_unique_name();
 
     void                    control_catch(control_t & control_info);
+    void                    control_forever(control_t & control_info);
     void                    control_if(control_t & control_info);
     void                    control_if_test(control_t & control_info, bool true_or_false);
     void                    control_output(control_t & control_info);

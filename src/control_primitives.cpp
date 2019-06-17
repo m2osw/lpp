@@ -55,6 +55,14 @@ void Parser::control_primitive(control_t & control_info)
         }
         break;
 
+    case 'f':
+        if(name == "forever")
+        {
+            control_forever(control_info);
+            return;
+        }
+        break;
+
     case 'i':
         if(name == "if")
         {
@@ -200,6 +208,40 @@ void Parser::control_catch(control_t & control_info)
              "}\n"
              "context->set_error(e);\n"
              "}\n";
+}
+
+
+void Parser::control_forever(control_t & control_info)
+{
+    if(control_info.m_max_args != 1)
+    {
+        throw std::logic_error("primitive \"forever\" called with a number of parameters not equal to 1.");
+    }
+
+    std::string value_name;
+    Token::pointer_t arg(control_info.m_function_call->get_list_item(0));
+
+    std::string const repeat_var(get_unique_name());
+    f_out << "for(lpp::lpp__integer_t "
+          << repeat_var
+          << "(0);;++"
+          << repeat_var
+          << ")\n"
+          << "{\n";
+
+    // for the `repcount` primitive
+    //
+    f_out << "lpp::lpp__raii_repeat_count "
+          << get_unique_name()
+          << "(context,"
+          << repeat_var
+          << ");\n";
+
+    Token::pointer_t instruction_list(control_info.m_function_call->get_list_item(0));
+    Token::pointer_t instructions(parse_body(instruction_list));
+    output_body(instructions);
+
+    f_out << "}\n";
 }
 
 

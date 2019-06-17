@@ -1125,6 +1125,7 @@ Token::pointer_t Parser::parse_body(Token::pointer_t body)
             return new_body;
 
         case token_t::TOK_WORD:
+        case token_t::TOK_FUNCTION_CALL:
         case token_t::TOK_OPEN_PARENTHESIS:
             new_body->add_list_item(call_function(false));
             break;
@@ -1177,29 +1178,32 @@ Token::pointer_t Parser::call_function(bool must_return)
         return f_current_token;
     }
 
-    procedure_flag_t const procedure_flags(declaration->get_procedure_flags());
-    if((procedure_flags & PROCEDURE_FLAG_FUNCTION) == 0)
+    if(f_parsing_list == 0)
     {
-        // this is a procedure (no output)
-        //
-        if(must_return)
+        procedure_flag_t const procedure_flags(declaration->get_procedure_flags());
+        if((procedure_flags & PROCEDURE_FLAG_FUNCTION) == 0)
         {
-            f_current_token->error("procedure \"" + func_call->get_word() + "\" cannot be used inside an expression");
-            return f_current_token;
+            // this is a procedure (no output)
+            //
+            if(must_return)
+            {
+                f_current_token->error("procedure \"" + func_call->get_word() + "\" cannot be used inside an expression");
+                return f_current_token;
+            }
         }
-    }
-    else
-    {
-        // this is a function (will output)
-        //
-        if(!must_return)
+        else
         {
-            f_current_token->error("function \""
-                                 + func_call->get_word()
-                                 + "\" cannot be used outside of an expression (try `ignore "
-                                 + func_call->get_word()
-                                 + "` instead");
-            return f_current_token;
+            // this is a function (will output)
+            //
+            if(!must_return)
+            {
+                f_current_token->error("function \""
+                                     + func_call->get_word()
+                                     + "\" cannot be used outside of an expression (try `ignore "
+                                     + func_call->get_word()
+                                     + "` instead");
+                return f_current_token;
+            }
         }
     }
 
@@ -1217,8 +1221,11 @@ std::cerr << "----- working on [" << func_call->get_word() << "] "
 
     // change the WORD into a FUNCTION-CALL
     //
-    func_call->set_token(token_t::TOK_FUNCTION_CALL);
-    func_call->set_declaration(declaration);
+    if(func_call->get_token() != token_t::TOK_FUNCTION_CALL)
+    {
+        func_call->set_token(token_t::TOK_FUNCTION_CALL);
+        func_call->set_declaration(declaration);
+    }
 
     next_body_token();
     for(;;)
@@ -1272,10 +1279,12 @@ std::cerr << "   eoa -- def_args reached " << def_args << "\n";
             // next token is a WORD which represents procedure?
             //
             if(!eoa
-            && f_current_token->get_token() == token_t::TOK_WORD)
+            && (f_current_token->get_token() == token_t::TOK_WORD
+                    || f_current_token->get_token() == token_t::TOK_FUNCTION_CALL))
             {
                 Token::pointer_t word_declaration(f_declarations->get_map_item(f_current_token->get_word()));
-                if((word_declaration->get_procedure_flags() & PROCEDURE_FLAG_FUNCTION) == 0)
+                if(word_declaration != nullptr
+                && (word_declaration->get_procedure_flags() & PROCEDURE_FLAG_FUNCTION) == 0)
                 {
 std::cerr << "   eoa -- WORD " << f_current_token->get_word() << " is procedure\n";
                     eoa = true;
@@ -1290,10 +1299,12 @@ else std::cerr << "   eoa -- WORD " << f_current_token->get_word() << " is funct
             && f_body_pos + 1 < f_body->get_list_size())
             {
                 Token::pointer_t next_token(f_body->get_list_item(f_body_pos + 1));
-                if(next_token->get_token() == token_t::TOK_WORD)
+                if(next_token->get_token() == token_t::TOK_WORD
+                || next_token->get_token() == token_t::TOK_FUNCTION_CALL)
                 {
                     Token::pointer_t word_declaration(f_declarations->get_map_item(next_token->get_word()));
-                    if((next_token->get_procedure_flags() & PROCEDURE_FLAG_FUNCTION) == 0)
+                    if(word_declaration != nullptr
+                    && (word_declaration->get_procedure_flags() & PROCEDURE_FLAG_FUNCTION) == 0)
                     {
 std::cerr << "   eoa -- (WORD " << next_token->get_word() << " ...) is procedure\n";
                         eoa = true;
@@ -1302,10 +1313,26 @@ else std::cerr << "   eoa -- (WORD " << next_token->get_word() << " ...) is func
                 }
             }
 
+            // an expression cannot start with a ')' or ']'
+            //
+            if(!eoa
+            && (f_current_token->get_token() == token_t::TOK_CLOSE_PARENTHESIS
+                    || f_current_token->get_token() == token_t::TOK_CLOSE_LIST))
+            {
+                eoa = true;
+std::cerr << "   eoa -- the ) and ] close things too\n";
+            }
+
             if(eoa)
             {
-                if(func_call->get_list_size() < min_args)
+                if(func_call->get_list_size() < min_args
+                && f_parsing_list == 0)
                 {
+                    // if we are in a list, we do not generate an error just
+                    // yet (maybe later as we generate the output and we
+                    // find out that this function indeed needs to be
+                    // compiled and needs more arguments...)
+                    //
                     f_current_token->error("too few arguments to call \""
                                          + func_call->get_word()
                                          + "\"; the minimum number of required arguments is "
@@ -1327,7 +1354,8 @@ else std::cerr << "   eoa -- (WORD " << next_token->get_word() << " ...) is func
             return f_current_token;
         }
 
-        func_call->add_list_item(expression());
+        Token::pointer_t list(expression());
+        func_call->add_list_item(list);
     }
 
     return func_call;
@@ -1572,16 +1600,19 @@ Token::pointer_t Parser::unary_expression()
         }
 
     case token_t::TOK_WORD:
-        if(f_parsing_list > 0)
         {
-            // if the function we're dealing with is a control function
-            // then this list may need to be parsed _properly_
-            //
-            Token::pointer_t result(f_current_token);
-            next_body_token();
-            return result;
+            Token::pointer_t declaration(f_declarations->get_map_item(f_current_token->get_word()));
+            if(declaration == nullptr)
+            {
+                // if the function we're dealing with is a control function
+                // then this list may need to be parsed _properly_
+                //
+                Token::pointer_t result(f_current_token);
+                next_body_token();
+                return result;
+            }
+            return call_function(true);
         }
-        return call_function(true);
 
     case token_t::TOK_LIST:
         {
@@ -1589,6 +1620,22 @@ Token::pointer_t Parser::unary_expression()
             next_body_token();
             return result;
         }
+
+    case token_t::TOK_FUNCTION_CALL:
+        {
+            Token::pointer_t declaration(f_current_token->get_declaration());
+            if(declaration != nullptr
+            && (declaration->get_procedure_flags() & PROCEDURE_FLAG_FUNCTION) != 0)
+            {
+                return call_function(true);
+            }
+        }
+        f_current_token->error("unexpected procedure call in ("
+                             + to_string(f_current_token->get_token())
+                             + ":"
+                             + f_current_token->get_word()
+                             + ") an expression");
+        return std::make_shared<Token>(token_t::TOK_VOID);
 
     default:
         f_current_token->error("unexpected token ("
@@ -1735,7 +1782,7 @@ void Parser::output_function_call(Token::pointer_t function_call, std::string co
             std::string const context_name(get_unique_name());
 
             f_out << "{\n"
-                  << "lpp::lpp__context::pointer_t "
+                     "lpp::lpp__context::pointer_t "
                   << context_name
                   << "(std::make_shared<lpp::lpp__context>(\""
                   << function_call->get_filename()
@@ -1766,6 +1813,16 @@ void Parser::output_function_call(Token::pointer_t function_call, std::string co
                               << ");\n";
                     }
                 }
+            }
+
+            if(max_args < required_arguments->get_list_size())
+            {
+                f_current_token->error("too few arguments to call \""
+                                     + function_call->get_word()
+                                     + "\"; the minimum number of required arguments is "
+                                     + std::to_string(required_arguments->get_list_size())
+                                     + ".");
+                return;
             }
 
             std::remove_const<decltype(max_args)>::type a(0);
@@ -2003,11 +2060,9 @@ void Parser::build_list(Token::pointer_t list)
         case token_t::TOK_WORD:
         case token_t::TOK_QUOTED:
         case token_t::TOK_FUNCTION_CALL:    // operators get transformed in this way...
-            f_out << "std::make_shared<lpp::lpp__value>("
-                     "std::string("
+            f_out << "std::make_shared<lpp::lpp__value>(std::string("
                   << word_to_cpp_literal_string(item->get_word())
-                  << ")"
-                     ")\n";
+                  << "))\n";
             break;
 
         case token_t::TOK_LIST:

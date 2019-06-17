@@ -533,7 +533,7 @@ std::ostream & operator << (std::ostream & out, lpp::Token const & token)
     switch(token.get_token())
     {
     case lpp::token_t::TOK_FUNCTION_CALL:
-        out << token.get_word() << " args:";
+        out << "*" << token.get_word() << " args:";
     case lpp::token_t::TOK_LIST:
         {
             out << "[";

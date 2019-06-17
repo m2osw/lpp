@@ -16,6 +16,7 @@ to safe :msg
   catch "test [display :msg]
   print "AFTER\ CATCH
   show error
+  forever [type ". if repcount >= 10 [stop]]
   print "
 end safe
 
