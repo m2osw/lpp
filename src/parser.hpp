@@ -75,6 +75,8 @@ private:
     void                    output_function_call(Token::pointer_t function_call, std::string const & result_var = std::string());
     void                    output_argument(Token::pointer_t arg, std::string const & value_name);
     void                    build_list(Token::pointer_t list);
+    void                    build_list_content(Token::pointer_t list);
+    void                    build_list_item(Token::pointer_t item);
     void                    control_primitive(control_t & control_info);
     bool                    inline_primitive(control_t & control_info);
     std::string             logo_to_cpp_name(std::string const & name);
@@ -83,12 +85,15 @@ private:
 
     void                    control_catch(control_t & control_info);
     void                    control_forever(control_t & control_info);
-    void                    control_if(control_t & control_info);
+    void                    control_goto(control_t & control_info);
+    void                    control_if(control_t & control_info, bool always_else);
     void                    control_if_test(control_t & control_info, bool true_or_false);
     void                    control_output(control_t & control_info);
     void                    control_repeat(control_t & control_info);
     void                    control_stop(control_t & control_info);
+    void                    control_tag(control_t & control_info);
     void                    control_throw(control_t & control_info);
+    void                    control_until(control_t & control_info);
 
     void                    primitive_wait(control_t & control_info);
 

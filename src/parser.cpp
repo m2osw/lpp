@@ -110,7 +110,7 @@ Parser::Parser()
             "primitive [procedure control inline] ifelse :boolean :if_true :if_false end\n"
             "primitive [procedure control inline] iffalse&iff :if_false end\n"
             "primitive [procedure control inline] iftrue&ift :if_true end\n"
-            "primitive [procedure inline] ignore :thing end\n"
+            "primitive [procedure] ignore :thing [:rest] end\n"     // special case, we just do not generate a call to any function
             "primitive [function] int :number end\n"
             "primitive [function] integerp&integer? :thing end\n"
             "primitive [function] item :number :thing end\n"
@@ -1845,36 +1845,42 @@ void Parser::output_function_call(Token::pointer_t function_call, std::string co
                 }
                 // else -- accumulate in the rest list
 
-                if(arg_name != nullptr)
+                if(declaration->get_word() != "ignore")
                 {
-std::cerr << "    -> set param \"" << arg_name->get_word() << "\"\n";
-                    f_out << context_name
-                          << "->set_thing("
-                          << word_to_cpp_literal_string(arg_name->get_word())
-                          << ","
-                          << value_name
-                          << ",lpp::lpp__thing_type_t::LPP__THING_TYPE_CONTEXT);\n";
-                }
-                else
-                {
-                    if(rest_argument == nullptr)
+                    if(arg_name != nullptr)
                     {
-                        throw std::logic_error("while working on \""
-                                             + function_call->get_word()
-                                             + "\" item number "
-                                             + std::to_string(a)
-                                             + " we are somehow attempting to add a rest argument when rest_argument == nullptr (maybe a primitive declaration is missing?)");
+std::cerr << "    -> set param \"" << arg_name->get_word() << "\"\n";
+                        f_out << context_name
+                              << "->set_thing("
+                              << word_to_cpp_literal_string(arg_name->get_word())
+                              << ","
+                              << value_name
+                              << ",lpp::lpp__thing_type_t::LPP__THING_TYPE_CONTEXT);\n";
                     }
+                    else
+                    {
+                        if(rest_argument == nullptr)
+                        {
+                            throw std::logic_error("while working on \""
+                                                 + function_call->get_word()
+                                                 + "\" item number "
+                                                 + std::to_string(a)
+                                                 + " we are somehow attempting to add a rest argument when rest_argument == nullptr (maybe a primitive declaration is missing?)");
+                        }
 
-                    // add to rest list
-                    f_out << "rest.push_back("
-                          << value_name
-                          << ");\n";
+                        // add to rest list
+                        f_out << "rest.push_back("
+                              << value_name
+                              << ");\n";
+                    }
                 }
             }
 
-            f_out << context_name
-                  << "->attach(context);\n";
+            if(declaration->get_word() != "ignore")
+            {
+                f_out << context_name
+                      << "->attach(context);\n";
+            }
 
             decltype(max_args) max_opt(required_arguments->get_list_size() + optional_arguments->get_list_size());
             for(; a < max_opt; ++a)
@@ -1886,49 +1892,55 @@ std::cerr << "    -> set param \"" << arg_name->get_word() << "\"\n";
                 std::string const value_name(get_unique_name());
                 output_argument(opt_arg->get_list_item(1), value_name);
 
-                f_out << context_name
-                      << "->set_thing("
-                      << word_to_cpp_literal_string(arg_name->get_word())
-                      << ","
-                      << value_name
-                      << ",lpp::lpp__thing_type_t::LPP__THING_TYPE_CONTEXT);\n";
+                if(declaration->get_word() != "ignore")
+                {
+                    f_out << context_name
+                          << "->set_thing("
+                          << word_to_cpp_literal_string(arg_name->get_word())
+                          << ","
+                          << value_name
+                          << ",lpp::lpp__thing_type_t::LPP__THING_TYPE_CONTEXT);\n";
+                }
             }
 
-            if(rest_argument != nullptr)
+            if(declaration->get_word() != "ignore")
             {
-                f_out << context_name
-                      << "->set_thing("
-                      << word_to_cpp_literal_string(rest_argument->get_word())
-                      << ",std::make_shared<lpp::lpp__value>(rest),lpp::lpp__thing_type_t::LPP__THING_TYPE_CONTEXT);\n";
-            }
+                if(rest_argument != nullptr)
+                {
+                    f_out << context_name
+                          << "->set_thing("
+                          << word_to_cpp_literal_string(rest_argument->get_word())
+                          << ",std::make_shared<lpp::lpp__value>(rest),lpp::lpp__thing_type_t::LPP__THING_TYPE_CONTEXT);\n";
+                }
 
-            switch(procedure_flags & PROCEDURE_FLAG_TYPE_MASK)
-            {
-            case PROCEDURE_FLAG_PRIMITIVE:
-                f_out << "primitive_";
-                break;
+                switch(procedure_flags & PROCEDURE_FLAG_TYPE_MASK)
+                {
+                case PROCEDURE_FLAG_PRIMITIVE:
+                    f_out << "primitive_";
+                    break;
 
-            case PROCEDURE_FLAG_PROCEDURE:
-            case PROCEDURE_FLAG_DECLARE:
-                f_out << "procedure_";
-                break;
+                case PROCEDURE_FLAG_PROCEDURE:
+                case PROCEDURE_FLAG_DECLARE:
+                    f_out << "procedure_";
+                    break;
 
-            case PROCEDURE_FLAG_C:  // C functions are called as is
-                break;
+                case PROCEDURE_FLAG_C:  // C functions are called as is
+                    break;
 
-            }
+                }
 std::cerr << "    -> call func. \"" << declaration->get_word() << "\"\n";
-            f_out << logo_to_cpp_name(declaration->get_word())
-                  << "("
-                  << context_name
-                  << ");\n";
-
-            if(!result_var.empty())
-            {
-                f_out << result_var
-                      << "="
+                f_out << logo_to_cpp_name(declaration->get_word())
+                      << "("
                       << context_name
-                      << "->get_returned_value();\n";
+                      << ");\n";
+
+                if(!result_var.empty())
+                {
+                    f_out << result_var
+                          << "="
+                          << context_name
+                          << "->get_returned_value();\n";
+                }
             }
 
             f_out << "}\n";
@@ -2025,10 +2037,14 @@ void Parser::output_argument(Token::pointer_t arg, std::string const & value_nam
 
 void Parser::build_list(Token::pointer_t list)
 {
-    std::string const context_name(get_unique_name());
-
     f_out << "std::make_shared<lpp::lpp__value>(lpp::lpp__value::vector_t{\n";
+    build_list_content(list);
+    f_out << "})\n";
+}
 
+
+void Parser::build_list_content(Token::pointer_t list)
+{
     auto const max(list->get_list_size());
     for(std::remove_const<decltype(max)>::type l(0); l < max; ++l)
     {
@@ -2036,49 +2052,80 @@ void Parser::build_list(Token::pointer_t list)
         {
             f_out << ",";
         }
-        Token::pointer_t item(list->get_list_item(l));
-        switch(item->get_token())
+        build_list_item(list->get_list_item(l));
+    }
+}
+
+
+void Parser::build_list_item(Token::pointer_t item)
+{
+    switch(item->get_token())
+    {
+    case token_t::TOK_BOOLEAN:
+        f_out << "std::make_shared<lpp::lpp__value>("
+              << item->get_boolean()
+              << ")\n";
+        break;
+
+    case token_t::TOK_INTEGER:
+        f_out << "std::make_shared<lpp::lpp__value>(static_cast<lpp::lpp__integer_t>("
+              << item->get_integer()
+              << "LL))\n";
+        break;
+
+    case token_t::TOK_FLOAT:
+        f_out << "std::make_shared<lpp::lpp__value>("
+              << item->get_float()
+              << ")\n";
+        break;
+
+    case token_t::TOK_THING:
+        f_out << "std::make_shared<lpp::lpp__value>(':' + std::string("
+              << word_to_cpp_literal_string(item->get_word())
+              << "))\n";
+        break;
+
+    case token_t::TOK_WORD:
+    case token_t::TOK_QUOTED:
+        f_out << "std::make_shared<lpp::lpp__value>(std::string("
+              << word_to_cpp_literal_string(item->get_word())
+              << "))\n";
+        break;
+
+    case token_t::TOK_FUNCTION_CALL:    // TODO: operators get transformed in this way...
         {
-        case token_t::TOK_BOOLEAN:
-            f_out << "std::make_shared<lpp::lpp__value>("
-                  << item->get_boolean()
-                  << ")\n";
-            break;
-
-        case token_t::TOK_INTEGER:
-            f_out << "std::make_shared<lpp::lpp__value>(static_cast<lpp::lpp__integer_t>("
-                  << item->get_integer()
-                  << "LL))\n";
-            break;
-
-        case token_t::TOK_FLOAT:
-            f_out << "std::make_shared<lpp::lpp__value>("
-                  << item->get_float()
-                  << ")\n";
-            break;
-
-        case token_t::TOK_WORD:
-        case token_t::TOK_QUOTED:
-        case token_t::TOK_FUNCTION_CALL:    // operators get transformed in this way...
             f_out << "std::make_shared<lpp::lpp__value>(std::string("
                   << word_to_cpp_literal_string(item->get_word())
                   << "))\n";
-            break;
+            auto const fcmax(item->get_list_size());
+            if(fcmax > 0)
+            {
+                // TODO: write the list items, not the list itself
+                // (especially for the :rest parameter)
+                //
+                //for(std::remove_const<decltype(fcmax)>::type fc(0); fc < fcmax; ++fc)
+                //{
+                //    f_out << ",";
+                //    build_list(item->get_list_item(fc));
+                //}
 
-        case token_t::TOK_LIST:
-            build_list(item);
-            break;
-
-        default:
-            item->error("unexpected token type ("
-                      + to_string(item->get_token())
-                      + ") in a list literal.");
-            return;
-
+                f_out << ",";
+                build_list_content(item);
+            }
         }
-    }
+        break;
 
-    f_out << "})\n";
+    case token_t::TOK_LIST:
+        build_list(item);
+        break;
+
+    default:
+        item->error("unexpected token type ("
+                  + to_string(item->get_token())
+                  + ") in a list literal.");
+        return;
+
+    }
 }
 
 

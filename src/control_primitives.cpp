@@ -63,10 +63,23 @@ void Parser::control_primitive(control_t & control_info)
         }
         break;
 
+    case 'g':
+        if(name == "goto")
+        {
+            control_goto(control_info);
+            return;
+        }
+        break;
+
     case 'i':
         if(name == "if")
         {
-            control_if(control_info);
+            control_if(control_info, false);
+            return;
+        }
+        if(name == "ifelse")
+        {
+            control_if(control_info, true);
             return;
         }
         if(name == "iftrue" || name == "ift")
@@ -109,6 +122,19 @@ void Parser::control_primitive(control_t & control_info)
         if(name == "throw")
         {
             control_throw(control_info);
+            return;
+        }
+        if(name == "tag")
+        {
+            control_tag(control_info);
+            return;
+        }
+        break;
+
+    case 'u':
+        if(name == "until")
+        {
+            control_until(control_info);
             return;
         }
         break;
@@ -245,12 +271,45 @@ void Parser::control_forever(control_t & control_info)
 }
 
 
-void Parser::control_if(control_t & control_info)
+void Parser::control_goto(control_t & control_info)
 {
-    if(control_info.m_max_args != 2
-    && control_info.m_max_args != 3)
+    if(control_info.m_max_args != 1)
     {
-        throw std::logic_error("primitive \"if\" called with a number of parameters not equal to 2 or 3.");
+        throw std::logic_error("primitive \"goto\" called with a number of parameters not equal to 1.");
+    }
+
+    std::string value_name;
+    Token::pointer_t arg(control_info.m_function_call->get_list_item(0));
+    if(arg->get_token() != token_t::TOK_QUOTED)
+    {
+        arg->error("the \"goto\" primitive only accepts a quoted word as parameter. "
+                  + to_string(arg->get_token())
+                  + " is not acceptable.");
+    }
+
+    std::string const repeat_var(get_unique_name());
+    f_out << "goto "
+          << arg->get_word()
+          << ";\n";
+}
+
+
+void Parser::control_if(control_t & control_info, bool always_else)
+{
+    if(always_else)
+    {
+        if(control_info.m_max_args != 3)
+        {
+            throw std::logic_error("primitive \"ifelse\" called with a number of parameters not equal to 3.");
+        }
+    }
+    else
+    {
+        if(control_info.m_max_args != 2
+        && control_info.m_max_args != 3)
+        {
+            throw std::logic_error("primitive \"if\" called with a number of parameters not equal to 2 or 3.");
+        }
     }
 
     std::string value_name;
@@ -516,6 +575,28 @@ void Parser::control_stop(control_t & control_info)
 }
 
 
+void Parser::control_tag(control_t & control_info)
+{
+    if(control_info.m_max_args != 1)
+    {
+        throw std::logic_error("primitive \"tag\" called with a number of parameters not equal to 1.");
+    }
+
+    std::string value_name;
+    Token::pointer_t arg(control_info.m_function_call->get_list_item(0));
+    if(arg->get_token() != token_t::TOK_QUOTED)
+    {
+        arg->error("the \"tag\" primitive only accepts a quoted word as parameter. "
+                  + to_string(arg->get_token())
+                  + " is not acceptable.");
+    }
+
+    std::string const repeat_var(get_unique_name());
+    f_out << arg->get_word()
+          << ":;\n";
+}
+
+
 void Parser::control_throw(control_t & control_info)
 {
     if(control_info.m_max_args != 1
@@ -611,6 +692,114 @@ void Parser::control_throw(control_t & control_info)
     }
 
     f_out << ");\n";
+}
+
+
+void Parser::control_until(control_t & control_info)
+{
+    if(control_info.m_max_args != 2)
+    {
+        throw std::logic_error("primitive \"until\" called with a number of parameters not equal to 2.");
+    }
+
+    std::string value_name;
+    Token::pointer_t arg(control_info.m_function_call->get_list_item(0));
+
+    bool direct_value(false);
+    bool tf(false);
+
+    switch(arg->get_token())
+    {
+    case token_t::TOK_FUNCTION_CALL:
+        // the output of a function call will stack a parameter
+        //
+        value_name = get_unique_name();
+        f_out << "for(;;)\n"
+                 "{\n"
+                 "lpp::lpp__value::pointer_t "
+              << value_name
+              << ";\n";
+        output_function_call(arg, value_name);
+        break;
+
+    case token_t::TOK_BOOLEAN:
+        direct_value = true;
+        tf = arg->get_boolean();
+        break;
+
+    case token_t::TOK_THING:
+        value_name = get_unique_name();
+        f_out << "for(;;)\n"
+                 "{\n"
+                 "lpp::lpp__value::pointer_t "
+              << value_name
+              << "(context->get_thing("
+              << word_to_cpp_literal_string(arg->get_word())
+              << ")->get_value());\n";
+        break;
+
+    default:
+        arg->error("unexpected token type ("
+                  + to_string(arg->get_token())
+                  + ") for the if condition.");
+        return;
+
+    }
+
+    if(direct_value)
+    {
+        // if true, it never executes
+        //
+        if(tf)
+        {
+            return;
+        }
+
+        // if false, it is equivalent to FOREVER
+        //
+        f_out << "for(;;)\n"
+                 "{\n";
+
+        Token::pointer_t instruction_list(control_info.m_function_call->get_list_item(1));
+        Token::pointer_t instructions(parse_body(instruction_list));
+        output_body(instructions);
+
+        f_out << "}\n";
+    }
+    else
+    {
+        std::string const tf_var(get_unique_name());
+        f_out << "bool "
+              << tf_var
+              << ";\n"
+                 "if("
+              << value_name
+              << "->type()"
+                 "=="
+                 "lpp::lpp__value_type_t::LPP__VALUE_TYPE_BOOLEAN)\n"
+                 "{\n"
+              << tf_var
+              << "="
+              << value_name
+              << "->get_boolean();\n"
+                 "}\n"
+                 "else\n"
+                 "{\n"
+                 "throw lpp::lpp__error(context,lpp::lpp__error_code_t::ERROR_CODE_INVALID_DATUM,\"error\",\"if expression must be a boolean.\");\n"
+                 "}\n"
+                 "if("
+              << tf_var
+              << ")\n"
+                 "{\n"
+                 "break;\n"
+                 "}\n";
+
+        Token::pointer_t instruction_list(control_info.m_function_call->get_list_item(1));
+        Token::pointer_t instructions(parse_body(instruction_list));
+        output_body(instructions);
+
+        f_out << "}\n";
+    }
 }
 
 

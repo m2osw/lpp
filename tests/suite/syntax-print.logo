@@ -6,9 +6,14 @@ program
   wait 1.0
   print "
   print "this\ ift?
+  goto "here
+  until :var [
+    ignore 5 + 8
+  ]
+  tag "here
   ift [safe bf :arguments]
   print "or\ iff?
-  iff [display [Hello  World! [note: list of list]]]
+  iff [display [Hello  World! [note: list of list and output "here :thing]]]
 end program
 
 to safe :msg
