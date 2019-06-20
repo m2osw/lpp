@@ -23,6 +23,7 @@ to safe :msg
   print "AFTER\ CATCH time
   if errorp [show error]
   forever [type ". if repcount >= 10 [stop]]
+  for [:a :global 5 * 2 -0.3] [print "+]
   print "
 end safe
 

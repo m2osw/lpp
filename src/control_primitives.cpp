@@ -69,7 +69,12 @@ void Parser::control_primitive(control_t & control_info)
         break;
 
     case 'f':
-        if(name == "forever")
+        if(name == "for")
+        {
+            control_for(control_info);
+            return;
+        }
+        else if(name == "forever")
         {
             control_forever(control_info);
             return;
@@ -256,6 +261,272 @@ void Parser::control_catch(control_t & control_info)
              "e.caught(true);\n"
              "context->set_error(e);\n"
              "}\n";
+}
+
+
+void Parser::control_for(control_t & control_info)
+{
+    if(control_info.m_max_args != 2)
+    {
+        throw std::logic_error("primitive \"for\" called with a number of parameters not equal to 2.");
+    }
+
+    // the first argument must be a TOK_LIST
+    //
+    Token::pointer_t arg(control_info.m_function_call->get_list_item(0));
+    if(arg->get_token() != token_t::TOK_LIST)
+    {
+        arg->error("unexpected token type ("
+                  + to_string(arg->get_token())
+                  + ") for the \"for\" instruction; expected a LIST.");
+        return;
+    }
+
+    size_t const max_ctrl(arg->get_list_size());
+    if(max_ctrl != 3
+    && max_ctrl != 4)
+    {
+        arg->error("unexpected number of arguments in the \"for\" instruction control list. Expected 3 or 4 items, got "
+                  + std::to_string(max_ctrl)
+                  + " instead.");
+        return;
+    }
+
+    Token::pointer_t var_name(arg->get_list_item(0));
+    if(var_name->get_token() != token_t::TOK_WORD
+    && var_name->get_token() != token_t::TOK_QUOTED
+    && var_name->get_token() != token_t::TOK_THING)
+    {
+        arg->error("unexpected token type ("
+                  + to_string(var_name->get_token())
+                  + ") for the \"for\" instruction; the first item in the control list is expected to be a word.");
+        return;
+    }
+
+    std::string ctrl_var_name[3];
+    double ctrl_var_value[3]{ 0, 0, 0 };
+    bool direct_value[3]{ false, false, false };
+    bool all_direct(true);
+    for(size_t idx(0); idx + 1 < max_ctrl; ++idx)
+    {
+        Token::pointer_t ctrl_range(arg->get_list_item(idx + 1));
+
+        switch(ctrl_range->get_token())
+        {
+        case token_t::TOK_FUNCTION_CALL:
+            // the output of a function call will stack a parameter
+            //
+            all_direct = false;
+            ctrl_var_name[idx] = get_unique_name();
+            f_out << "lpp::lpp__value::pointer_t "
+                  << ctrl_var_name[idx]
+                  << ";\n";
+            output_function_call(ctrl_range, ctrl_var_name[idx]);
+            break;
+
+        case token_t::TOK_INTEGER:
+            direct_value[idx] = true;
+            ctrl_var_value[idx] = static_cast<float_t>(ctrl_range->get_integer());
+            break;
+
+        case token_t::TOK_FLOAT:
+            direct_value[idx] = true;
+            ctrl_var_value[idx] = ctrl_range->get_float();
+            break;
+
+        case token_t::TOK_THING:
+            all_direct = false;
+            ctrl_var_name[idx] = get_unique_name();
+            f_out << "lpp::lpp__value::pointer_t "
+                  << ctrl_var_name[idx]
+                  << "(context->get_thing("
+                  << word_to_cpp_literal_string(ctrl_range->get_word())
+                  << ")->get_value());\n";
+            break;
+
+        // TODO: support a list as well, although we don't need it in
+        //       our Logo so at this point it's not available
+        //case token_t::TOK_LIST:
+        //    ctrl_var_name[idx] = get_unique_name();
+        //    f_out << "lpp::lpp__value::pointer_t "
+        //          << ctrl_var_name[idx]
+        //          << ";\n";
+        //    output_function_call(arg, ctrl_var_name[idx]);
+        //    break;
+
+        default:
+            arg->error("unexpected token type ("
+                      + to_string(ctrl_range->get_token())
+                      + ") for one of the \"for\" loop numbers.");
+            return;
+
+        }
+    }
+
+    std::string const repeat_var(get_unique_name());
+    if(all_direct)
+    {
+        // in this one special case, we can generate the for() loop
+        // very easily
+        //
+        bool growing(true);
+        if(max_ctrl == 3)
+        {
+            growing = ctrl_var_value[0] <= ctrl_var_value[1];
+            if(growing)
+            {
+                ctrl_var_value[2] = 1.0;
+            }
+            else
+            {
+                ctrl_var_value[2] = -1.0;
+            }
+        }
+        else if(ctrl_var_value[2] < 0)
+        {
+            growing = false;
+        }
+
+        f_out << "for(lpp::lpp__float_t "
+              << repeat_var
+              << "("
+              << ctrl_var_value[0]
+              << ");"
+              << repeat_var
+              << (growing ? "<=" : ">=")
+              << ctrl_var_value[1]
+              << ";"
+              << repeat_var
+              << "+="
+              << ctrl_var_value[2]
+              << ")\n"
+                 "{\n"
+                 "lpp::lpp__value::pointer_t "
+              << repeat_var
+              << "_value(std::make_shared<lpp::lpp__value>("
+              << repeat_var
+              << "));\n"
+                 "context->set_thing("
+              << word_to_cpp_literal_string(var_name->get_word())
+              << ","
+              << repeat_var
+              << "_value,lpp::lpp__thing_type_t::LPP__THING_TYPE_PROCEDURE);\n";
+
+        Token::pointer_t instruction_list(control_info.m_function_call->get_list_item(1));
+        Token::pointer_t instructions(parse_body(instruction_list));
+        output_body(instructions);
+
+        f_out << "}\n";
+    }
+    else
+    {
+        for(size_t idx(0); idx + 1 < max_ctrl; ++idx)
+        {
+            if(!direct_value[0])
+            {
+                f_out << "lpp::lpp__float_t "
+                      << ctrl_var_name[idx]
+                      << "_for(0);\n"
+                         "switch("
+                      << ctrl_var_name[idx]
+                      << "->type())\n"
+                         "{\n"
+                         "case lpp::lpp__value_type_t::LPP__VALUE_TYPE_INTEGER:\n"
+                      << ctrl_var_name[idx]
+                      << "_for=static_cast<lpp::lpp__float_t>("
+                      << ctrl_var_name[idx]
+                      << "->get_integer());\n"
+                         "break;\n"
+                         "case lpp::lpp__value_type_t::LPP__VALUE_TYPE_FLOAT:\n"
+                      << ctrl_var_name[idx]
+                      << "_for="
+                      << ctrl_var_name[idx]
+                      << "->get_float();\n"
+                         "break;\n"
+                         "default:\n"
+                         "throw lpp::lpp__error(context,lpp::lpp__error_code_t::ERROR_CODE_INVALID_DATUM,\"error\",\"for control values must be numbers.\");\n"
+                         "}\n";
+            }
+        }
+
+        if(max_ctrl == 3)
+        {
+            // dynamically determine the step size (1.0 or -1.0)
+            //
+            ctrl_var_name[2] = get_unique_name();
+            f_out << "lpp::lpp__float_t "
+                  << ctrl_var_name[2]
+                  << "_for(";
+            if(direct_value[0])
+            {
+                f_out << direct_value[0];
+            }
+            else
+            {
+                f_out << ctrl_var_name[0]
+                      << "_for";
+            }
+            f_out << "<=";
+            if(direct_value[1])
+            {
+                f_out << direct_value[1];
+            }
+            else
+            {
+                f_out << ctrl_var_name[1]
+                      << "_for";
+            }
+            f_out << "?1.0:-1.0);\n";
+        }
+
+        f_out << "for(lpp::lpp__float_t "
+              << repeat_var
+              << "("
+              << (direct_value[0] ? std::to_string(ctrl_var_value[0]) : ctrl_var_name[0] + "_for")
+              << ");";
+
+        if(direct_value[2])
+        {
+            f_out << repeat_var
+                  << (ctrl_var_value[2] >= 0 ? "<=" : ">=")
+                  << (direct_value[1] ? std::to_string(ctrl_var_value[1]) : ctrl_var_name[1] + "_for");
+        }
+        else
+        {
+            f_out << ctrl_var_name[2]
+                  << "_for>=0?"
+                  << repeat_var
+                  << "<="
+                  << (direct_value[1] ? std::to_string(ctrl_var_value[1]) : ctrl_var_name[1] + "_for")
+                  << ":"
+                  << repeat_var
+                  << ">="
+                  << (direct_value[1] ? std::to_string(ctrl_var_value[1]) : ctrl_var_name[1] + "_for");
+        }
+
+        f_out << ";"
+              << repeat_var
+              << "+="
+              << (direct_value[2] ? std::to_string(ctrl_var_value[2]) : ctrl_var_name[2] + "_for")
+              << ")\n"
+                 "{\n"
+                 "lpp::lpp__value::pointer_t "
+              << repeat_var
+              << "_value(std::make_shared<lpp::lpp__value>("
+              << repeat_var
+              << "));\n"
+                 "context->set_thing("
+              << word_to_cpp_literal_string(var_name->get_word())
+              << ","
+              << repeat_var
+              << "_value,lpp::lpp__thing_type_t::LPP__THING_TYPE_PROCEDURE);\n";
+
+        Token::pointer_t instruction_list(control_info.m_function_call->get_list_item(1));
+        Token::pointer_t instructions(parse_body(instruction_list));
+        output_body(instructions);
+
+        f_out << "}\n";
+    }
 }
 
 

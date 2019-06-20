@@ -84,6 +84,7 @@ private:
     std::string             get_unique_name();
 
     void                    control_catch(control_t & control_info);
+    void                    control_for(control_t & control_info);
     void                    control_forever(control_t & control_info);
     void                    control_goto(control_t & control_info);
     void                    control_if(control_t & control_info, bool always_else);
