@@ -2,14 +2,15 @@ program
   make "global 123
   test # :arguments > 2
   ift [make "global item 2 :arguments]
-  type "wait...
+  type "wait... on\  time
   wait 1.0
   print "
   print "this\ ift?
   goto "here
-  until :var [
-    ignore 5 + 8
-  ]
+  while :var [ignore 5 + 8]
+  until :var [ignore 8 + 12]
+  do.while :var [ignore 13 + 16]
+  do.until :var [ignore 25 + 28]
   tag "here
   ift [safe bf :arguments]
   print "or\ iff?
@@ -19,8 +20,8 @@ end program
 to safe :msg
   print "BEFORE\ CATCH
   catch "test [display :msg]
-  print "AFTER\ CATCH
-  show error
+  print "AFTER\ CATCH time
+  if errorp [show error]
   forever [type ". if repcount >= 10 [stop]]
   print "
 end safe

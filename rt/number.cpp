@@ -286,10 +286,10 @@ void lpp__number::compute(
         {
             result.apply_binary(context->get_thing(rhs_name)->get_value(), i, f);
 
-            lpp__value::pointer_t rest(context->find_thing(rest_name)->get_value());
+            lpp__thing::pointer_t rest(context->find_thing(rest_name));
             if(rest != nullptr)
             {
-                lpp__value::vector_t const & items(rest->get_list());
+                lpp__value::vector_t const & items(rest->get_value()->get_list());
                 for(auto const & r : items)
                 {
                     result.apply_binary(r, i, f);
@@ -405,15 +405,15 @@ void lpp__number::compare(
     lpp__value::pointer_t lhs(context->get_thing(lhs_name)->get_value());
     lpp__value::pointer_t rhs(context->get_thing(rhs_name)->get_value());
 
-    int c(compare_values(context, lhs, rhs, characters));
+    lpp__integer_t c(compare_values(context, lhs, rhs, characters));
     bool boolean(f(c));
 
     if(boolean)
     {
-        lpp__value::pointer_t rest(context->find_thing(rest_name)->get_value());
-        if(rest == nullptr)
+        lpp__thing::pointer_t rest(context->find_thing(rest_name));
+        if(rest != nullptr)
         {
-            lpp__value::vector_t const & items(rest->get_list());
+            lpp__value::vector_t const & items(rest->get_value()->get_list());
             for(auto const & it : items)
             {
                 c = compare_values(context, lhs, it, characters);
@@ -457,10 +457,10 @@ void lpp__number::logical(
 
     if(boolean)
     {
-        lpp__value::pointer_t rest(context->find_thing(rest_name)->get_value());
-        if(rest == nullptr)
+        lpp__thing::pointer_t rest(context->find_thing(rest_name));
+        if(rest != nullptr)
         {
-            lpp__value::vector_t const & items(rest->get_list());
+            lpp__value::vector_t const & items(rest->get_value()->get_list());
             for(auto const & it : items)
             {
                 if(it->type() != lpp__value_type_t::LPP__VALUE_TYPE_BOOLEAN)

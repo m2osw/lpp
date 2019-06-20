@@ -56,10 +56,10 @@ void primitive_random(lpp::lpp__context::pointer_t context)
     }
     lpp::lpp__integer_t s(start.get_integer());
 
-    lpp::lpp__value::pointer_t rest(context->find_thing("rest")->get_value());
+    lpp::lpp__thing::pointer_t rest(context->find_thing("rest"));
     if(rest != nullptr)
     {
-        lpp::lpp__value::vector_t const & items(rest->get_list());
+        lpp::lpp__value::vector_t const & items(rest->get_value()->get_list());
         if(!items.empty())
         {
             if(items.size() > 1)

@@ -30,13 +30,16 @@ case "$1" in
 	# we can just access the library under /usr/lib so it would
 	# not help
 	#
-	g++ -std=c++14 -I ../BUILD/Debug/dist/include \
-			l.cpp \
-			../BUILD/Debug/dist/lib/lpp/main.cpp \
-			-Xlinker -rpath \
-			-Xlinker `cd ../BUILD/Debug/dist/lib; pwd` \
-			-L ../BUILD/Debug/dist/lib \
-			-llpprt
+	g++ -std=c++14 \
+		-g \
+		-O0 \
+		-I ../BUILD/Debug/dist/include \
+		l.cpp \
+		../BUILD/Debug/dist/lib/lpp/main.cpp \
+		-Xlinker -rpath \
+		-Xlinker `cd ../BUILD/Debug/dist/lib; pwd` \
+		-L ../BUILD/Debug/dist/lib \
+		-llpprt
 	;;
 
 *)

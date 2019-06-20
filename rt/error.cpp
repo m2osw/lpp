@@ -69,6 +69,12 @@ std::string const & lpp__error::tag() const
 }
 
 
+time_t lpp__error::timestamp() const
+{
+    return f_timestamp;
+}
+
+
 lpp__value::pointer_t lpp__error::value() const
 {
     return f_value;
@@ -95,6 +101,18 @@ lpp__integer_t lpp__error::line() const
 std::string const & lpp__error::primitive() const
 {
     return f_primitive;
+}
+
+
+void lpp__error::caught(bool state) const
+{
+    f_caught = state;
+}
+
+
+bool lpp__error::caught() const
+{
+    return f_caught;
 }
 
 

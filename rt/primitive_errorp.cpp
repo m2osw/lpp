@@ -27,25 +27,11 @@
 
 
 
-void primitive_word(lpp::lpp__context::pointer_t context)
+
+void primitive_errorp(lpp::lpp__context::pointer_t context)
 {
-    lpp::lpp__value::pointer_t w1(context->get_thing("word1")->get_value());
-    std::string word(w1->to_word());
-
-    lpp::lpp__value::pointer_t w2(context->get_thing("word2")->get_value());
-    word += w2->to_word();
-
-    lpp::lpp__thing::pointer_t rest(context->find_thing("rest"));
-    if(rest != nullptr)
-    {
-        lpp::lpp__value::vector_t const & items(rest->get_value()->get_list());
-        for(auto const & r : items)
-        {
-            word += r->to_word();
-        }
-    }
-
-    lpp::lpp__value::pointer_t result(std::make_shared<lpp::lpp__value>(word));
+    lpp::lpp__error const & e(context->get_error());
+    lpp::lpp__value::pointer_t result(std::make_shared<lpp::lpp__value>(!e.tag().empty()));
     context->set_return_value(result);
 }
 

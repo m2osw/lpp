@@ -31,11 +31,11 @@ void primitive_print(lpp::lpp__context::pointer_t context)
 {
     lpp::lpp__value::pointer_t thing(context->get_thing("thing")->get_value());
     std::cout << thing->to_string();
-    lpp::lpp__value::pointer_t rest(context->find_thing("rest")->get_value());
+    lpp::lpp__thing::pointer_t rest(context->find_thing("rest"));
     if(rest != nullptr)
     {
         std::cout << " ";
-        std::cout << rest->to_string();
+        std::cout << rest->get_value()->to_string();
     }
     std::cout << "\n";
 }

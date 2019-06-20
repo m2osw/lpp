@@ -93,7 +93,7 @@ private:
     void                    control_stop(control_t & control_info);
     void                    control_tag(control_t & control_info);
     void                    control_throw(control_t & control_info);
-    void                    control_until(control_t & control_info);
+    void                    control_while(control_t & control_info, bool until, bool once);
 
     void                    primitive_wait(control_t & control_info);
 

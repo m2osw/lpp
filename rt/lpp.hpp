@@ -215,20 +215,25 @@ public:
 
     lpp__error_code_t       code() const;
     std::string const &     tag() const;
+    time_t                  timestamp() const;
     lpp__value::pointer_t   value() const;
     std::string const &     filename() const;
     std::string const &     procedure() const;
     lpp__integer_t          line() const;
     std::string const &     primitive() const;
+    void                    caught(bool state) const;
+    bool                    caught() const;
 
 private:
     lpp__error_code_t       f_code = lpp__error_code_t::ERROR_CODE_NONE;
     std::string             f_tag = std::string();
+    time_t                  f_timestamp = time(nullptr);
     lpp__value::pointer_t   f_value = lpp__value::pointer_t();
     std::string             f_filename = std::string();
     std::string             f_procedure = std::string();
     lpp__integer_t          f_line = 0;
     std::string             f_primitive = std::string();
+    mutable bool            f_caught = false;
 };
 
 
@@ -254,7 +259,7 @@ public:
     std::string const &     get_filename() const;
     std::string             get_procedure_name() const;
     lpp__integer_t          get_current_line() const;
-    std::string const &     get_primitive_name() const;
+    std::string             get_primitive_name() const;
 
     void                    set_global(pointer_t global);
     pointer_t               get_global();
@@ -401,6 +406,7 @@ void primitive_difference(lpp::lpp__context::pointer_t context);
 void primitive_emptyp(lpp::lpp__context::pointer_t context);
 void primitive_equalp(lpp::lpp__context::pointer_t context);
 void primitive_error(lpp::lpp__context::pointer_t context);
+void primitive_errorp(lpp::lpp__context::pointer_t context);
 void primitive_exp(lpp::lpp__context::pointer_t context);
 
 // F
@@ -469,6 +475,7 @@ void primitive_sum(lpp::lpp__context::pointer_t context);
 // T
 void primitive_tan(lpp::lpp__context::pointer_t context);
 void primitive_test(lpp::lpp__context::pointer_t context);
+void primitive_time(lpp::lpp__context::pointer_t context);
 void primitive_type(lpp::lpp__context::pointer_t context);
 
 // W

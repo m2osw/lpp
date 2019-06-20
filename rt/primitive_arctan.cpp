@@ -51,9 +51,9 @@ lpp::lpp__float_t flt_una_operation(lpp::lpp__context::pointer_t , lpp::lpp__flo
 
 void primitive_arctan(lpp::lpp__context::pointer_t context)
 {
-    lpp::lpp__value::pointer_t rest(context->find_thing("rest")->get_value());
+    lpp::lpp__thing::pointer_t rest(context->find_thing("rest"));
     if(rest != nullptr
-    && rest->get_list().size() == 1)
+    && rest->get_value()->get_list().size() == 1)
     {
         // this is a non-standard binary
         //

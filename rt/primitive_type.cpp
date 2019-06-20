@@ -31,13 +31,13 @@ void primitive_type(lpp::lpp__context::pointer_t context)
 {
     lpp::lpp__value::pointer_t thing(context->get_thing("thing")->get_value());
     std::cout << thing->to_string();
-    lpp::lpp__value::pointer_t rest(context->find_thing("rest")->get_value());
+    lpp::lpp__thing::pointer_t rest(context->find_thing("rest"));
     if(rest != nullptr)
     {
         // reimplement the list because we need to not have spaces between
         // each element
         //
-        auto list(rest->get_list());
+        auto list(rest->get_value()->get_list());
         size_t const max(list.size());
         for(size_t i(0); i < max; ++i)
         {

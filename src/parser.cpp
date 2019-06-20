@@ -89,6 +89,7 @@ Parser::Parser()
             "primitive [function] eofp end\n"
             "primitive [procedure] erasefile&erf :filename end\n"
             "primitive [function] error end\n"
+            "primitive [function] errorp&error? end\n"
             // F
             "primitive [function] filep&file? :filename end\n"
             "primitive [function] first :thing end\n"
@@ -222,6 +223,7 @@ Parser::Parser()
             "primitive [procedure] test :boolean end\n"
             "primitive [function] thing :name end\n"
             "primitive [procedure control inline] throw :tag [:value void] 2 end\n"
+            "primitive [function] time end\n"
             "primitive [procedure] trace :list end\n"
             "primitive [function] tracedp&traced? :list end\n"
             "primitive [procedure] type :thing [:rest] end\n"

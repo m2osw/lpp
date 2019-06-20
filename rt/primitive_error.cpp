@@ -51,8 +51,11 @@ void primitive_error(lpp::lpp__context::pointer_t context)
         result->add_prop("tag"
                        , std::make_shared<lpp::lpp__value>(e.tag()));
 
+        result->add_prop("timestamp"
+                       , std::make_shared<lpp::lpp__value>(e.timestamp()));
+
         result->add_prop("message"
-                       , std::make_shared<lpp::lpp__value>(e.what()));
+                       , std::make_shared<lpp::lpp__value>(std::string(e.what())));
 
         if(!e.filename().empty())
         {
@@ -82,6 +85,12 @@ void primitive_error(lpp::lpp__context::pointer_t context)
         {
             result->add_prop("value"
                           , e.value());
+        }
+
+        if(e.caught())
+        {
+            result->add_prop("caught"
+                          , std::make_shared<lpp::lpp__value>(true));
         }
     }
 

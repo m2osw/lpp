@@ -50,6 +50,7 @@ add_library(
         primitive_emptyp.cpp
         primitive_equalp.cpp
         primitive_error.cpp
+        primitive_errorp.cpp
         primitive_exp.cpp
         primitive_first.cpp
         primitive_floatp.cpp
@@ -94,6 +95,7 @@ add_library(
         primitive_sum.cpp
         primitive_tan.cpp
         primitive_test.cpp
+        primitive_time.cpp
         primitive_type.cpp
         primitive_word.cpp
         primitive_wordp.cpp

@@ -55,6 +55,19 @@ void Parser::control_primitive(control_t & control_info)
         }
         break;
 
+    case 'd':
+        if(name == "do.until")
+        {
+            control_while(control_info, true, true);
+            return;
+        }
+        if(name == "do.while")
+        {
+            control_while(control_info, false, true);
+            return;
+        }
+        break;
+
     case 'f':
         if(name == "forever")
         {
@@ -134,7 +147,15 @@ void Parser::control_primitive(control_t & control_info)
     case 'u':
         if(name == "until")
         {
-            control_until(control_info);
+            control_while(control_info, true, false);
+            return;
+        }
+        break;
+
+    case 'w':
+        if(name == "while")
+        {
+            control_while(control_info, false, false);
             return;
         }
         break;
@@ -232,6 +253,7 @@ void Parser::control_catch(control_t & control_info)
              "{\n"
              "throw;\n"     // not caught, rethrow
              "}\n"
+             "e.caught(true);\n"
              "context->set_error(e);\n"
              "}\n";
 }
@@ -695,11 +717,13 @@ void Parser::control_throw(control_t & control_info)
 }
 
 
-void Parser::control_until(control_t & control_info)
+void Parser::control_while(control_t & control_info, bool until, bool once)
 {
     if(control_info.m_max_args != 2)
     {
-        throw std::logic_error("primitive \"until\" called with a number of parameters not equal to 2.");
+        throw std::logic_error(std::string("primitive \"")
+                             + (until ? "until" : "while")
+                             + "\" called with a number of parameters not equal to 2.");
     }
 
     std::string value_name;
@@ -715,8 +739,16 @@ void Parser::control_until(control_t & control_info)
         //
         value_name = get_unique_name();
         f_out << "for(;;)\n"
-                 "{\n"
-                 "lpp::lpp__value::pointer_t "
+                 "{\n";
+
+        if(once)
+        {
+            Token::pointer_t instruction_list(control_info.m_function_call->get_list_item(1));
+            Token::pointer_t instructions(parse_body(instruction_list));
+            output_body(instructions);
+        }
+
+        f_out << "lpp::lpp__value::pointer_t "
               << value_name
               << ";\n";
         output_function_call(arg, value_name);
@@ -730,8 +762,16 @@ void Parser::control_until(control_t & control_info)
     case token_t::TOK_THING:
         value_name = get_unique_name();
         f_out << "for(;;)\n"
-                 "{\n"
-                 "lpp::lpp__value::pointer_t "
+                 "{\n";
+
+        if(once)
+        {
+            Token::pointer_t instruction_list(control_info.m_function_call->get_list_item(1));
+            Token::pointer_t instructions(parse_body(instruction_list));
+            output_body(instructions);
+        }
+
+        f_out << "lpp::lpp__value::pointer_t "
               << value_name
               << "(context->get_thing("
               << word_to_cpp_literal_string(arg->get_word())
@@ -748,14 +788,14 @@ void Parser::control_until(control_t & control_info)
 
     if(direct_value)
     {
-        // if true, it never executes
+        // if false (while) or true (until), it never executes
         //
-        if(tf)
+        if(!tf ^ until)
         {
             return;
         }
 
-        // if false, it is equivalent to FOREVER
+        // otherwise, it is equivalent to FOREVER
         //
         f_out << "for(;;)\n"
                  "{\n";
@@ -788,15 +828,19 @@ void Parser::control_until(control_t & control_info)
                  "throw lpp::lpp__error(context,lpp::lpp__error_code_t::ERROR_CODE_INVALID_DATUM,\"error\",\"if expression must be a boolean.\");\n"
                  "}\n"
                  "if("
+              << (until ? "" : "!")
               << tf_var
               << ")\n"
                  "{\n"
                  "break;\n"
                  "}\n";
 
-        Token::pointer_t instruction_list(control_info.m_function_call->get_list_item(1));
-        Token::pointer_t instructions(parse_body(instruction_list));
-        output_body(instructions);
+        if(!once)
+        {
+            Token::pointer_t instruction_list(control_info.m_function_call->get_list_item(1));
+            Token::pointer_t instructions(parse_body(instruction_list));
+            output_body(instructions);
+        }
 
         f_out << "}\n";
     }

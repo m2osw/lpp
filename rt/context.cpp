@@ -80,8 +80,12 @@ lpp__integer_t lpp__context::get_current_line() const
 }
 
 
-std::string const & lpp__context::get_primitive_name() const
+std::string lpp__context::get_primitive_name() const
 {
+    if(!f_primitive)
+    {
+        return std::string();
+    }
     return f_procedure;
 }
 
