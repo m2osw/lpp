@@ -437,8 +437,8 @@ void primitive_minus(lpp::lpp__context::pointer_t context);
 void primitive_modulo(lpp::lpp__context::pointer_t context);
 
 // N
-void primitive_numberp(lpp::lpp__context::pointer_t context);
 inline void primitive_name(lpp::lpp__context::pointer_t context) { primitive_make(context); }
+void primitive_numberp(lpp::lpp__context::pointer_t context);
 
 // O
 void primitive_or(lpp::lpp__context::pointer_t context);

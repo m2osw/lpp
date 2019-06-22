@@ -96,6 +96,7 @@ private:
     void                    control_throw(control_t & control_info);
     void                    control_while(control_t & control_info, bool until, bool once);
 
+    void                    primitive_thing(control_t & control_info);
     void                    primitive_wait(control_t & control_info);
 
     bool                    f_output_object = false;

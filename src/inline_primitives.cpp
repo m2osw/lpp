@@ -54,6 +54,14 @@ bool Parser::inline_primitive(control_t & control_info)
 
     switch(name[0])
     {
+    case 't':
+        if(name == "thing")
+        {
+            primitive_thing(control_info);
+            return true;
+        }
+        break;
+
     case 'w':
         if(name == "wait")
         {
@@ -71,6 +79,79 @@ bool Parser::inline_primitive(control_t & control_info)
 }
 
 
+
+
+void Parser::primitive_thing(control_t & control_info)
+{
+    if(control_info.m_max_args != 1)
+    {
+        throw std::logic_error("primitive \"thing\" called with a number of parameters not equal to 1.");
+    }
+
+    Token::pointer_t arg(control_info.m_function_call->get_list_item(0));
+
+    bool direct_value(false);
+    std::string thing_name;
+    std::string value_name;
+
+    switch(arg->get_token())
+    {
+    case token_t::TOK_FUNCTION_CALL:
+        // the output of a function call will stack a parameter
+        //
+        value_name = get_unique_name();
+        f_out << "lpp::lpp__value::pointer_t "
+              << value_name
+              << ";\n";
+        output_function_call(arg, value_name);
+        break;
+
+    case token_t::TOK_WORD:
+    case token_t::TOK_QUOTED:
+        direct_value = true;
+        thing_name = arg->get_word();
+        break;
+
+    case token_t::TOK_THING:
+        value_name = get_unique_name();
+        f_out << "lpp::lpp__value::pointer_t "
+              << value_name
+              << "(context->get_thing("
+              << word_to_cpp_literal_string(arg->get_word())
+              << ")->get_value());\n";
+        break;
+
+    default:
+        arg->error("unexpected token type ("
+                  + to_string(arg->get_token())
+                  + ") for THING count.");
+        return;
+
+    }
+
+    if(direct_value)
+    {
+        f_out << control_info.m_result_var
+              << "=context->get_thing("
+              << word_to_cpp_literal_string(thing_name)
+              << ")->get_value();\n";
+    }
+    else
+    {
+        f_out << "if("
+              << value_name
+              << "->type()!=lpp::lpp__value_type_t::LPP__VALUE_TYPE_WORD)\n"
+                 "{\n"
+                 "throw lpp::lpp__error(context,lpp::lpp__error_code_t::ERROR_CODE_INVALID_DATUM,\"error\",\"thing parameter must be a valid word. \\\"\"+"
+              << value_name
+              << "->to_string()+\"\\\" is not considered valid\");\n"
+                 "}\n"
+              << control_info.m_result_var
+              << "=context->get_thing("
+              << value_name
+              << "->get_word())->get_value();\n";
+    }
+}
 
 
 
@@ -122,7 +203,7 @@ void Parser::primitive_wait(control_t & control_info)
     default:
         arg->error("unexpected token type ("
                   + to_string(arg->get_token())
-                  + ") for a repeat count.");
+                  + ") for WAIT.");
         return;
 
     }
@@ -150,7 +231,7 @@ void Parser::primitive_wait(control_t & control_info)
                   << ".tv_nsec="
                   << static_cast<integer_t>(floor(fraction * 1000000000.0))
                   << ";\n"
-                  << "nanosleep(&"
+                     "nanosleep(&"
                   << ts_name
                   << ",nullptr);\n";
         }
@@ -170,7 +251,7 @@ void Parser::primitive_wait(control_t & control_info)
               << value_name
               << "->represents_float())\n"
                  "{\n"
-                 "throw lpp::lpp__error(context,\"error\",\"wait parameter must be a valid floating point number\");\n"
+                 "throw lpp::lpp__error(context,lpp::lpp__error_code_t::ERROR_CODE_INVALID_DATUM,\"error\",\"wait parameter must be a valid floating point number\");\n"
                  "}\n"
                  "lpp::lpp__float_t "
               << duration_name

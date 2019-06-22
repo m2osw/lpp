@@ -1,5 +1,6 @@
 program
   make "global 123
+  make "redirect "global
   test # :arguments > 2
   ift [make "global item 2 :arguments]
   type "wait... on\  time
@@ -30,7 +31,7 @@ end safe
 to display :msg
   repeat 10 - 1 [type  word "- repcount]
   print "-
-  print :msg "MORE sqrt -21 + square :global * 2 [Info] first [a b c]
+  print :msg "MORE sqrt -21 + square (thing :redirect) * 2 [Info] first [a b c]
   iftrue [stop]
   repeat 2 * 2 [type "-]
   print "-
