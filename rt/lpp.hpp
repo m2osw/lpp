@@ -427,6 +427,8 @@ void primitive_item(lpp::lpp__context::pointer_t context);
 void primitive_last(lpp::lpp__context::pointer_t context);
 void primitive_lessequalp(lpp::lpp__context::pointer_t context);
 void primitive_lessp(lpp::lpp__context::pointer_t context);
+void primitive_list(lpp::lpp__context::pointer_t context);
+void primitive_listp(lpp::lpp__context::pointer_t context);
 void primitive_ln(lpp::lpp__context::pointer_t context);
 void primitive_log(lpp::lpp__context::pointer_t context);
 void primitive_lshift(lpp::lpp__context::pointer_t context);

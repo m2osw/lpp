@@ -560,7 +560,14 @@ std::ostream & operator << (std::ostream & out, lpp::Token const & token)
         break;
 
     case lpp::token_t::TOK_WORD:
-        out << token.get_word();
+        if(token.get_word().empty())
+        {
+            out << "<empty word>";
+        }
+        else
+        {
+            out << token.get_word();
+        }
         break;
 
     default:

@@ -63,6 +63,8 @@ add_library(
         primitive_last.cpp
         primitive_lessequalp.cpp
         primitive_lessp.cpp
+        primitive_list.cpp
+        primitive_listp.cpp
         primitive_ln.cpp
         primitive_log.cpp
         primitive_lshift.cpp

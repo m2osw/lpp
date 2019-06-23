@@ -1,6 +1,7 @@
 program
   make "global 123
   make "redirect "global
+  show (list [a b c] :global [more lists] "word [numbers 1 2 3] 1 2 3)
   test # :arguments > 2
   ift [make "global item 2 :arguments]
   type "wait... on\  time

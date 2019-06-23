@@ -120,8 +120,8 @@ Parser::Parser()
             "primitive [function] last :list end\n"                                         // external
             "primitive [function] lessequalp&lessequal? :thing1 :thing2 [:rest] end\n"      // external
             "primitive [function] lessp&less? :thing1 :thing2 [:rest] end\n"                // external
-            "primitive [function] list :thing1 :thing2 [:rest] end\n"                       // MISSING
-            "primitive [function] listp&list? :thing end\n"                                 // MISSING
+            "primitive [function] list :thing [:rest] 2 end\n"                              // external
+            "primitive [function] listp&list? :thing end\n"                                 // external
             "primitive [procedure] local :name [:rest] end\n"                               // MISSING
             "primitive [procedure] localmake :name :value end\n"                            // MISSING
             "primitive [function] lowercase :word end\n"                                    // MISSING
@@ -1559,6 +1559,16 @@ Token::pointer_t Parser::unary_expression()
         break;
 
     case token_t::TOK_OPEN_PARENTHESIS:
+        if(f_body_pos < f_body->get_list_size()
+        && (f_body->get_list_item(f_body_pos)->get_token() == token_t::TOK_WORD
+            || f_body->get_list_item(f_body_pos)->get_token() == token_t::TOK_FUNCTION_CALL))
+        {
+            // this is a ( <function-call> <many parameters> ) type of
+            // expression
+            //
+            return call_function(true);
+        }
+        else
         {
             next_body_token();
 
