@@ -46,11 +46,11 @@ public:
 private:
     struct control_t
     {
-        Token::pointer_t            m_function_call;
-        std::string const &         m_result_var;
-        Token::vector_t::size_type  m_max_args;
-        Token::pointer_t            m_declaration;
-        procedure_flag_t const      m_procedure_flags;
+        Token::pointer_t            f_function_call;
+        std::string const &         f_result_var;
+        Token::vector_t::size_type  f_max_args;
+        Token::pointer_t            f_declaration;
+        procedure_flag_t const      f_procedure_flags;
     };
 
     void                    parse_declarations();

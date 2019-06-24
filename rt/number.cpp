@@ -386,7 +386,7 @@ lpp__integer_t compare_values(
         if(lhs->type() == lpp__value_type_t::LPP__VALUE_TYPE_LIST
         || rhs->type() == lpp__value_type_t::LPP__VALUE_TYPE_LIST)
         {
-            return 2;
+            return -2;
         }
     }
 

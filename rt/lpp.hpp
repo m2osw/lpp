@@ -33,7 +33,6 @@
 namespace lpp
 {
 
-
 enum class lpp__special_value_t
 {
     LPP__SPECIAL_VALUE_NOT_SET      // a.k.a. the VOID value
@@ -372,6 +371,37 @@ private:
 
 
 
+typedef std::uint_fast32_t      procedure_flag_t;
+
+constexpr procedure_flag_t      PROCEDURE_FLAG_PRIMITIVE = 0x00000001;  // it's a language/system primitive
+constexpr procedure_flag_t      PROCEDURE_FLAG_PROCEDURE = 0x00000002;  // it's a user defined procedure
+constexpr procedure_flag_t      PROCEDURE_FLAG_FUNCTION  = 0x00000004;  // it returns something
+
+typedef void (*lpp__procedure_t)(lpp::lpp__context::pointer_t context);
+
+struct lpp__procedure_info_t
+{
+    char const *                f_name = nullptr;
+    lpp__procedure_t            f_procedure = nullptr;
+    std::uint32_t               f_min_args = 0;
+    std::uint32_t               f_def_args = 0;
+    std::uint32_t               f_max_args = 0;
+    procedure_flag_t            f_flags = 0;
+};
+
+class lpp__auto_register_procedures
+{
+public:
+    lpp__auto_register_procedures(lpp__procedure_info_t const * procedures, size_t count);
+};
+
+lpp__procedure_info_t const *           find_procedure(std::string const & name);
+lpp__value::vector_t                    get_procedures(procedure_flag_t flag);
+
+
+
+
+
 
 } // lpp namespace
 
@@ -382,11 +412,13 @@ void primitive_and(lpp::lpp__context::pointer_t context);
 void primitive_arccos(lpp::lpp__context::pointer_t context);
 void primitive_arcsin(lpp::lpp__context::pointer_t context);
 void primitive_arctan(lpp::lpp__context::pointer_t context);
+void primitive_arity(lpp::lpp__context::pointer_t context);
 void primitive_ascii(lpp::lpp__context::pointer_t context);
 void primitive_ashift(lpp::lpp__context::pointer_t context);
 
 // B
 void primitive_backslashedp(lpp::lpp__context::pointer_t context);
+void primitive_beforep(lpp::lpp__context::pointer_t context);
 void primitive_bitand(lpp::lpp__context::pointer_t context);
 void primitive_bitnot(lpp::lpp__context::pointer_t context);
 void primitive_bitor(lpp::lpp__context::pointer_t context);
@@ -396,11 +428,17 @@ void primitive_butlast(lpp::lpp__context::pointer_t context);
 void primitive_bye(lpp::lpp__context::pointer_t context);
 
 // C
+void primitive_char(lpp::lpp__context::pointer_t context);
+void primitive_cleartext(lpp::lpp__context::pointer_t context);
+void primitive_combine(lpp::lpp__context::pointer_t context);
+void primitive_comparablep(lpp::lpp__context::pointer_t context);
 void primitive_cos(lpp::lpp__context::pointer_t context);
 void primitive_count(lpp::lpp__context::pointer_t context);
 
 // D
 void primitive_difference(lpp::lpp__context::pointer_t context);
+void primitive_definedp(lpp::lpp__context::pointer_t context);
+void primitive_dequeue(lpp::lpp__context::pointer_t context);
 
 // E
 void primitive_emptyp(lpp::lpp__context::pointer_t context);
@@ -412,6 +450,7 @@ void primitive_exp(lpp::lpp__context::pointer_t context);
 // F
 void primitive_first(lpp::lpp__context::pointer_t context);
 void primitive_floatp(lpp::lpp__context::pointer_t context);
+void primitive_fput(lpp::lpp__context::pointer_t context);
 
 // G
 void primitive_greaterequalp(lpp::lpp__context::pointer_t context);
@@ -431,6 +470,7 @@ void primitive_list(lpp::lpp__context::pointer_t context);
 void primitive_listp(lpp::lpp__context::pointer_t context);
 void primitive_ln(lpp::lpp__context::pointer_t context);
 void primitive_log(lpp::lpp__context::pointer_t context);
+void primitive_lput(lpp::lpp__context::pointer_t context);
 void primitive_lshift(lpp::lpp__context::pointer_t context);
 
 // M
@@ -440,6 +480,7 @@ void primitive_modulo(lpp::lpp__context::pointer_t context);
 
 // N
 inline void primitive_name(lpp::lpp__context::pointer_t context) { primitive_make(context); }
+void primitive_nanp(lpp::lpp__context::pointer_t context);
 void primitive_numberp(lpp::lpp__context::pointer_t context);
 
 // O
@@ -448,7 +489,10 @@ void primitive_or(lpp::lpp__context::pointer_t context);
 // P
 void primitive_plus(lpp::lpp__context::pointer_t context);
 void primitive_power(lpp::lpp__context::pointer_t context);
+void primitive_primitivep(lpp::lpp__context::pointer_t context);
+void primitive_primitives(lpp::lpp__context::pointer_t context);
 void primitive_print(lpp::lpp__context::pointer_t context);
+void primitive_procedures(lpp::lpp__context::pointer_t context);
 void primitive_product(lpp::lpp__context::pointer_t context);
 
 // Q
@@ -479,6 +523,9 @@ void primitive_tan(lpp::lpp__context::pointer_t context);
 void primitive_test(lpp::lpp__context::pointer_t context);
 void primitive_time(lpp::lpp__context::pointer_t context);
 void primitive_type(lpp::lpp__context::pointer_t context);
+
+// U
+void primitive_unorderedp(lpp::lpp__context::pointer_t context);
 
 // W
 void primitive_word(lpp::lpp__context::pointer_t context);

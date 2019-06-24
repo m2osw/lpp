@@ -53,6 +53,7 @@ Parser::Parser()
             "primitive [function arithmetic] arccos :number1 end\n"                         // external
             "primitive [function arithmetic] arcsin :number1 end\n"                         // external
             "primitive [function arithmetic] arctan :number1 [:number2] end\n"              // external
+            "primitive [function] arity :name end \"arity\n"                                // external
             "primitive [function] ascii :char end\n"                                        // external
             "primitive [function arithmetic] ashift :number :shift end\n"                   // external
             // B
@@ -66,21 +67,21 @@ Parser::Parser()
             "primitive [function] butlast&bl :thing end\n"                                  // external
             "primitive [procedure] bye [:code 0] end\n"                                     // external
             // C
-            "primitive [procedure control inline] case :value :clauses end\n"
+            "primitive [procedure control inline] case :value :clauses end\n"               // MISSING
             "primitive [procedure control inline] catch :tag :instructions end\n"           // inline
-            "primitive [function] char :number end\n"                                       // MISSING
+            "primitive [function] char :number end\n"                                       // external
             "primitive [procedure] cleartext&ct end\n"                                      // MISSING
             "primitive [procedure] close :filename end\n"                                   // MISSING
             "primitive [procedure] closeall end\n"                                          // MISSING
-            "primitive [function] combine :thing1 :thing2 end\n"                            // MISSING
-            "primitive [function arithmetic] comparablep&comparable? :number1 :number2 end\n"   // MISSING
+            "primitive [function] combine :thing1 :thing2 end\n"                            // external
+            "primitive [function arithmetic] comparablep&comparable? :thing1 :thing2 end\n" // external
             "primitive [procedure control inline] cond :clauses end\n"                      // MISSING
             "primitive [function] count :thing end\n"                                       // external
             "primitive [function] cursor end\n"                                             // MISSING
             // D
-            "primitive [function] definedp&defined? :thing end\n"                           // MISSING
+            "primitive [function] definedp&defined? :name end\n"                            // external
             "primitive [function arithmetic] difference :number1 :number2 [:rest] end\n"    // external
-            "primitive [function] dequeue :queue end\n"                                     // MISSING
+            "primitive [function] dequeue :queue end\n"                                     // external
             "primitive [procedure control inline] do.until :boolean :once_and_if_false end\n"   // inline
             "primitive [procedure control inline] do.while :boolean :once_and_if_true end\n"    // inline
             // E
@@ -96,7 +97,7 @@ Parser::Parser()
             "primitive [function] floatp&float? :thing end\n"                               // external
             "primitive [procedure control inline] for :control :instructions end\n"         // inline
             "primitive [procedure control inline] forever :instructions end\n"              // inline
-            "primitive [function] fput :item :list end\n"
+            "primitive [function] fput :item :thing end\n"                                  // external
             // G
             "primitive [procedure] gc [:flag void] end\n"                                   // MISSING
             "primitive [function] gensym end\n"                                             // MISSING
@@ -125,7 +126,7 @@ Parser::Parser()
             "primitive [procedure] local :name [:rest] end\n"                               // MISSING
             "primitive [procedure] localmake :name :value end\n"                            // MISSING
             "primitive [function] lowercase :word end\n"                                    // MISSING
-            "primitive [function] lput :item :list end\n"                                   // MISSING
+            "primitive [function] lput :item :thing end\n"                                  // external
             "primitive [function arithmetic] lshift :number :shift end\n"                   // external
             // M
             "primitive [procedure] make :name :thing end\n"                                 // external
@@ -138,6 +139,7 @@ Parser::Parser()
             "primitive [procedure] name :thing :name end\n"                                 // external
             "primitive [function] namedp&named? :name end\n"                                // MISSING
             "primitive [function] names end\n"                                              // MISSING
+            "primitive [function] nanp&nan? :number end\n"                                  // external
             "primitive [function] nodes end\n" // return free memory?                       // MISSING
             "primitive [function] not :boolean end\n"                                       // external
             "primitive [function] notequalp&notequal? :thing end\n"                         // external
@@ -158,7 +160,7 @@ Parser::Parser()
             "primitive [function] pop :stack end\n"                                         // MISSING
             "primitive [procedure] pprop :plistname :propname :value end\n"                 // MISSING
             "primitive [function] prefix end\n"                                             // MISSING
-            "primitive [function] primitivep&primitive? :thing end\n"                       // MISSING
+            "primitive [function] primitivep&primitive? :name end\n"                        // external
             "primitive [function] primitives end\n"                                         // MISSING
             "primitive [procedure] print&pr :thing [:rest] end\n"                           // external
             "primitive [function] procedurep&procedure? :thing end\n"                       // MISSING
@@ -223,7 +225,7 @@ Parser::Parser()
             "primitive [function] tracedp&traced? :list end\n"                              // MISSING
             "primitive [procedure] type :thing [:rest] end\n"                               // external
             // U
-            "primitive [function arithmetic] unorderedp&unordered? :number1 :number2 end\n" // MISSING
+            "primitive [function arithmetic] unorderedp&unordered? :thing1 :thing2 end\n"   // external
             "primitive [procedure control inline] until :boolean :if_false end\n"           // inline
             "primitive [procedure] untrace :list end\n"                                     // MISSING
             "primitive [function] uppercase :word end\n"                                    // MISSING
@@ -1694,6 +1696,39 @@ void Parser::generate()
     }
 
     {
+        f_out << "// Function Registration\n"
+                 "namespace\n"
+                 "{\n"
+                 "lpp::lpp__procedure_info_t lpp__procedures[]{\n";
+
+        auto const & procedures(f_procedures->get_map());
+        for(auto p : procedures)
+        {
+            Token::pointer_t declaration(f_declarations->get_map_item(p.first));
+            std::string const cpp_name(logo_to_cpp_name(p.first));
+            f_out << "{\""
+                  << cpp_name
+                  << "\",procedure_"
+                  << cpp_name
+                  << ","
+                  << declaration->get_min_args()
+                  << "UL,"
+                  << declaration->get_def_args()
+                  << "UL,"
+                  << declaration->get_max_args()
+                  << "UL,"
+                     "lpp::PROCEDURE_FLAG_PROCEDURE"
+                     "},\n";
+        }
+
+        f_out << "};\n"
+                 "lpp::lpp__auto_register_procedures lpp__procs(lpp__procedures,"
+              << procedures.size()
+              << ");\n"
+                 "}\n";
+    }
+
+    {
         f_out << "// Function Definitions\n";
 
         auto const & procedures(f_procedures->get_map());
@@ -1761,11 +1796,11 @@ void Parser::output_function_call(Token::pointer_t function_call, std::string co
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wpedantic"
         control_t control_info = {
-            .m_function_call    = function_call,
-            .m_result_var       = result_var,
-            .m_max_args         = max_args,
-            .m_declaration      = declaration,
-            .m_procedure_flags  = procedure_flags
+            .f_function_call    = function_call,
+            .f_result_var       = result_var,
+            .f_max_args         = max_args,
+            .f_declaration      = declaration,
+            .f_procedure_flags  = procedure_flags
         };
 #pragma GCC diagnostic pop
 
@@ -1776,11 +1811,11 @@ void Parser::output_function_call(Token::pointer_t function_call, std::string co
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wpedantic"
         control_t control_info = {
-            .m_function_call    = function_call,
-            .m_result_var       = result_var,
-            .m_max_args         = max_args,
-            .m_declaration      = declaration,
-            .m_procedure_flags  = procedure_flags
+            .f_function_call    = function_call,
+            .f_result_var       = result_var,
+            .f_max_args         = max_args,
+            .f_declaration      = declaration,
+            .f_procedure_flags  = procedure_flags
         };
 #pragma GCC diagnostic pop
 
@@ -1816,7 +1851,7 @@ void Parser::output_function_call(Token::pointer_t function_call, std::string co
                     if(reserve > 0)
                     {
                         f_out << "rest.reserve("
-                              << std::max(static_cast<size_t>(0), reserve)
+                              << std::min(std::max(static_cast<size_t>(0), reserve), 20UL)
                               << ");\n";
                     }
                 }
@@ -1988,9 +2023,16 @@ void Parser::output_argument(Token::pointer_t arg, std::string const & value_nam
     case token_t::TOK_FLOAT:
         f_out << "lpp::lpp__value::pointer_t "
               << value_name
-              << "(std::make_shared<lpp::lpp__value>("
-              << arg->get_float()
-              << "));\n";
+              << "(std::make_shared<lpp::lpp__value>(";
+        if(std::isnan(arg->get_float()))
+        {
+            f_out  << "std::numeric_limits<lpp::lpp__float_t>::quiet_NaN()";
+        }
+        else
+        {
+            f_out << arg->get_float();
+        }
+        f_out << "));\n";
         break;
 
     case token_t::TOK_WORD:

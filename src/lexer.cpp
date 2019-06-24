@@ -22,6 +22,7 @@
 
 #include <fstream>
 #include <iostream>
+#include <limits>
 #include <sstream>
 
 namespace lpp
@@ -383,14 +384,14 @@ Token::pointer_t Lexer::next_token()
                     if(number.find('.') == std::string::npos)
                     {
                         char * e(nullptr);
-                        std::uint64_t const v(strtoull(number.c_str(), &e, 10));
+                        integer_t const v(strtoull(number.c_str(), &e, 10));
                         // TODO: verify conversion
                         result->set_integer(v);
                     }
                     else
                     {
                         char *e(nullptr);
-                        double const v(strtod(number.c_str(), &e));
+                        float_t const v(strtod(number.c_str(), &e));
                         // TODO: verify conversion
                         result->set_float(v);
                     }
@@ -427,6 +428,14 @@ Token::pointer_t Lexer::next_token()
                             else if(word == "function")
                             {
                                 result->set_token(token_t::TOK_FUNCTION);
+                                return result;
+                            }
+                            break;
+
+                        case 'n':
+                            if(word == "nan")
+                            {
+                                result->set_float(std::numeric_limits<float_t>::quiet_NaN());
                                 return result;
                             }
                             break;

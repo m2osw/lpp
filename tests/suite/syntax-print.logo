@@ -29,7 +29,7 @@ to safe :msg
   print "
 end safe
 
-to display :msg
+to display :msg [:unused 5] [:rest] 2
   repeat 10 - 1 [type  word "- repcount]
   print "-
   print :msg "MORE sqrt -21 + square (thing :redirect) * 2 [Info] first [a b c]

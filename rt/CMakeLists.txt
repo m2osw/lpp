@@ -27,15 +27,19 @@ add_library(
         context.cpp
         error.cpp
         number.cpp
+        procedures.cpp
         thing.cpp
         value.cpp
 
         # Primitives
+        primitive_and.cpp
         primitive_arccos.cpp
         primitive_arcsin.cpp
         primitive_arctan.cpp
+        primitive_arity.cpp
         primitive_ascii.cpp
         primitive_ashift.cpp
+        primitive_backslashedp.cpp
         primitive_beforep.cpp
         primitive_bitand.cpp
         primitive_bitnot.cpp
@@ -44,9 +48,15 @@ add_library(
         primitive_butfirst.cpp
         primitive_butlast.cpp
         primitive_bye.cpp
+        primitive_char.cpp
+        primitive_cleartext.cpp
+        primitive_combine.cpp
+        primitive_comparablep.cpp
         primitive_cos.cpp
         primitive_count.cpp
         primitive_difference.cpp
+        primitive_definedp.cpp
+        primitive_dequeue.cpp
         primitive_emptyp.cpp
         primitive_equalp.cpp
         primitive_error.cpp
@@ -54,6 +64,7 @@ add_library(
         primitive_exp.cpp
         primitive_first.cpp
         primitive_floatp.cpp
+        primitive_fput.cpp
         primitive_greaterequalp.cpp
         primitive_greaterp.cpp
         primitive_int.cpp
@@ -67,16 +78,21 @@ add_library(
         primitive_listp.cpp
         primitive_ln.cpp
         primitive_log.cpp
+        primitive_lput.cpp
         primitive_lshift.cpp
         primitive_make.cpp
         primitive_minus.cpp
         primitive_modulo.cpp
+        primitive_nanp.cpp
         primitive_not.cpp
         primitive_notequalp.cpp
         primitive_numberp.cpp
         primitive_plus.cpp
         primitive_power.cpp
+        primitive_primitivep.cpp
+        primitive_primitives.cpp
         primitive_print.cpp
+        primitive_procedures.cpp
         primitive_product.cpp
         primitive_quotient.cpp
         primitive_radarccos.cpp
@@ -99,6 +115,7 @@ add_library(
         primitive_test.cpp
         primitive_time.cpp
         primitive_type.cpp
+        primitive_unorderedp.cpp
         primitive_word.cpp
         primitive_wordp.cpp
 )

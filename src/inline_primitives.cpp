@@ -44,13 +44,13 @@ namespace lpp
 
 bool Parser::inline_primitive(control_t & control_info)
 {
-    if((control_info.m_procedure_flags & PROCEDURE_FLAG_INLINE) == 0
-    || (control_info.m_procedure_flags & PROCEDURE_FLAG_TYPE_MASK) != PROCEDURE_FLAG_PRIMITIVE)
+    if((control_info.f_procedure_flags & PROCEDURE_FLAG_INLINE) == 0
+    || (control_info.f_procedure_flags & PROCEDURE_FLAG_TYPE_MASK) != PROCEDURE_FLAG_PRIMITIVE)
     {
         return false;
     }
 
-    std::string const name(control_info.m_function_call->get_word());
+    std::string const name(control_info.f_function_call->get_word());
 
     switch(name[0])
     {
@@ -83,12 +83,12 @@ bool Parser::inline_primitive(control_t & control_info)
 
 void Parser::primitive_thing(control_t & control_info)
 {
-    if(control_info.m_max_args != 1)
+    if(control_info.f_max_args != 1)
     {
         throw std::logic_error("primitive \"thing\" called with a number of parameters not equal to 1.");
     }
 
-    Token::pointer_t arg(control_info.m_function_call->get_list_item(0));
+    Token::pointer_t arg(control_info.f_function_call->get_list_item(0));
 
     bool direct_value(false);
     std::string thing_name;
@@ -131,7 +131,7 @@ void Parser::primitive_thing(control_t & control_info)
 
     if(direct_value)
     {
-        f_out << control_info.m_result_var
+        f_out << control_info.f_result_var
               << "=context->get_thing("
               << word_to_cpp_literal_string(thing_name)
               << ")->get_value();\n";
@@ -146,7 +146,7 @@ void Parser::primitive_thing(control_t & control_info)
               << value_name
               << "->to_string()+\"\\\" is not considered valid\");\n"
                  "}\n"
-              << control_info.m_result_var
+              << control_info.f_result_var
               << "=context->get_thing("
               << value_name
               << "->get_word())->get_value();\n";
@@ -158,12 +158,12 @@ void Parser::primitive_thing(control_t & control_info)
 
 void Parser::primitive_wait(control_t & control_info)
 {
-    if(control_info.m_max_args != 1)
+    if(control_info.f_max_args != 1)
     {
         throw std::logic_error("primitive \"wait\" called with a number of parameters not equal to 1.");
     }
 
-    Token::pointer_t arg(control_info.m_function_call->get_list_item(0));
+    Token::pointer_t arg(control_info.f_function_call->get_list_item(0));
 
     bool direct_value(false);
     float_t duration;

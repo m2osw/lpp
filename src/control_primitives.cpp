@@ -43,7 +43,7 @@ namespace lpp
 
 void Parser::control_primitive(control_t & control_info)
 {
-    std::string const name(control_info.m_function_call->get_word());
+    std::string const name(control_info.f_function_call->get_word());
 
     switch(name[0])
     {
@@ -176,7 +176,7 @@ void Parser::control_primitive(control_t & control_info)
 
 void Parser::control_catch(control_t & control_info)
 {
-    if(control_info.m_max_args != 2)
+    if(control_info.f_max_args != 2)
     {
         throw std::logic_error("primitive \"catch\" called with a number of parameters not equal to 2.");
     }
@@ -184,7 +184,7 @@ void Parser::control_catch(control_t & control_info)
     std::string tag_value;
     std::string tag_name;
     bool direct_value(false);
-    Token::pointer_t arg(control_info.m_function_call->get_list_item(0));
+    Token::pointer_t arg(control_info.f_function_call->get_list_item(0));
     switch(arg->get_token())
     {
     case token_t::TOK_FUNCTION_CALL:
@@ -233,7 +233,7 @@ void Parser::control_catch(control_t & control_info)
     f_out << "try\n"
              "{\n";
 
-    Token::pointer_t instruction_list(control_info.m_function_call->get_list_item(1));
+    Token::pointer_t instruction_list(control_info.f_function_call->get_list_item(1));
     Token::pointer_t instructions(parse_body(instruction_list));
     output_body(instructions);
 
@@ -266,14 +266,14 @@ void Parser::control_catch(control_t & control_info)
 
 void Parser::control_for(control_t & control_info)
 {
-    if(control_info.m_max_args != 2)
+    if(control_info.f_max_args != 2)
     {
         throw std::logic_error("primitive \"for\" called with a number of parameters not equal to 2.");
     }
 
     // the first argument must be a TOK_LIST
     //
-    Token::pointer_t arg(control_info.m_function_call->get_list_item(0));
+    Token::pointer_t arg(control_info.f_function_call->get_list_item(0));
     if(arg->get_token() != token_t::TOK_LIST)
     {
         arg->error("unexpected token type ("
@@ -412,7 +412,7 @@ void Parser::control_for(control_t & control_info)
               << repeat_var
               << "_value,lpp::lpp__thing_type_t::LPP__THING_TYPE_PROCEDURE);\n";
 
-        Token::pointer_t instruction_list(control_info.m_function_call->get_list_item(1));
+        Token::pointer_t instruction_list(control_info.f_function_call->get_list_item(1));
         Token::pointer_t instructions(parse_body(instruction_list));
         output_body(instructions);
 
@@ -521,7 +521,7 @@ void Parser::control_for(control_t & control_info)
               << repeat_var
               << "_value,lpp::lpp__thing_type_t::LPP__THING_TYPE_PROCEDURE);\n";
 
-        Token::pointer_t instruction_list(control_info.m_function_call->get_list_item(1));
+        Token::pointer_t instruction_list(control_info.f_function_call->get_list_item(1));
         Token::pointer_t instructions(parse_body(instruction_list));
         output_body(instructions);
 
@@ -532,13 +532,13 @@ void Parser::control_for(control_t & control_info)
 
 void Parser::control_forever(control_t & control_info)
 {
-    if(control_info.m_max_args != 1)
+    if(control_info.f_max_args != 1)
     {
         throw std::logic_error("primitive \"forever\" called with a number of parameters not equal to 1.");
     }
 
     std::string value_name;
-    Token::pointer_t arg(control_info.m_function_call->get_list_item(0));
+    Token::pointer_t arg(control_info.f_function_call->get_list_item(0));
 
     std::string const repeat_var(get_unique_name());
     f_out << "for(lpp::lpp__integer_t "
@@ -556,7 +556,7 @@ void Parser::control_forever(control_t & control_info)
           << repeat_var
           << ");\n";
 
-    Token::pointer_t instruction_list(control_info.m_function_call->get_list_item(0));
+    Token::pointer_t instruction_list(control_info.f_function_call->get_list_item(0));
     Token::pointer_t instructions(parse_body(instruction_list));
     output_body(instructions);
 
@@ -566,13 +566,13 @@ void Parser::control_forever(control_t & control_info)
 
 void Parser::control_goto(control_t & control_info)
 {
-    if(control_info.m_max_args != 1)
+    if(control_info.f_max_args != 1)
     {
         throw std::logic_error("primitive \"goto\" called with a number of parameters not equal to 1.");
     }
 
     std::string value_name;
-    Token::pointer_t arg(control_info.m_function_call->get_list_item(0));
+    Token::pointer_t arg(control_info.f_function_call->get_list_item(0));
     if(arg->get_token() != token_t::TOK_QUOTED)
     {
         arg->error("the \"goto\" primitive only accepts a quoted word as parameter. "
@@ -591,22 +591,22 @@ void Parser::control_if(control_t & control_info, bool always_else)
 {
     if(always_else)
     {
-        if(control_info.m_max_args != 3)
+        if(control_info.f_max_args != 3)
         {
             throw std::logic_error("primitive \"ifelse\" called with a number of parameters not equal to 3.");
         }
     }
     else
     {
-        if(control_info.m_max_args != 2
-        && control_info.m_max_args != 3)
+        if(control_info.f_max_args != 2
+        && control_info.f_max_args != 3)
         {
             throw std::logic_error("primitive \"if\" called with a number of parameters not equal to 2 or 3.");
         }
     }
 
     std::string value_name;
-    Token::pointer_t arg(control_info.m_function_call->get_list_item(0));
+    Token::pointer_t arg(control_info.f_function_call->get_list_item(0));
 
     bool direct_value(false);
     bool tf(false);
@@ -649,13 +649,13 @@ void Parser::control_if(control_t & control_info, bool always_else)
     {
         if(tf)
         {
-            Token::pointer_t instruction_list(control_info.m_function_call->get_list_item(1));
+            Token::pointer_t instruction_list(control_info.f_function_call->get_list_item(1));
             Token::pointer_t instructions(parse_body(instruction_list));
             output_body(instructions);
         }
-        else if(control_info.m_max_args == 3)
+        else if(control_info.f_max_args == 3)
         {
-            Token::pointer_t instruction_list(control_info.m_function_call->get_list_item(2));
+            Token::pointer_t instruction_list(control_info.f_function_call->get_list_item(2));
             Token::pointer_t instructions(parse_body(instruction_list));
             output_body(instructions);
         }
@@ -688,19 +688,19 @@ void Parser::control_if(control_t & control_info, bool always_else)
               << "{\n";
 
         {
-            Token::pointer_t instruction_list(control_info.m_function_call->get_list_item(1));
+            Token::pointer_t instruction_list(control_info.f_function_call->get_list_item(1));
             Token::pointer_t instructions(parse_body(instruction_list));
             output_body(instructions);
         }
 
         f_out << "}\n";
 
-        if(control_info.m_max_args == 3)
+        if(control_info.f_max_args == 3)
         {
             f_out << "else\n"
                   << "{\n";
 
-            Token::pointer_t instruction_list(control_info.m_function_call->get_list_item(2));
+            Token::pointer_t instruction_list(control_info.f_function_call->get_list_item(2));
             Token::pointer_t instructions(parse_body(instruction_list));
             output_body(instructions);
 
@@ -712,7 +712,7 @@ void Parser::control_if(control_t & control_info, bool always_else)
 
 void Parser::control_if_test(control_t & control_info, bool true_or_false)
 {
-    if(control_info.m_max_args != 1)
+    if(control_info.f_max_args != 1)
     {
         throw std::logic_error("primitives \"iftrue\" and \"iffalse\" called with a number of parameters not equal to 1.");
     }
@@ -722,7 +722,7 @@ void Parser::control_if_test(control_t & control_info, bool true_or_false)
           << ")\n"
              "{\n";
 
-    Token::pointer_t instruction_list(control_info.m_function_call->get_list_item(0));
+    Token::pointer_t instruction_list(control_info.f_function_call->get_list_item(0));
     Token::pointer_t instructions(parse_body(instruction_list));
     output_body(instructions);
 
@@ -733,7 +733,7 @@ void Parser::control_if_test(control_t & control_info, bool true_or_false)
 void Parser::control_output(control_t & control_info)
 {
     std::string const value_name(get_unique_name());
-    output_argument(control_info.m_function_call->get_list_item(0), value_name);
+    output_argument(control_info.f_function_call->get_list_item(0), value_name);
     f_out << "context->set_return_value("
           << value_name
           << ");\n"
@@ -743,13 +743,13 @@ void Parser::control_output(control_t & control_info)
 
 void Parser::control_repeat(control_t & control_info)
 {
-    if(control_info.m_max_args != 2)
+    if(control_info.f_max_args != 2)
     {
         throw std::logic_error("primitive \"repeat\" called with a number of parameters not equal to 2.");
     }
 
     std::string value_name;
-    Token::pointer_t arg(control_info.m_function_call->get_list_item(0));
+    Token::pointer_t arg(control_info.f_function_call->get_list_item(0));
 
     bool direct_value(false);
     integer_t count(0);
@@ -852,7 +852,7 @@ void Parser::control_repeat(control_t & control_info)
           << repeat_var
           << ");\n";
 
-    Token::pointer_t instruction_list(control_info.m_function_call->get_list_item(1));
+    Token::pointer_t instruction_list(control_info.f_function_call->get_list_item(1));
     Token::pointer_t instructions(parse_body(instruction_list));
     output_body(instructions);
 
@@ -870,13 +870,13 @@ void Parser::control_stop(control_t & control_info)
 
 void Parser::control_tag(control_t & control_info)
 {
-    if(control_info.m_max_args != 1)
+    if(control_info.f_max_args != 1)
     {
         throw std::logic_error("primitive \"tag\" called with a number of parameters not equal to 1.");
     }
 
     std::string value_name;
-    Token::pointer_t arg(control_info.m_function_call->get_list_item(0));
+    Token::pointer_t arg(control_info.f_function_call->get_list_item(0));
     if(arg->get_token() != token_t::TOK_QUOTED)
     {
         arg->error("the \"tag\" primitive only accepts a quoted word as parameter. "
@@ -892,8 +892,8 @@ void Parser::control_tag(control_t & control_info)
 
 void Parser::control_throw(control_t & control_info)
 {
-    if(control_info.m_max_args != 1
-    && control_info.m_max_args != 2)
+    if(control_info.f_max_args != 1
+    && control_info.f_max_args != 2)
     {
         throw std::logic_error("primitive \"throw\" called with a number of parameters not equal to 1 or 2.");
     }
@@ -903,7 +903,7 @@ void Parser::control_throw(control_t & control_info)
     std::string tag_value;
     std::string tag_name;
     bool direct_value(false);
-    Token::pointer_t arg(control_info.m_function_call->get_list_item(0));
+    Token::pointer_t arg(control_info.f_function_call->get_list_item(0));
     switch(arg->get_token())
     {
     case token_t::TOK_FUNCTION_CALL:
@@ -952,10 +952,10 @@ void Parser::control_throw(control_t & control_info)
     // value (defined in the REST)
     //
     std::string value_name;
-    if(control_info.m_function_call->get_list_size() > 1)
+    if(control_info.f_function_call->get_list_size() > 1)
     {
         value_name = get_unique_name();
-        output_argument(control_info.m_function_call->get_list_item(0), value_name);
+        output_argument(control_info.f_function_call->get_list_item(0), value_name);
     }
 
     if(direct_value)
@@ -990,7 +990,7 @@ void Parser::control_throw(control_t & control_info)
 
 void Parser::control_while(control_t & control_info, bool until, bool once)
 {
-    if(control_info.m_max_args != 2)
+    if(control_info.f_max_args != 2)
     {
         throw std::logic_error(std::string("primitive \"")
                              + (until ? "until" : "while")
@@ -998,7 +998,7 @@ void Parser::control_while(control_t & control_info, bool until, bool once)
     }
 
     std::string value_name;
-    Token::pointer_t arg(control_info.m_function_call->get_list_item(0));
+    Token::pointer_t arg(control_info.f_function_call->get_list_item(0));
 
     bool direct_value(false);
     bool tf(false);
@@ -1014,7 +1014,7 @@ void Parser::control_while(control_t & control_info, bool until, bool once)
 
         if(once)
         {
-            Token::pointer_t instruction_list(control_info.m_function_call->get_list_item(1));
+            Token::pointer_t instruction_list(control_info.f_function_call->get_list_item(1));
             Token::pointer_t instructions(parse_body(instruction_list));
             output_body(instructions);
         }
@@ -1037,7 +1037,7 @@ void Parser::control_while(control_t & control_info, bool until, bool once)
 
         if(once)
         {
-            Token::pointer_t instruction_list(control_info.m_function_call->get_list_item(1));
+            Token::pointer_t instruction_list(control_info.f_function_call->get_list_item(1));
             Token::pointer_t instructions(parse_body(instruction_list));
             output_body(instructions);
         }
@@ -1071,7 +1071,7 @@ void Parser::control_while(control_t & control_info, bool until, bool once)
         f_out << "for(;;)\n"
                  "{\n";
 
-        Token::pointer_t instruction_list(control_info.m_function_call->get_list_item(1));
+        Token::pointer_t instruction_list(control_info.f_function_call->get_list_item(1));
         Token::pointer_t instructions(parse_body(instruction_list));
         output_body(instructions);
 
@@ -1108,7 +1108,7 @@ void Parser::control_while(control_t & control_info, bool until, bool once)
 
         if(!once)
         {
-            Token::pointer_t instruction_list(control_info.m_function_call->get_list_item(1));
+            Token::pointer_t instruction_list(control_info.f_function_call->get_list_item(1));
             Token::pointer_t instructions(parse_body(instruction_list));
             output_body(instructions);
         }

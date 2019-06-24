@@ -36,6 +36,8 @@ int main(int argc, char * argv[])
     {
         std::cout << "-- setup context & `arguments`... --\n";
 
+        lpp::lpp__auto_register_procedures primitives(nullptr, 0);  // register primitives
+
         lpp::lpp__context::pointer_t context(std::make_shared<lpp::lpp__context>(std::string(), "program", 0, false));
         context->set_global(context);
 
