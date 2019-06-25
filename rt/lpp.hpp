@@ -176,7 +176,7 @@ enum class lpp__error_code_t
     ERROR_CODE_VARIABLE_NOT_SET,            // 11   VAR has no value
     ERROR_CODE_UNEXPECTED_CLOSE_PARENTHESIS,// 12   Unexpected ')'                                   [NOT RELEVANT]
     ERROR_CODE_UNKNOWN_PROCEDURE,           // 13   I don't know how to PROC (recoverable)           [NOT RELEVANT]
-    ERROR_CODE_CATCH_TAG_NOT_FOUND,         // 14   Can't find catch tag for THROWTAG
+    ERROR_CODE_CATCH_TAG_NOT_FOUND,         // 14   Can't find catch tag for THROW
     ERROR_CODE_PROCEDURE_ALREADY_DEFINED,   // 15   PROC is already defined                          [NOT RELEVANT]
     ERROR_CODE_STOPPED,                     // 16   Stopped                                          [NOT RELEVANT]
     ERROR_CODE_ALREADY_DRIBBLING,           // 17   Already dribbling
@@ -198,6 +198,7 @@ enum class lpp__error_code_t
     ERROR_CODE_UNEXPECTED_END,              // 33   END inside multi-line instruction                [NOT RELEVANT]
     ERROR_CODE_REALLY_OUT_OF_MEMORY,        // 34   Really out of memory (can't be caught)
     ERROR_CODE_ARITHMETIC_ERROR,            // 35   --added to lpp--
+    ERROR_CODE_SYSTEM_ERROR,                // 36   --added to lpp--
 };
 
 
@@ -401,6 +402,13 @@ lpp__value::vector_t                    get_procedures(procedure_flag_t flag);
 
 
 
+bool                        lpp__tty_flush();
+bool                        lpp__tty_isatty();
+bool                        lpp__tty_clear();
+bool                        lpp__tty_get_cursor(lpp__integer_t & x, lpp__integer_t & y);
+bool                        lpp__tty_set_cursor(lpp__integer_t x, lpp__integer_t y);
+bool                        lpp__tty_set_text_colors(lpp__integer_t foreground, lpp__integer_t background);
+
 
 
 } // lpp namespace
@@ -434,6 +442,7 @@ void primitive_combine(lpp::lpp__context::pointer_t context);
 void primitive_comparablep(lpp::lpp__context::pointer_t context);
 void primitive_cos(lpp::lpp__context::pointer_t context);
 void primitive_count(lpp::lpp__context::pointer_t context);
+void primitive_cursor(lpp::lpp__context::pointer_t context);
 
 // D
 void primitive_difference(lpp::lpp__context::pointer_t context);
@@ -459,6 +468,7 @@ void primitive_greaterp(lpp::lpp__context::pointer_t context);
 // I
 void primitive_int(lpp::lpp__context::pointer_t context);
 void primitive_integerp(lpp::lpp__context::pointer_t context);
+void primitive_isatty(lpp::lpp__context::pointer_t context);
 void primitive_iseq(lpp::lpp__context::pointer_t context);
 void primitive_item(lpp::lpp__context::pointer_t context);
 
@@ -514,6 +524,8 @@ void primitive_rseq(lpp::lpp__context::pointer_t context);
 
 // S
 void primitive_show(lpp::lpp__context::pointer_t context);
+void primitive_setcursor(lpp::lpp__context::pointer_t context);
+void primitive_settextcolor(lpp::lpp__context::pointer_t context);
 void primitive_sin(lpp::lpp__context::pointer_t context);
 void primitive_sqrt(lpp::lpp__context::pointer_t context);
 void primitive_sum(lpp::lpp__context::pointer_t context);

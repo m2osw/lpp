@@ -27,16 +27,12 @@
 
 
 
-void primitive_cleartext(lpp::lpp__context::pointer_t context)
+
+
+void primitive_isatty(lpp::lpp__context::pointer_t context)
 {
-    static_cast<void>(context);
-    if(!lpp::lpp__tty_clear())
-    {
-        throw lpp::lpp__error(context
-                            , lpp::lpp__error_code_t::ERROR_CODE_SYSTEM_ERROR
-                            , "error"
-                            , "a system error occurred, terminal could not be cleared; is your application connected to a TTY?");
-    }
+    lpp::lpp__value::pointer_t result(std::make_shared<lpp::lpp__value>(lpp::lpp__tty_isatty()));
+    context->set_return_value(result);
 }
 
 

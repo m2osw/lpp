@@ -29,6 +29,7 @@ add_library(
         number.cpp
         procedures.cpp
         thing.cpp
+        tty.cpp
         value.cpp
 
         # Primitives
@@ -54,6 +55,7 @@ add_library(
         primitive_comparablep.cpp
         primitive_cos.cpp
         primitive_count.cpp
+        primitive_cursor.cpp
         primitive_difference.cpp
         primitive_definedp.cpp
         primitive_dequeue.cpp
@@ -69,6 +71,7 @@ add_library(
         primitive_greaterp.cpp
         primitive_int.cpp
         primitive_integerp.cpp
+        primitive_isatty.cpp
         primitive_iseq.cpp
         primitive_item.cpp
         primitive_last.cpp
@@ -107,6 +110,8 @@ add_library(
         primitive_rerandom.cpp
         primitive_round.cpp
         primitive_rseq.cpp
+        primitive_setcursor.cpp
+        primitive_settextcolor.cpp
         primitive_show.cpp
         primitive_sin.cpp
         primitive_sqrt.cpp

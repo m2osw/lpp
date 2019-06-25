@@ -27,16 +27,26 @@
 
 
 
-void primitive_cleartext(lpp::lpp__context::pointer_t context)
+
+
+void primitive_cursor(lpp::lpp__context::pointer_t context)
 {
-    static_cast<void>(context);
-    if(!lpp::lpp__tty_clear())
+    lpp::lpp__integer_t x(0);
+    lpp::lpp__integer_t y(0);
+    if(!lpp::lpp__tty_get_cursor(x, y))
     {
         throw lpp::lpp__error(context
                             , lpp::lpp__error_code_t::ERROR_CODE_SYSTEM_ERROR
                             , "error"
-                            , "a system error occurred, terminal could not be cleared; is your application connected to a TTY?");
+                            , "a system error occurred, cursor position could not be retrieved; is your application connected to a TTY?");
     }
+
+    lpp::lpp__value::vector_t coordinates;
+    coordinates.push_back(std::make_shared<lpp::lpp__value>(x));
+    coordinates.push_back(std::make_shared<lpp::lpp__value>(y));
+
+    lpp::lpp__value::pointer_t result(std::make_shared<lpp::lpp__value>(coordinates));
+    context->set_return_value(result);
 }
 
 

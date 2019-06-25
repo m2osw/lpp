@@ -76,44 +76,54 @@ lpp__procedure_info_t g_primitives[]
     { "comparablep",  primitive_comparablep,  2UL, 2UL,          2UL, PROCEDURE_FLAG_PRIMITIVE | PROCEDURE_FLAG_FUNCTION },
 //    "primitive [procedure control inline] cond :clauses end\n"                      // MISSING
     { "count",        primitive_count,        1UL, 1UL,          1UL, PROCEDURE_FLAG_PRIMITIVE },
-//    "primitive [function] cursor end\n"                                             // MISSING
-//    // D
-//    "primitive [function] definedp&defined? :name end\n"                            // external
-//    "primitive [function arithmetic] difference :number1 :number2 [:rest] end\n"    // external
-//    "primitive [function] dequeue :queue end\n"                                     // external
-//    "primitive [procedure control inline] do.until :boolean :once_and_if_false end\n"   // inline
-//    "primitive [procedure control inline] do.while :boolean :once_and_if_true end\n"    // inline
-//    // E
-//    "primitive [function] emptyp&empty? :thing end\n"                               // external
-//    "primitive [function] equalp&equal? :thing1 :thing2 end\n"                      // external
+    { "cursor",       primitive_cursor,       0UL, 0UL,          0UL, PROCEDURE_FLAG_PRIMITIVE | PROCEDURE_FLAG_FUNCTION },
+    // D
+    { "defined?",     primitive_definedp,    1UL, 1UL,          1UL, PROCEDURE_FLAG_PRIMITIVE | PROCEDURE_FLAG_FUNCTION },
+    { "definedp",     primitive_definedp,    1UL, 1UL,          1UL, PROCEDURE_FLAG_PRIMITIVE | PROCEDURE_FLAG_FUNCTION },
+    { "difference",   primitive_difference,  2UL, 2UL, MAX_MAX_ARGS, PROCEDURE_FLAG_PRIMITIVE | PROCEDURE_FLAG_FUNCTION },
+    { "dequeue",      primitive_dequeue,     1UL, 1UL,          1UL, PROCEDURE_FLAG_PRIMITIVE | PROCEDURE_FLAG_FUNCTION },
+    { "do.until",     nullptr,               2UL, 2UL,          2UL, PROCEDURE_FLAG_PRIMITIVE },
+    { "do.while",     nullptr,               2UL, 2UL,          2UL, PROCEDURE_FLAG_PRIMITIVE },
+    // E
+    { "empty?",       primitive_emptyp,      1UL, 1UL,          1UL, PROCEDURE_FLAG_PRIMITIVE | PROCEDURE_FLAG_FUNCTION },
+    { "emptyp",       primitive_emptyp,      1UL, 1UL,          1UL, PROCEDURE_FLAG_PRIMITIVE | PROCEDURE_FLAG_FUNCTION },
+    { "equal?",       primitive_equalp,      2UL, 2UL, MAX_MAX_ARGS, PROCEDURE_FLAG_PRIMITIVE | PROCEDURE_FLAG_FUNCTION },
+    { "equalp",       primitive_equalp,      2UL, 2UL, MAX_MAX_ARGS, PROCEDURE_FLAG_PRIMITIVE | PROCEDURE_FLAG_FUNCTION },
 //    "primitive [function] eofp end\n"                                               // MISSING
 //    "primitive [procedure] erasefile&erf :filename end\n"                           // MISSING
-//    "primitive [function] error end\n"                                              // external
-//    "primitive [function] errorp&error? end\n"                                      // external
-//    // F
+    { "error",        primitive_error,       0UL, 0UL,          0UL, PROCEDURE_FLAG_PRIMITIVE | PROCEDURE_FLAG_FUNCTION },
+    { "error?",       primitive_errorp,      0UL, 0UL,          0UL, PROCEDURE_FLAG_PRIMITIVE | PROCEDURE_FLAG_FUNCTION },
+    { "errorp",       primitive_errorp,      0UL, 0UL,          0UL, PROCEDURE_FLAG_PRIMITIVE | PROCEDURE_FLAG_FUNCTION },
+    // F
 //    "primitive [function] filep&file? :filename end\n"                              // MISSING
-//    "primitive [function] first :thing end\n"                                       // external
-//    "primitive [function] floatp&float? :thing end\n"                               // external
-//    "primitive [procedure control inline] for :control :instructions end\n"         // inline
-//    "primitive [procedure control inline] forever :instructions end\n"              // inline
-//    "primitive [function] fput :item :thing end\n"                                  // external
-//    // G
+    { "first",        primitive_first,       1UL, 1UL,          1UL, PROCEDURE_FLAG_PRIMITIVE | PROCEDURE_FLAG_FUNCTION },
+    { "floatp",       primitive_floatp,      1UL, 1UL,          1UL, PROCEDURE_FLAG_PRIMITIVE | PROCEDURE_FLAG_FUNCTION },
+    { "for",          nullptr,               2UL, 2UL,          2UL, PROCEDURE_FLAG_PRIMITIVE },
+    { "forever",      nullptr,               1UL, 1UL,          1UL, PROCEDURE_FLAG_PRIMITIVE },
+    { "fput",         primitive_fput,        2UL, 2UL,          2UL, PROCEDURE_FLAG_PRIMITIVE | PROCEDURE_FLAG_FUNCTION },
+    // G
 //    "primitive [procedure] gc [:flag void] end\n"                                   // MISSING
 //    "primitive [function] gensym end\n"                                             // MISSING
 //    "primitive [procedure] global :name [:rest] end\n"                              // MISSING
-//    "primitive [procedure control inline] goto :tag end\n"                          // inline
+    { "goto",          nullptr,                 1UL, 1UL,          1UL, PROCEDURE_FLAG_PRIMITIVE },
 //    "primitive [function] gprop :plistname :propname end\n"                         // MISSING
-//    "primitive [function] greaterequalp&greaterequal? :thing1 :thing2 [:rest] end\n"    // external
-//    "primitive [function] greaterp&greater? :thing1 :thing2 [:rest] end\n"          // external
-//    // I
-//    "primitive [procedure control inline] if :boolean :if_true [:if_false void] 3 end\n"    // inline
-//    "primitive [procedure control inline] ifelse :boolean :if_true :if_false end\n" // inline
-//    "primitive [procedure control inline] iffalse&iff :if_false end\n"              // inline
-//    "primitive [procedure control inline] iftrue&ift :if_true end\n"                // inline
-//    "primitive [procedure] ignore :thing [:rest] end\n"                             // inline (special)
-//    "primitive [function] int :number end\n"                                        // external
-//    "primitive [function] integerp&integer? :thing end\n"                           // external
-//    "primitive [function] item :number :thing end\n"                                // external
+    { "greaterequal?", primitive_greaterequalp, 2UL, 2UL, MAX_MAX_ARGS, PROCEDURE_FLAG_PRIMITIVE | PROCEDURE_FLAG_FUNCTION },
+    { "greaterequalp", primitive_greaterequalp, 2UL, 2UL, MAX_MAX_ARGS, PROCEDURE_FLAG_PRIMITIVE | PROCEDURE_FLAG_FUNCTION },
+    { "greater?",      primitive_greaterp,      2UL, 2UL, MAX_MAX_ARGS, PROCEDURE_FLAG_PRIMITIVE | PROCEDURE_FLAG_FUNCTION },
+    { "greaterp",      primitive_greaterp,      2UL, 2UL, MAX_MAX_ARGS, PROCEDURE_FLAG_PRIMITIVE | PROCEDURE_FLAG_FUNCTION },
+    // I
+    { "if",           nullptr,                2UL, 3UL,          3UL, PROCEDURE_FLAG_PRIMITIVE },
+    { "ifelse",       nullptr,                2UL, 2UL,          2UL, PROCEDURE_FLAG_PRIMITIVE },
+    { "iff",          nullptr,                1UL, 1UL,          1UL, PROCEDURE_FLAG_PRIMITIVE },
+    { "iffalse",      nullptr,                1UL, 1UL,          1UL, PROCEDURE_FLAG_PRIMITIVE },
+    { "ift",          nullptr,                1UL, 1UL,          1UL, PROCEDURE_FLAG_PRIMITIVE },
+    { "iftrue",       nullptr,                1UL, 1UL,          1UL, PROCEDURE_FLAG_PRIMITIVE },
+    { "ignore",       nullptr,                1UL, 1UL, MAX_MAX_ARGS, PROCEDURE_FLAG_PRIMITIVE },
+    { "int",          primitive_int,          1UL, 1UL,          1UL, PROCEDURE_FLAG_PRIMITIVE | PROCEDURE_FLAG_FUNCTION },
+    { "integer?",     primitive_integerp,     1UL, 1UL,          1UL, PROCEDURE_FLAG_PRIMITIVE | PROCEDURE_FLAG_FUNCTION },
+    { "integerp",     primitive_integerp,     1UL, 1UL,          1UL, PROCEDURE_FLAG_PRIMITIVE | PROCEDURE_FLAG_FUNCTION },
+    { "isatty",       primitive_isatty,       0UL, 0UL,          0UL, PROCEDURE_FLAG_PRIMITIVE | PROCEDURE_FLAG_FUNCTION },
+    { "item",         primitive_item,         2UL, 2UL,          2UL, PROCEDURE_FLAG_PRIMITIVE | PROCEDURE_FLAG_FUNCTION },
 //    // K
 //    "primitive [function] keyp&key? end\n"                                          // MISSING
 //    // L
@@ -198,6 +208,7 @@ lpp__procedure_info_t g_primitives[]
 //    "primitive [function] reverse :list end\n"                                      // MISSING
 //    // S
 //    "primitive [function] sentence&se :thing1 :thing2 [:rest] end\n"                // MISSING
+    { "setcursor",      primitive_setcursor,     1UL, 1UL,          1UL, PROCEDURE_FLAG_PRIMITIVE },
 //    "primitive [procedure] setcursor :position end\n"                               // MISSING
 //    "primitive [inline] .setfirst :list :value end\n"                               // ?
 //    "primitive [function ] .setbf :list :value end\n"                               // ?
@@ -206,6 +217,7 @@ lpp__procedure_info_t g_primitives[]
 //    "primitive [procedure] setprefix :prefix end\n"                                 // MISSING
 //    "primitive [procedure] setread :filename end\n"                                 // MISSING
 //    "primitive [procedure] setreadpos :number end\n"                                // MISSING
+    { "settextcolor",   primitive_settextcolor,  2UL, 2UL,          2UL, PROCEDURE_FLAG_PRIMITIVE },
 //    "primitive [procedure] settextcolor :foreground :background end\n"              // MISSING
 //    "primitive [procedure] setwrite :filename end\n"                                // MISSING
 //    "primitive [procedure] setwritepos :number end\n"                               // MISSING
@@ -228,12 +240,12 @@ lpp__procedure_info_t g_primitives[]
 //    // U
     { "unordered?",   primitive_unorderedp,  2UL, 2UL,          2UL, PROCEDURE_FLAG_PRIMITIVE | PROCEDURE_FLAG_FUNCTION },
     { "unorderedp",   primitive_unorderedp,  2UL, 2UL,          2UL, PROCEDURE_FLAG_PRIMITIVE | PROCEDURE_FLAG_FUNCTION },
-//    "primitive [procedure control inline] until :boolean :if_false end\n"           // inline
+    { "until",        nullptr,               2UL, 2UL,          2UL, PROCEDURE_FLAG_PRIMITIVE },
 //    "primitive [procedure] untrace :list end\n"                                     // MISSING
 //    "primitive [function] uppercase :word end\n"                                    // MISSING
 //    // W
 //    "primitive [procedure inline] wait :seconds end\n"                              // inline
-//    "primitive [procedure control inline] while :boolean :if_true end\n"            // inline
+    { "while",        nullptr,               2UL, 2UL,          2UL, PROCEDURE_FLAG_PRIMITIVE },
 //    "primitive [function] word :word1 :word2 [:rest] end\n"                         // external
 //    "primitive [function] wordp&word? :thing end\n"                                 // external
 //    "primitive [function] writepos end \"writepos\n"                                // MISSING

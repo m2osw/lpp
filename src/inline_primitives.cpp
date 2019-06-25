@@ -208,7 +208,7 @@ void Parser::primitive_wait(control_t & control_info)
 
     }
 
-    f_out << "fflush(stdout);\n";
+    f_out << "lpp::lpp__tty_flush();\n";
 
     if(direct_value)
     {

@@ -70,7 +70,7 @@ Parser::Parser()
             "primitive [procedure control inline] case :value :clauses end\n"               // MISSING
             "primitive [procedure control inline] catch :tag :instructions end\n"           // inline
             "primitive [function] char :number end\n"                                       // external
-            "primitive [procedure] cleartext&ct end\n"                                      // MISSING
+            "primitive [procedure] cleartext&ct end\n"                                      // external
             "primitive [procedure] close :filename end\n"                                   // MISSING
             "primitive [procedure] closeall end\n"                                          // MISSING
             "primitive [function] combine :thing1 :thing2 end\n"                            // external
@@ -86,7 +86,7 @@ Parser::Parser()
             "primitive [procedure control inline] do.while :boolean :once_and_if_true end\n"    // inline
             // E
             "primitive [function] emptyp&empty? :thing end\n"                               // external
-            "primitive [function] equalp&equal? :thing1 :thing2 end\n"                      // external
+            "primitive [function] equalp&equal? :thing1 :thing2 [:rest] end\n"              // external
             "primitive [function] eofp end\n"                                               // MISSING
             "primitive [procedure] erasefile&erf :filename end\n"                           // MISSING
             "primitive [function] error end\n"                                              // external
@@ -142,7 +142,7 @@ Parser::Parser()
             "primitive [function] nanp&nan? :number end\n"                                  // external
             "primitive [function] nodes end\n" // return free memory?                       // MISSING
             "primitive [function] not :boolean end\n"                                       // external
-            "primitive [function] notequalp&notequal? :thing end\n"                         // external
+            "primitive [function] notequalp&notequal? :thing1 :thing2 [:rest] end\n"        // external
             "primitive [function] numberp&number? :thing end\n"                             // external
             // O
             "primitive [procedure] openappend :filename end\n"                              // MISSING
@@ -197,7 +197,7 @@ Parser::Parser()
             "primitive [function] reverse :list end\n"                                      // MISSING
             // S
             "primitive [function] sentence&se :thing1 :thing2 [:rest] end\n"                // MISSING
-            "primitive [procedure] setcursor :position end\n"                               // MISSING
+            "primitive [procedure] setcursor :position end\n"                               // external
             "primitive [inline] .setfirst :list :value end\n"                               // ?
             "primitive [function ] .setbf :list :value end\n"                               // ?
             "primitive [procedure] setitem :position :list :value end\n"                    // MISSING
@@ -205,7 +205,7 @@ Parser::Parser()
             "primitive [procedure] setprefix :prefix end\n"                                 // MISSING
             "primitive [procedure] setread :filename end\n"                                 // MISSING
             "primitive [procedure] setreadpos :number end\n"                                // MISSING
-            "primitive [procedure] settextcolor :foreground :background end\n"              // MISSING
+            "primitive [procedure] settextcolor :foreground :background end\n"              // external
             "primitive [procedure] setwrite :filename end\n"                                // MISSING
             "primitive [procedure] setwritepos :number end\n"                               // MISSING
             "primitive [function] shell :command [:wordflag] end\n"                         // MISSING
