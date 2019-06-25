@@ -59,6 +59,7 @@ void primitive_arity(lpp::lpp__context::pointer_t context)
     list.push_back(std::make_shared<lpp::lpp__value>(static_cast<lpp::lpp__integer_t>(proc->f_min_args)));
     list.push_back(std::make_shared<lpp::lpp__value>(static_cast<lpp::lpp__integer_t>(proc->f_def_args)));
     list.push_back(std::make_shared<lpp::lpp__value>(static_cast<lpp::lpp__integer_t>(proc->f_max_args)));
+    list.push_back(std::make_shared<lpp::lpp__value>(static_cast<lpp::lpp__integer_t>(proc->f_flags)));
     lpp::lpp__value::pointer_t result(std::make_shared<lpp::lpp__value>(list));
     context->set_return_value(result);
 }

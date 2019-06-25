@@ -347,6 +347,12 @@ public:
                                         , std::function<lpp__integer_t(lpp__context::pointer_t context, lpp__integer_t lhs, lpp__integer_t rhs)> i
                                         , std::function<lpp__float_t(lpp__context::pointer_t context, lpp__float_t lhs, lpp__float_t rhs)> f);
 
+    static lpp__integer_t       compare_values(
+                                          lpp__context::pointer_t context
+                                        , lpp__value::pointer_t lhs
+                                        , lpp__value::pointer_t rhs
+                                        , bool characters);
+
     static void                 compare(
                                           lpp__context::pointer_t context
                                         , std::string const & lhs_name
@@ -522,6 +528,7 @@ void primitive_radsin(lpp::lpp__context::pointer_t context);
 void primitive_radtan(lpp::lpp__context::pointer_t context);
 void primitive_random(lpp::lpp__context::pointer_t context);
 void primitive_remainder(lpp::lpp__context::pointer_t context);
+void primitive_remove(lpp::lpp__context::pointer_t context);
 void primitive_repcount(lpp::lpp__context::pointer_t context);
 void primitive_rerandom(lpp::lpp__context::pointer_t context);
 void primitive_round(lpp::lpp__context::pointer_t context);

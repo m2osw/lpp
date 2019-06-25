@@ -223,7 +223,7 @@ lpp__procedure_info_t g_primitives[]
 //    "primitive [function] readword&rw end\n"                                        // MISSING
     { "remainder",     primitive_remainder,   2UL, 2UL,          2UL, PROCEDURE_FLAG_PRIMITIVE | PROCEDURE_FLAG_FUNCTION },
 //    "primitive [function] remdup :list end\n"                                       // MISSING
-//    "primitive [function] remove :thing :list end\n"                                // MISSING
+    { "remove",        primitive_remove,      2UL, 2UL,          2UL, PROCEDURE_FLAG_PRIMITIVE | PROCEDURE_FLAG_FUNCTION },
 //    "primitive [procedure] remprop :plistname :propname end\n"                      // MISSING
     { "repcount",      primitive_repcount,    0UL, 0UL,          0UL, PROCEDURE_FLAG_PRIMITIVE | PROCEDURE_FLAG_FUNCTION },
     { "repeat",        nullptr,               2UL, 2UL,          2UL, PROCEDURE_FLAG_PRIMITIVE },

@@ -1726,7 +1726,8 @@ void Parser::generate()
                   << declaration->get_max_args()
                   << "UL,"
                      "lpp::PROCEDURE_FLAG_PROCEDURE"
-                     "},\n";
+                  << ((declaration->get_procedure_flags() & PROCEDURE_FLAG_FUNCTION) != 0 ? "|lpp::PROCEDURE_FLAG_FUNCTION" : "")
+                  << "},\n";
         }
 
         f_out << "};\n"

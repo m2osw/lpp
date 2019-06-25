@@ -125,16 +125,13 @@ lpp__value::pointer_t lpp__number::to_value() const
 {
     if(f_is_integer)
     {
-std::cerr << "-> saving integer = " << f_integer << "\n";
         return std::make_shared<lpp__value>(f_integer);
     }
     else
     {
-std::cerr << "-> saving float = " << f_float << "\n";
         lpp__value::pointer_t flt(std::make_shared<lpp__value>(f_float));
         if(flt->represents_integer())
         {
-std::cerr << "-> but auto-casting to integer = " << f_float << "\n";
             flt->set_integer(static_cast<lpp__integer_t>(f_float));
         }
         return flt;
@@ -180,9 +177,7 @@ void lpp__number::apply_unary(
         break;
 
     case 1:
-std::cerr << "calling f with " << f_float << "\n";
         f_float = f(f_context, f_float, 0.0);
-std::cerr << "f returned with " << f_float << "\n";
         break;
 
     }
@@ -303,7 +298,7 @@ void lpp__number::compute(
 
 
 
-lpp__integer_t compare_values(
+lpp__integer_t lpp__number::compare_values(
           lpp__context::pointer_t context
         , lpp__value::pointer_t lhs
         , lpp__value::pointer_t rhs

@@ -109,6 +109,7 @@ add_library(
         primitive_radtan.cpp
         primitive_random.cpp
         primitive_remainder.cpp
+        primitive_remove.cpp
         primitive_repcount.cpp
         primitive_rerandom.cpp
         primitive_round.cpp
