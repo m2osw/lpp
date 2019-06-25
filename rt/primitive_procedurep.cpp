@@ -26,7 +26,7 @@
 
 
 
-void primitive_primitivep(lpp::lpp__context::pointer_t context)
+void primitive_procedurep(lpp::lpp__context::pointer_t context)
 {
     lpp::lpp__value::pointer_t procedure_name(context->get_thing("name")->get_value());
     if(procedure_name->type() != lpp::lpp__value_type_t::LPP__VALUE_TYPE_WORD)
@@ -45,9 +45,7 @@ void primitive_primitivep(lpp::lpp__context::pointer_t context)
                             , "the :NAME argument is not expected to be empty.");
     }
     lpp::lpp__procedure_info_t const * proc(lpp::find_procedure(name));
-    lpp::lpp__value::pointer_t result(std::make_shared<lpp::lpp__value>(
-                   proc != nullptr
-                && (proc->f_flags & lpp::PROCEDURE_FLAG_PRIMITIVE) != 0));
+    lpp::lpp__value::pointer_t result(std::make_shared<lpp::lpp__value>(proc != nullptr));
     context->set_return_value(result);
 }
 

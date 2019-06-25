@@ -26,29 +26,22 @@
 
 
 
-void primitive_primitivep(lpp::lpp__context::pointer_t context)
+
+void primitive_namep(lpp::lpp__context::pointer_t context)
 {
-    lpp::lpp__value::pointer_t procedure_name(context->get_thing("name")->get_value());
-    if(procedure_name->type() != lpp::lpp__value_type_t::LPP__VALUE_TYPE_WORD)
+    lpp::lpp__value::pointer_t name(context->get_thing("name")->get_value());
+
+    if(!name->represents_word())
     {
         throw lpp::lpp__error(context
                             , lpp::lpp__error_code_t::ERROR_CODE_INVALID_DATUM
-                            , "logic"
-                            , "the :NAME argument is expected to be a word naming a primitive.");
+                            , "error"
+                            , "\"name?\" expect the variable name to be a word.");
     }
-    std::string const name(procedure_name->to_word());
-    if(name.empty())
-    {
-        throw lpp::lpp__error(context
-                            , lpp::lpp__error_code_t::ERROR_CODE_INVALID_DATUM
-                            , "logic"
-                            , "the :NAME argument is not expected to be empty.");
-    }
-    lpp::lpp__procedure_info_t const * proc(lpp::find_procedure(name));
-    lpp::lpp__value::pointer_t result(std::make_shared<lpp::lpp__value>(
-                   proc != nullptr
-                && (proc->f_flags & lpp::PROCEDURE_FLAG_PRIMITIVE) != 0));
-    context->set_return_value(result);
+
+    lpp::lpp__thing::pointer_t thing(context->find_thing(name->to_word()));
+
+    context->set_return_value(std::make_shared<lpp::lpp__value>(thing != nullptr));
 }
 
 

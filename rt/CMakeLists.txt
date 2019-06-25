@@ -86,15 +86,18 @@ add_library(
         primitive_make.cpp
         primitive_minus.cpp
         primitive_modulo.cpp
+        primitive_namep.cpp
         primitive_nanp.cpp
         primitive_not.cpp
         primitive_notequalp.cpp
         primitive_numberp.cpp
+        primitive_pick.cpp
         primitive_plus.cpp
         primitive_power.cpp
         primitive_primitivep.cpp
         primitive_primitives.cpp
         primitive_print.cpp
+        primitive_procedurep.cpp
         primitive_procedures.cpp
         primitive_product.cpp
         primitive_quotient.cpp
@@ -123,6 +126,7 @@ add_library(
         primitive_unorderedp.cpp
         primitive_word.cpp
         primitive_wordp.cpp
+        primitive_xor.cpp
 )
 
 

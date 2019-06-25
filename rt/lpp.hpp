@@ -490,18 +490,23 @@ void primitive_modulo(lpp::lpp__context::pointer_t context);
 
 // N
 inline void primitive_name(lpp::lpp__context::pointer_t context) { primitive_make(context); }
+void primitive_namep(lpp::lpp__context::pointer_t context);
 void primitive_nanp(lpp::lpp__context::pointer_t context);
+void primitive_not(lpp::lpp__context::pointer_t context);
+void primitive_notequalp(lpp::lpp__context::pointer_t context);
 void primitive_numberp(lpp::lpp__context::pointer_t context);
 
 // O
 void primitive_or(lpp::lpp__context::pointer_t context);
 
 // P
+void primitive_pick(lpp::lpp__context::pointer_t context);
 void primitive_plus(lpp::lpp__context::pointer_t context);
 void primitive_power(lpp::lpp__context::pointer_t context);
 void primitive_primitivep(lpp::lpp__context::pointer_t context);
 void primitive_primitives(lpp::lpp__context::pointer_t context);
 void primitive_print(lpp::lpp__context::pointer_t context);
+void primitive_procedurep(lpp::lpp__context::pointer_t context);
 void primitive_procedures(lpp::lpp__context::pointer_t context);
 void primitive_product(lpp::lpp__context::pointer_t context);
 

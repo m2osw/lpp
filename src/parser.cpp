@@ -76,6 +76,7 @@ Parser::Parser()
             "primitive [function] combine :thing1 :thing2 end\n"                            // external
             "primitive [function arithmetic] comparablep&comparable? :thing1 :thing2 end\n" // external
             "primitive [procedure control inline] cond :clauses end\n"                      // MISSING
+            "primitive [function arithmetic] cos :number1 end\n"                            // external
             "primitive [function] count :thing end\n"                                       // external
             "primitive [function] cursor end\n"                                             // MISSING
             // D
@@ -106,6 +107,7 @@ Parser::Parser()
             "primitive [function] gprop :plistname :propname end\n"                         // MISSING
             "primitive [function] greaterequalp&greaterequal? :thing1 :thing2 [:rest] end\n"    // external
             "primitive [function] greaterp&greater? :thing1 :thing2 [:rest] end\n"          // external
+            // H
             // I
             "primitive [procedure control inline] if :boolean :if_true [:if_false void] 3 end\n"    // inline
             "primitive [procedure control inline] ifelse :boolean :if_true :if_false end\n" // inline
@@ -115,6 +117,7 @@ Parser::Parser()
             "primitive [function] int :number end\n"                                        // external
             "primitive [function] integerp&integer? :thing end\n"                           // external
             "primitive [function] item :number :thing end\n"                                // external
+            // J
             // K
             "primitive [function] keyp&key? end\n"                                          // MISSING
             // L
@@ -137,9 +140,9 @@ Parser::Parser()
             "primitive [function arithmetic] modulo :number1 :number2 end\n"                // external
             // N
             "primitive [procedure] name :thing :name end\n"                                 // external
-            "primitive [function] namedp&named? :name end\n"                                // MISSING
+            "primitive [function] namedp&named? :name end\n"                                // external
             "primitive [function] names end\n"                                              // MISSING
-            "primitive [function] nanp&nan? :number end\n"                                  // external
+            "primitive [function arithmetic] nanp&nan? :number end\n"                       // external
             "primitive [function] nodes end\n" // return free memory?                       // MISSING
             "primitive [function] not :boolean end\n"                                       // external
             "primitive [function] notequalp&notequal? :thing1 :thing2 [:rest] end\n"        // external
@@ -153,7 +156,7 @@ Parser::Parser()
             "primitive [function arithmetic] orderedp&ordered? :number1 :number2 end\n"     // MISSING
             "primitive [procedure control inline] output&op :thing end\n"                   // inline
             // P
-            "primitive [function] pick :list end\n"                                         // MISSING
+            "primitive [function] pick :thing end\n"                                        // external
             "primitive [function] plistp&plist? :name end\n"                                // MISSING
             "primitive [function] plists end\n"                                             // MISSING
             "primitive [function arithmetic] plus :number end\n"                            // external
@@ -161,10 +164,10 @@ Parser::Parser()
             "primitive [procedure] pprop :plistname :propname :value end\n"                 // MISSING
             "primitive [function] prefix end\n"                                             // MISSING
             "primitive [function] primitivep&primitive? :name end\n"                        // external
-            "primitive [function] primitives end\n"                                         // MISSING
+            "primitive [function] primitives end\n"                                         // external
             "primitive [procedure] print&pr :thing [:rest] end\n"                           // external
-            "primitive [function] procedurep&procedure? :thing end\n"                       // MISSING
-            "primitive [function] procedures end\n"                                         // MISSING
+            "primitive [function] procedurep&procedure? :name end\n"                        // external
+            "primitive [function] procedures end\n"                                         // external
             "primitive [function arithmetic] product :number1 :number2 [:rest] end\n"       // external
             "primitive [procedure] push :stack :thing end\n"                                // MISSING
             // Q
@@ -176,8 +179,8 @@ Parser::Parser()
             "primitive [function arithmetic] radarctan :number1 [:number2] end\n"           // external
             "primitive [function arithmetic] radarcsin :number1 end\n"                      // external
             "primitive [function arithmetic] radcos :number1 end\n"                         // external
-            "primitive [function arithmetic] radtan :number1 [:number2] end\n"              // external
             "primitive [function arithmetic] radsin :number1 end\n"                         // external
+            "primitive [function arithmetic] radtan :number1 end\n"                         // external
             "primitive [function] random :number [:rest] end\n"                             // external
             "primitive [function] rawascii :char end\n"                                     // MISSING
             "primitive [function] readchar&rc end\n"                                        // MISSING
@@ -210,6 +213,7 @@ Parser::Parser()
             "primitive [procedure] setwritepos :number end\n"                               // MISSING
             "primitive [function] shell :command [:wordflag] end\n"                         // MISSING
             "primitive [procedure] show :thing [:rest] end\n"                               // external
+            "primitive [function arithmetic] sin :number1 end\n"                            // external
             "primitive [function arithmetic] sqrt :number end\n"                            // external
             "primitive [procedure] standout :thing end\n"                                   // MISSING
             "primitive [procedure control inline] stop end\n"                               // inline
@@ -217,6 +221,7 @@ Parser::Parser()
             "primitive [function arithmetic] sum :number1 :number2 [:rest] end\n"           // external
             // T
             "primitive [procedure control inline] tag :tag end\n"                           // inline
+            "primitive [function arithmetic] tan :number1 end\n"                            // external
             "primitive [procedure] test :boolean end\n"                                     // external
             "primitive [function inline] thing :name end\n"                                 // inline
             "primitive [procedure control inline] throw :tag [:value void] 2 end\n"         // inline
@@ -229,6 +234,7 @@ Parser::Parser()
             "primitive [procedure control inline] until :boolean :if_false end\n"           // inline
             "primitive [procedure] untrace :list end\n"                                     // MISSING
             "primitive [function] uppercase :word end\n"                                    // MISSING
+            // V
             // W
             "primitive [procedure inline] wait :seconds end\n"                              // inline
             "primitive [procedure control inline] while :boolean :if_true end\n"            // inline
@@ -238,6 +244,8 @@ Parser::Parser()
             "primitive [function] writer end\n"                                             // MISSING
             // X
             "primitive [function logic] xor :boolean1 :boolean2 [:rest] end\n"              // external
+            // Y
+            // Z
 
             // this is part of the run-time context
             //
