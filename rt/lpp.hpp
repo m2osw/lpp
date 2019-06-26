@@ -474,7 +474,6 @@ void primitive_greaterp(lpp::lpp__context::pointer_t context);
 // I
 void primitive_int(lpp::lpp__context::pointer_t context);
 void primitive_integerp(lpp::lpp__context::pointer_t context);
-void primitive_isatty(lpp::lpp__context::pointer_t context);
 void primitive_iseq(lpp::lpp__context::pointer_t context);
 void primitive_item(lpp::lpp__context::pointer_t context);
 
@@ -491,6 +490,8 @@ void primitive_lshift(lpp::lpp__context::pointer_t context);
 
 // M
 void primitive_make(lpp::lpp__context::pointer_t context);
+void primitive_mditem(lpp::lpp__context::pointer_t context);
+void primitive_mdsetitem(lpp::lpp__context::pointer_t context);
 void primitive_minus(lpp::lpp__context::pointer_t context);
 void primitive_modulo(lpp::lpp__context::pointer_t context);
 
@@ -517,7 +518,9 @@ void primitive_procedures(lpp::lpp__context::pointer_t context);
 void primitive_product(lpp::lpp__context::pointer_t context);
 
 // Q
+void primitive_queue(lpp::lpp__context::pointer_t context);
 void primitive_quotient(lpp::lpp__context::pointer_t context);
+void primitive_quoted(lpp::lpp__context::pointer_t context);
 
 // R
 void primitive_radarccos(lpp::lpp__context::pointer_t context);
@@ -528,6 +531,7 @@ void primitive_radsin(lpp::lpp__context::pointer_t context);
 void primitive_radtan(lpp::lpp__context::pointer_t context);
 void primitive_random(lpp::lpp__context::pointer_t context);
 void primitive_remainder(lpp::lpp__context::pointer_t context);
+void primitive_remdup(lpp::lpp__context::pointer_t context);
 void primitive_remove(lpp::lpp__context::pointer_t context);
 void primitive_repcount(lpp::lpp__context::pointer_t context);
 void primitive_rerandom(lpp::lpp__context::pointer_t context);
@@ -537,6 +541,7 @@ void primitive_rseq(lpp::lpp__context::pointer_t context);
 // S
 void primitive_show(lpp::lpp__context::pointer_t context);
 void primitive_setcursor(lpp::lpp__context::pointer_t context);
+void primitive_setitem(lpp::lpp__context::pointer_t context);
 void primitive_settextcolor(lpp::lpp__context::pointer_t context);
 void primitive_sin(lpp::lpp__context::pointer_t context);
 void primitive_sqrt(lpp::lpp__context::pointer_t context);
@@ -546,6 +551,7 @@ void primitive_sum(lpp::lpp__context::pointer_t context);
 void primitive_tan(lpp::lpp__context::pointer_t context);
 void primitive_test(lpp::lpp__context::pointer_t context);
 void primitive_time(lpp::lpp__context::pointer_t context);
+void primitive_ttyp(lpp::lpp__context::pointer_t context);
 void primitive_type(lpp::lpp__context::pointer_t context);
 
 // U

@@ -129,7 +129,6 @@ lpp__procedure_info_t g_primitives[]
     { "int",          primitive_int,          1UL, 1UL,          1UL, PROCEDURE_FLAG_PRIMITIVE | PROCEDURE_FLAG_FUNCTION },
     { "integer?",     primitive_integerp,     1UL, 1UL,          1UL, PROCEDURE_FLAG_PRIMITIVE | PROCEDURE_FLAG_FUNCTION },
     { "integerp",     primitive_integerp,     1UL, 1UL,          1UL, PROCEDURE_FLAG_PRIMITIVE | PROCEDURE_FLAG_FUNCTION },
-    { "isatty",       primitive_isatty,       0UL, 0UL,          0UL, PROCEDURE_FLAG_PRIMITIVE | PROCEDURE_FLAG_FUNCTION },
     { "item",         primitive_item,         2UL, 2UL,          2UL, PROCEDURE_FLAG_PRIMITIVE | PROCEDURE_FLAG_FUNCTION },
 
     // K
@@ -152,7 +151,8 @@ lpp__procedure_info_t g_primitives[]
 
     // M
     { "make",         primitive_make,         2UL, 2UL,          2UL, PROCEDURE_FLAG_PRIMITIVE },
-//    "primitive [procedure] mdsetitem :list_of_positions :list :value end\n"         // MISSING
+    { "mditem",       primitive_mditem,       2UL, 2UL,          2UL, PROCEDURE_FLAG_PRIMITIVE | PROCEDURE_FLAG_FUNCTION },
+    { "mdsetitem",    primitive_mdsetitem,    3UL, 3UL,          3UL, PROCEDURE_FLAG_PRIMITIVE | PROCEDURE_FLAG_FUNCTION },
 //    "primitive [function] member :thing1 :thing2 end\n"                             // MISSING
 //    "primitive [function] memberp&member? :thing end\n"                             // MISSING
     { "minus",        primitive_minus,        1UL, 1UL,          1UL, PROCEDURE_FLAG_PRIMITIVE | PROCEDURE_FLAG_FUNCTION },
@@ -201,8 +201,8 @@ lpp__procedure_info_t g_primitives[]
 //    "primitive [procedure] push :stack :thing end\n"                                // MISSING
 
     // Q
-//    "primitive [procedure] queue :queue :thing end\n"                               // MISSING
-//    "primitive [function] quoted :thing end\n"                                      // MISSING
+    { "queue",             primitive_queue,             2UL, 2UL,          2UL, PROCEDURE_FLAG_PRIMITIVE },
+    { "quoted",            primitive_quoted,            1UL, 1UL,          1UL, PROCEDURE_FLAG_PRIMITIVE | PROCEDURE_FLAG_FUNCTION },
     { "quotient",          primitive_quotient,          2UL, 2UL, MAX_MAX_ARGS, PROCEDURE_FLAG_PRIMITIVE | PROCEDURE_FLAG_FUNCTION },
 
     // R
@@ -222,7 +222,7 @@ lpp__procedure_info_t g_primitives[]
 //    "primitive [function] readrawline end\n"                                        // MISSING
 //    "primitive [function] readword&rw end\n"                                        // MISSING
     { "remainder",     primitive_remainder,   2UL, 2UL,          2UL, PROCEDURE_FLAG_PRIMITIVE | PROCEDURE_FLAG_FUNCTION },
-//    "primitive [function] remdup :list end\n"                                       // MISSING
+    { "remdup",        primitive_remdup,      2UL, 2UL,          2UL, PROCEDURE_FLAG_PRIMITIVE | PROCEDURE_FLAG_FUNCTION },
     { "remove",        primitive_remove,      2UL, 2UL,          2UL, PROCEDURE_FLAG_PRIMITIVE | PROCEDURE_FLAG_FUNCTION },
 //    "primitive [procedure] remprop :plistname :propname end\n"                      // MISSING
     { "repcount",      primitive_repcount,    0UL, 0UL,          0UL, PROCEDURE_FLAG_PRIMITIVE | PROCEDURE_FLAG_FUNCTION },
@@ -234,10 +234,7 @@ lpp__procedure_info_t g_primitives[]
 //    "primitive [function] sentence&se :thing1 :thing2 [:rest] end\n"                // MISSING
     { "setcursor",      primitive_setcursor,     1UL, 1UL,          1UL, PROCEDURE_FLAG_PRIMITIVE },
 //    "primitive [procedure] setcursor :position end\n"                               // MISSING
-//    "primitive [inline] .setfirst :list :value end\n"                               // ?
-//    "primitive [function ] .setbf :list :value end\n"                               // ?
-//    "primitive [procedure] setitem :position :list :value end\n"                    // MISSING
-//    "primitive [procedure] .setitem :position :list :value end\n"                   // ?
+    { "setitem",        primitive_setitem,       3UL, 3UL,          3UL, PROCEDURE_FLAG_PRIMITIVE | PROCEDURE_FLAG_FUNCTION },
 //    "primitive [procedure] setprefix :prefix end\n"                                 // MISSING
 //    "primitive [procedure] setread :filename end\n"                                 // MISSING
 //    "primitive [procedure] setreadpos :number end\n"                                // MISSING
@@ -261,6 +258,8 @@ lpp__procedure_info_t g_primitives[]
     { "time",         primitive_time,        0UL, 0UL,          0UL, PROCEDURE_FLAG_PRIMITIVE | PROCEDURE_FLAG_FUNCTION },
 //    "primitive [procedure] trace :list end\n"                                       // MISSING
 //    "primitive [function] tracedp&traced? :list end\n"                              // MISSING
+    { "tty?",         primitive_ttyp,        0UL, 0UL,          0UL, PROCEDURE_FLAG_PRIMITIVE | PROCEDURE_FLAG_FUNCTION },
+    { "ttyp",         primitive_ttyp,        0UL, 0UL,          0UL, PROCEDURE_FLAG_PRIMITIVE | PROCEDURE_FLAG_FUNCTION },
     { "type",         primitive_type,        1UL, 1UL, MAX_MAX_ARGS, PROCEDURE_FLAG_PRIMITIVE },
     // U
     { "unordered?",   primitive_unorderedp,  2UL, 2UL,          2UL, PROCEDURE_FLAG_PRIMITIVE | PROCEDURE_FLAG_FUNCTION },

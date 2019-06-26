@@ -2,6 +2,14 @@ program
   make "global 123
   make "redirect "global
   show (list [a b c] :global [more lists] "word [numbers 1 2 3] 1 2 3)
+  make "q [a b c]
+  print [Queue before:] :q
+  queue "q "d
+  print [Queue after:] :q
+  print [Dequeing a bit:] dequeue "q
+  queue "q "e
+  print [Queue after:] :q
+  ;print setitem 1 [[[1 2 3] [4 5 6] [7 8 9]] [[11 12 13] [14 15 16] [17 18 19]] [[21 22 23] [24 25 26] [27 28 29]]] "Poof
   test # :arguments > 2
   ift [make "global item 2 :arguments]
   type "wait... on\  time

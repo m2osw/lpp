@@ -26,8 +26,7 @@
 
 
 
-
-void primitive_dequeue(lpp::lpp__context::pointer_t context)
+void primitive_queue(lpp::lpp__context::pointer_t context)
 {
     lpp::lpp__value::pointer_t queue(context->get_thing("queue")->get_value());
     switch(queue->type())
@@ -55,22 +54,15 @@ void primitive_dequeue(lpp::lpp__context::pointer_t context)
                             , "the :QUEUE argument is not expected to be empty.");
     }
 
-    lpp::lpp__value::pointer_t thing(context->get_thing(name)->get_value());
-    switch(thing->type())
+    lpp::lpp__value::pointer_t thing(context->get_thing("thing")->get_value());
+
+    lpp::lpp__value::pointer_t data(context->get_thing(name)->get_value());
+    switch(data->type())
     {
     case lpp::lpp__value_type_t::LPP__VALUE_TYPE_LIST:
         {
-            lpp::lpp__value::vector_t list(thing->get_list());
-            if(list.empty())
-            {
-                throw lpp::lpp__error(context
-                                    , lpp::lpp__error_code_t::ERROR_CODE_INVALID_DATUM
-                                    , "logic"
-                                    , "the queue is not expected to be empty when using \"dequeue\".");
-            }
-            context->set_return_value(list[0]);
-
-            list.erase(list.begin());
+            lpp::lpp__value::vector_t list(data->get_list());
+            list.push_back(thing);
             context->set_thing(name, std::make_shared<lpp::lpp__value>(list));
         }
         break;
@@ -79,21 +71,26 @@ void primitive_dequeue(lpp::lpp__context::pointer_t context)
     case lpp::lpp__value_type_t::LPP__VALUE_TYPE_INTEGER:
     case lpp::lpp__value_type_t::LPP__VALUE_TYPE_FLOAT:
     case lpp::lpp__value_type_t::LPP__VALUE_TYPE_BOOLEAN:
+        if(!thing->represents_word())
         {
-            std::string word(thing->to_word());
-            if(word.empty())
+            throw lpp::lpp__error(context
+                                , lpp::lpp__error_code_t::ERROR_CODE_INVALID_DATUM
+                                , "logic"
+                                , "the :THING argument is expected to be a word when the queue is a word.");
+        }
+        else
+        {
+            std::string letter(thing->to_word());
+            if(letter.length() != 1)
             {
                 throw lpp::lpp__error(context
                                     , lpp::lpp__error_code_t::ERROR_CODE_INVALID_DATUM
                                     , "logic"
-                                    , "the queue is not expected to be empty when using \"dequeue\".");
+                                    , "the :THING argument is expected to be one letter to push on the queue.");
             }
-            std::string first_letter;
-            first_letter += word[0];
-            lpp::lpp__value::pointer_t result(std::make_shared<lpp::lpp__value>(first_letter));
-            context->set_return_value(result);
+            std::string word(data->to_word());
 
-            word.erase(0, 1);
+            word += letter;
             context->set_thing(name, std::make_shared<lpp::lpp__value>(word));
         }
         break;

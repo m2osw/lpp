@@ -27,12 +27,18 @@
 
 
 
-
-
-void primitive_isatty(lpp::lpp__context::pointer_t context)
+void primitive_quoted(lpp::lpp__context::pointer_t context)
 {
-    lpp::lpp__value::pointer_t result(std::make_shared<lpp::lpp__value>(lpp::lpp__tty_isatty()));
-    context->set_return_value(result);
+    lpp::lpp__value::pointer_t thing(context->get_thing("thing")->get_value());
+    if(thing->type() == lpp::lpp__value_type_t::LPP__VALUE_TYPE_WORD)
+    {
+        lpp::lpp__value::pointer_t result(std::make_shared<lpp::lpp__value>('"' + thing->get_word()));
+        context->set_return_value(result);
+    }
+    else
+    {
+        context->set_return_value(thing);
+    }
 }
 
 

@@ -133,7 +133,8 @@ Parser::Parser()
             "primitive [function arithmetic] lshift :number :shift end\n"                   // external
             // M
             "primitive [procedure] make :name :thing end\n"                                 // external
-            "primitive [procedure] mdsetitem :list_of_positions :list :value end\n"         // MISSING
+            "primitive [function] mditem :positions :list end\n"                            // external
+            "primitive [function] mdsetitem :positions :list :value end\n"                  // external
             "primitive [function] member :thing1 :thing2 end\n"                             // MISSING
             "primitive [function] memberp&member? :thing end\n"                             // MISSING
             "primitive [function arithmetic] minus :number end\n"                           // external
@@ -172,7 +173,7 @@ Parser::Parser()
             "primitive [procedure] push :stack :thing end\n"                                // MISSING
             // Q
             "primitive [procedure] queue :queue :thing end\n"                               // MISSING
-            "primitive [function] quoted :thing end\n"                                      // MISSING
+            "primitive [function] quoted :thing end quoted\n"                               // external
             "primitive [function arithmetic] quotient :number1 :number2 [:rest] end\n"      // external
             // R
             "primitive [function arithmetic] radarccos :number1 end\n"                      // external
@@ -191,8 +192,8 @@ Parser::Parser()
             "primitive [function] readrawline end\n"                                        // MISSING
             "primitive [function] readword&rw end\n"                                        // MISSING
             "primitive [function arithmetic] remainder :number1 :number2 end\n"             // external
-            "primitive [function] remdup :list end\n"                                       // MISSING
-            "primitive [function] remove :thing :list end\n"                                // MISSING
+            "primitive [function] remdup :list end\n"                                       // external
+            "primitive [function] remove :thing :list end\n"                                // external
             "primitive [procedure] remprop :plistname :propname end\n"                      // MISSING
             "primitive [function] repcount end\n"                                           // external
             "primitive [procedure control inline] repeat :number :instructions end\n"       // inline
@@ -201,10 +202,7 @@ Parser::Parser()
             // S
             "primitive [function] sentence&se :thing1 :thing2 [:rest] end\n"                // MISSING
             "primitive [procedure] setcursor :position end\n"                               // external
-            "primitive [inline] .setfirst :list :value end\n"                               // ?
-            "primitive [function ] .setbf :list :value end\n"                               // ?
-            "primitive [procedure] setitem :position :list :value end\n"                    // MISSING
-            "primitive [procedure] .setitem :position :list :value end\n"                   // ?
+            "primitive [function] setitem :position :list :value end\n"                     // external
             "primitive [procedure] setprefix :prefix end\n"                                 // MISSING
             "primitive [procedure] setread :filename end\n"                                 // MISSING
             "primitive [procedure] setreadpos :number end\n"                                // MISSING
@@ -228,6 +226,7 @@ Parser::Parser()
             "primitive [function] time end\n"                                               // external
             "primitive [procedure] trace :list end\n"                                       // MISSING
             "primitive [function] tracedp&traced? :list end\n"                              // MISSING
+            "primitive [function] ttyp&tty? end ttyp\n"                                     // external
             "primitive [procedure] type :thing [:rest] end\n"                               // external
             // U
             "primitive [function arithmetic] unorderedp&unordered? :thing1 :thing2 end\n"   // external

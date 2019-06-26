@@ -71,7 +71,6 @@ add_library(
         primitive_greaterp.cpp
         primitive_int.cpp
         primitive_integerp.cpp
-        primitive_isatty.cpp
         primitive_iseq.cpp
         primitive_item.cpp
         primitive_last.cpp
@@ -84,6 +83,8 @@ add_library(
         primitive_lput.cpp
         primitive_lshift.cpp
         primitive_make.cpp
+        primitive_mditem.cpp
+        primitive_mdsetitem.cpp
         primitive_minus.cpp
         primitive_modulo.cpp
         primitive_namep.cpp
@@ -100,6 +101,8 @@ add_library(
         primitive_procedurep.cpp
         primitive_procedures.cpp
         primitive_product.cpp
+        primitive_queue.cpp
+        primitive_quoted.cpp
         primitive_quotient.cpp
         primitive_radarccos.cpp
         primitive_radarcsin.cpp
@@ -109,12 +112,14 @@ add_library(
         primitive_radtan.cpp
         primitive_random.cpp
         primitive_remainder.cpp
+        primitive_remdup.cpp
         primitive_remove.cpp
         primitive_repcount.cpp
         primitive_rerandom.cpp
         primitive_round.cpp
         primitive_rseq.cpp
         primitive_setcursor.cpp
+        primitive_setitem.cpp
         primitive_settextcolor.cpp
         primitive_show.cpp
         primitive_sin.cpp
@@ -123,6 +128,7 @@ add_library(
         primitive_tan.cpp
         primitive_test.cpp
         primitive_time.cpp
+        primitive_ttyp.cpp
         primitive_type.cpp
         primitive_unorderedp.cpp
         primitive_word.cpp
