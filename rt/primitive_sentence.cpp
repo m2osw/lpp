@@ -27,34 +27,47 @@
 
 
 
-void primitive_show(lpp::lpp__context::pointer_t context)
+void primitive_sentence(lpp::lpp__context::pointer_t context)
 {
     lpp::lpp__value::pointer_t thing(context->get_thing("thing")->get_value());
-    std::cout << thing->to_string(lpp::DISPLAY_FLAG_TYPED);
+
+    lpp::lpp__value::vector_t list;
+    if(thing->type() == lpp::lpp__value_type_t::LPP__VALUE_TYPE_LIST)
+    {
+        list = thing->get_list();
+    }
+    else
+    {
+        list.push_back(thing);
+    }
+
     lpp::lpp__thing::pointer_t rest(context->find_thing("rest"));
     if(rest != nullptr)
     {
-        auto rest_value(rest->get_value());
-        if(rest_value->type() != lpp::lpp__value_type_t::LPP__VALUE_TYPE_LIST)
+        lpp::lpp__value::pointer_t r(rest->get_value());
+        if(r->type() != lpp::lpp__value_type_t::LPP__VALUE_TYPE_LIST)
         {
             throw lpp::lpp__error(context
                                 , lpp::lpp__error_code_t::ERROR_CODE_INVALID_DATUM
                                 , "logic"
                                 , "the :REST argument is expected to always be a list.");
         }
-        auto const & list(rest_value->get_list());
-        size_t const max(list.size());
-
-        // We have to print each item "manually" otherwise it adds
-        // the :REST list is an internal details
-        //
-        for(size_t idx(0); idx < max; ++idx)
+        lpp::lpp__value::vector_t l(r->get_list());
+        for(auto item : l)
         {
-            std::cout << " ";
-            std::cout << list[idx]->to_string(lpp::DISPLAY_FLAG_TYPED);
+            if(item->type() == lpp::lpp__value_type_t::LPP__VALUE_TYPE_LIST)
+            {
+                list.insert(list.end(), item->get_list().begin(), item->get_list().end());
+            }
+            else
+            {
+                list.push_back(item);
+            }
         }
     }
-    std::cout << "\n";
+
+    lpp::lpp__value::pointer_t result(std::make_shared<lpp::lpp__value>(list));
+    context->set_return_value(result);
 }
 
 

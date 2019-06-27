@@ -122,6 +122,7 @@ add_library(
         primitive_rerandom.cpp
         primitive_round.cpp
         primitive_rseq.cpp
+        primitive_sentence.cpp
         primitive_setcursor.cpp
         primitive_setitem.cpp
         primitive_settextcolor.cpp

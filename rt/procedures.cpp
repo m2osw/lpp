@@ -231,9 +231,9 @@ lpp__procedure_info_t g_primitives[]
 //    "primitive [function] reverse :list end\n"                                      // MISSING
 
     // S
-//    "primitive [function] sentence&se :thing1 :thing2 [:rest] end\n"                // MISSING
+    { "se",             primitive_sentence,      1UL, 2UL, MAX_MAX_ARGS, PROCEDURE_FLAG_PRIMITIVE | PROCEDURE_FLAG_FUNCTION },
+    { "sentence",       primitive_sentence,      1UL, 2UL, MAX_MAX_ARGS, PROCEDURE_FLAG_PRIMITIVE | PROCEDURE_FLAG_FUNCTION },
     { "setcursor",      primitive_setcursor,     1UL, 1UL,          1UL, PROCEDURE_FLAG_PRIMITIVE },
-//    "primitive [procedure] setcursor :position end\n"                               // MISSING
     { "setitem",        primitive_setitem,       3UL, 3UL,          3UL, PROCEDURE_FLAG_PRIMITIVE | PROCEDURE_FLAG_FUNCTION },
 //    "primitive [procedure] setprefix :prefix end\n"                                 // MISSING
 //    "primitive [procedure] setread :filename end\n"                                 // MISSING
@@ -242,15 +242,14 @@ lpp__procedure_info_t g_primitives[]
 //    "primitive [procedure] setwrite :filename end\n"                                // MISSING
 //    "primitive [procedure] setwritepos :number end\n"                               // MISSING
 //    "primitive [function] shell :command [:wordflag] end\n"                         // MISSING
-    { "show",         primitive_show,        1UL, 1UL, MAX_MAX_ARGS, PROCEDURE_FLAG_PRIMITIVE },
-    { "sin",          primitive_sin,         1UL, 1UL,          1UL, PROCEDURE_FLAG_PRIMITIVE | PROCEDURE_FLAG_FUNCTION },
-    { "sqrt",         primitive_sqrt,        1UL, 1UL,          1UL, PROCEDURE_FLAG_PRIMITIVE | PROCEDURE_FLAG_FUNCTION },
+    { "show",           primitive_show,        1UL, 1UL, MAX_MAX_ARGS, PROCEDURE_FLAG_PRIMITIVE },
+    { "sin",            primitive_sin,         1UL, 1UL,          1UL, PROCEDURE_FLAG_PRIMITIVE | PROCEDURE_FLAG_FUNCTION },
+    { "sqrt",           primitive_sqrt,        1UL, 1UL,          1UL, PROCEDURE_FLAG_PRIMITIVE | PROCEDURE_FLAG_FUNCTION },
 //    "primitive [procedure] standout :thing end\n"                                   // MISSING
-    { "stop",         nullptr,               0UL, 0UL,          0UL, PROCEDURE_FLAG_PRIMITIVE },
-    { "substring?",   primitive_substringp,  2UL, 2UL,          2UL, PROCEDURE_FLAG_PRIMITIVE | PROCEDURE_FLAG_FUNCTION },
-    { "substringp",   primitive_substringp,  2UL, 2UL,          2UL, PROCEDURE_FLAG_PRIMITIVE | PROCEDURE_FLAG_FUNCTION },
-//    "primitive [function] substringp&substring? :thing end\n"                       // MISSING
-    { "sum",          primitive_sum,         2UL, 2UL, MAX_MAX_ARGS, PROCEDURE_FLAG_PRIMITIVE | PROCEDURE_FLAG_FUNCTION },
+    { "stop",           nullptr,               0UL, 0UL,          0UL, PROCEDURE_FLAG_PRIMITIVE },
+    { "substring?",     primitive_substringp,  2UL, 2UL,          2UL, PROCEDURE_FLAG_PRIMITIVE | PROCEDURE_FLAG_FUNCTION },
+    { "substringp",     primitive_substringp,  2UL, 2UL,          2UL, PROCEDURE_FLAG_PRIMITIVE | PROCEDURE_FLAG_FUNCTION },
+    { "sum",            primitive_sum,         2UL, 2UL, MAX_MAX_ARGS, PROCEDURE_FLAG_PRIMITIVE | PROCEDURE_FLAG_FUNCTION },
     // T
     { "tag",          nullptr,               1UL, 1UL,          1UL, PROCEDURE_FLAG_PRIMITIVE },
     { "tan",          primitive_tan,         1UL, 1UL,          1UL, PROCEDURE_FLAG_PRIMITIVE | PROCEDURE_FLAG_FUNCTION },

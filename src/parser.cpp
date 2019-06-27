@@ -143,7 +143,6 @@ Parser::Parser()
             "primitive [function] namedp&named? :name end\n"                                // external
             "primitive [function] names end\n"                                              // MISSING
             "primitive [function arithmetic] nanp&nan? :number end\n"                       // external
-            "primitive [function] nodes end\n" // return free memory?                       // MISSING
             "primitive [function] not :boolean end\n"                                       // external
             "primitive [function] notequalp&notequal? :thing1 :thing2 [:rest] end\n"        // external
             "primitive [function] numberp&number? :thing end\n"                             // external
@@ -153,7 +152,6 @@ Parser::Parser()
             "primitive [procedure] openupdate :filename end\n"                              // MISSING
             "primitive [procedure] openwrite :filename end\n"                               // MISSING
             "primitive [function logic] or :boolean1 :boolean2 [:rest] end\n"               // external
-            "primitive [function arithmetic] orderedp&ordered? :number1 :number2 end\n"     // MISSING
             "primitive [procedure control inline] output&op :thing end\n"                   // inline
             // P
             "primitive [function] pick :thing end\n"                                        // external
@@ -171,7 +169,7 @@ Parser::Parser()
             "primitive [function arithmetic] product :number1 :number2 [:rest] end\n"       // external
             "primitive [procedure] push :stack :thing end\n"                                // MISSING
             // Q
-            "primitive [procedure] queue :queue :thing end\n"                               // MISSING
+            "primitive [procedure] queue :queue :thing end\n"                               // external
             "primitive [function] quoted :thing end quoted\n"                               // external
             "primitive [function arithmetic] quotient :number1 :number2 [:rest] end\n"      // external
             // R
@@ -199,7 +197,7 @@ Parser::Parser()
             "primitive [function] rerandom [:rest] end\n"                                   // external
             "primitive [function] reverse :list end\n"                                      // MISSING
             // S
-            "primitive [function] sentence&se :thing1 :thing2 [:rest] end\n"                // MISSING
+            "primitive [function] sentence&se :thing [:rest] 2 end\n"                       // external
             "primitive [procedure] setcursor :position end\n"                               // external
             "primitive [function] setitem :position :list :value end\n"                     // external
             "primitive [procedure] setprefix :prefix end\n"                                 // MISSING

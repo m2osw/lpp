@@ -542,10 +542,11 @@ void primitive_round(lpp::lpp__context::pointer_t context);
 void primitive_rseq(lpp::lpp__context::pointer_t context);
 
 // S
-void primitive_show(lpp::lpp__context::pointer_t context);
+void primitive_sentence(lpp::lpp__context::pointer_t context);
 void primitive_setcursor(lpp::lpp__context::pointer_t context);
 void primitive_setitem(lpp::lpp__context::pointer_t context);
 void primitive_settextcolor(lpp::lpp__context::pointer_t context);
+void primitive_show(lpp::lpp__context::pointer_t context);
 void primitive_sin(lpp::lpp__context::pointer_t context);
 void primitive_sqrt(lpp::lpp__context::pointer_t context);
 void primitive_substringp(lpp::lpp__context::pointer_t context);
