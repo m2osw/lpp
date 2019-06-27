@@ -3,6 +3,7 @@ program
   make "redirect "global
   show (list [a b c] :global [more lists] "word [numbers 1 2 3] 1 2 3)
   make "q [a b c]
+  print "symbol
   print [Queue before:] :q
   queue "q "d
   print [Queue after:] :q

@@ -37,11 +37,14 @@ public:
 
     void                    set_output_object(bool status);
     void                    set_trace(bool status);
+    void                    set_verbosity(bool status);
     void                    add_lexer(Lexer::pointer_t lexer);
 
     void                    parse();
     void                    optimize();
     void                    generate();
+
+    bool                    has_program() const;
 
 private:
     struct control_t
@@ -101,7 +104,8 @@ private:
 
     bool                    f_output_object = false;
     bool                    f_enable_trace = false;
-    bool                    f_rt_main = false;
+    bool                    f_has_program = false;
+    bool                    f_verbose = false;
     std::uint_fast32_t      f_body_pos = 0;
     Token::pointer_t        f_body = Token::pointer_t();
     Token::pointer_t        f_function = Token::pointer_t();

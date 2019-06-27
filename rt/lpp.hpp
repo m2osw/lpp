@@ -468,6 +468,7 @@ void primitive_floatp(lpp::lpp__context::pointer_t context);
 void primitive_fput(lpp::lpp__context::pointer_t context);
 
 // G
+void primitive_gensym(lpp::lpp__context::pointer_t context);
 void primitive_greaterequalp(lpp::lpp__context::pointer_t context);
 void primitive_greaterp(lpp::lpp__context::pointer_t context);
 

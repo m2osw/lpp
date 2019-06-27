@@ -17,6 +17,7 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 #include "parser.hpp"
+#include "compiler.hpp"
 
 #include "version.hpp"
 
@@ -51,10 +52,24 @@ int main(int argc, char * argv[])
     try
     {
         lpp::Parser::pointer_t parser(std::make_shared<lpp::Parser>());
+        lpp::Compiler::pointer_t compiler(std::make_shared<lpp::Compiler>());
 
         bool stdin_used_up(false);
         for(int i(1); i < argc; ++i)
         {
+            auto get_next_param = [&i, argc, argv]()
+                {
+                    ++i;
+                    if(i >= argc)
+                    {
+                        throw lpp::lpp_error(
+                                  "error: not enough information for the "
+                                + std::string(argv[i - 1])
+                                + " command line option.");
+                    }
+                    return argv[i];
+                };
+
             if(argv[i][0] == '-')
             {
                 if(argv[i][1] == '-')
@@ -71,7 +86,7 @@ int main(int argc, char * argv[])
                     {
                         // long argument
                         //
-                        std::string const arg(argv[i] + 2);
+                        std::string arg(argv[i] + 2);
                         if(arg == "help")
                         {
                             usage();
@@ -100,9 +115,17 @@ int main(int argc, char * argv[])
                             std::cout << license;
                             return 0;
                         }
+                        std::string::size_type const equal(arg.find('='));
+                        std::string value;
+                        if(equal != std::string::npos)
+                        {
+                            value = arg.substr(equal + 1);
+                            arg = arg.substr(0, equal);
+                        }
                         if(arg == "output-object")
                         {
                             parser->set_output_object(true);
+                            compiler->set_output_object(true);
                         }
                         else if(arg == "enable-trace")
                         {
@@ -111,6 +134,77 @@ int main(int argc, char * argv[])
                         else if(arg == "disable-trace")
                         {
                             parser->set_trace(false);
+                        }
+                        else if(arg == "main-cpp")
+                        {
+                            if(equal != std::string::npos)
+                            {
+                                compiler->set_main_cpp(value);
+                            }
+                            else
+                            {
+                                compiler->set_main_cpp(get_next_param());
+                            }
+                        }
+                        else if(arg == "output")
+                        {
+                            if(equal != std::string::npos)
+                            {
+                                compiler->set_output(value);
+                            }
+                            else
+                            {
+                                compiler->set_output(get_next_param());
+                            }
+                        }
+                        else if(arg == "include-path")
+                        {
+                            if(equal != std::string::npos)
+                            {
+                                compiler->add_include_path(value);
+                            }
+                            else
+                            {
+                                compiler->add_include_path(get_next_param());
+                            }
+                        }
+                        else if(arg == "library-path")
+                        {
+                            if(equal != std::string::npos)
+                            {
+                                compiler->add_library_path(value);
+                            }
+                            else
+                            {
+                                compiler->add_library_path(get_next_param());
+                            }
+                        }
+                        else if(arg == "rpath")
+                        {
+                            if(equal != std::string::npos)
+                            {
+                                compiler->add_rpath(value);
+                            }
+                            else
+                            {
+                                compiler->add_rpath(get_next_param());
+                            }
+                        }
+                        else if(arg == "library")
+                        {
+                            if(equal != std::string::npos)
+                            {
+                                compiler->add_library(value);
+                            }
+                            else
+                            {
+                                compiler->add_library(get_next_param());
+                            }
+                        }
+                        else if(arg == "verbose")
+                        {
+                            parser->set_verbosity(true);
+                            compiler->set_verbosity(true);
                         }
                     }
                 }
@@ -131,24 +225,99 @@ int main(int argc, char * argv[])
                 {
                     // short arguments
                     //
-                    int const len(std::strlen(argv[i]));
-                    for(int j(1); j < len; ++j)
+                    switch(argv[i][1])
                     {
-                        switch(argv[i][j])
+                    case 'I':
+                        // the -I is special in that the path can
+                        // be stuck to it so we need to support that
+                        //
+                        if(argv[i][2] == '\0')
                         {
-                        case 'c':
-                            parser->set_output_object(true);
-                            break;
+                            // we need the next argument
+                            //
+                            compiler->add_include_path(get_next_param());
 
-                        case 't':
-                            parser->set_trace(true);
-                            break;
-
-                        case 'h':
-                            usage();
-                            return 0;
-
+                            // NOTE: we allow "-" as an argument of the -I so do
+                            //       not prevent such from happening!
                         }
+                        else
+                        {
+                            // the current argument is the important one
+                            //
+                            compiler->add_include_path(argv[i] + 2);
+                        }
+                        break;
+
+                    case 'l':
+                        if(argv[i][2] == '\0')
+                        {
+                            compiler->add_library(get_next_param());
+                        }
+                        else
+                        {
+                            compiler->add_library(argv[i] + 2);
+                        }
+                        break;
+
+                    case 'L':
+                        if(argv[i][2] == '\0')
+                        {
+                            compiler->add_library_path(get_next_param());
+                        }
+                        else
+                        {
+                            compiler->add_library_path(argv[i] + 2);
+                        }
+                        break;
+
+                    case 'o':
+                        if(argv[i][2] == '\0')
+                        {
+                            compiler->set_output(get_next_param());
+                        }
+                        else
+                        {
+                            compiler->set_output(argv[i] + 2);
+                        }
+                        break;
+
+                    default:
+                        {
+                            int const len(std::strlen(argv[i]));
+                            for(int j(1); j < len; ++j)
+                            {
+                                switch(argv[i][j])
+                                {
+                                case 'c':
+                                    parser->set_output_object(true);
+                                    compiler->set_output_object(true);
+                                    break;
+
+                                case 't':
+                                    parser->set_trace(true);
+                                    break;
+
+                                case 'h':
+                                    usage();
+                                    return 0;
+
+                                case 'v':
+                                    parser->set_verbosity(true);
+                                    compiler->set_verbosity(true);
+                                    break;
+
+                                default:
+                                    std::cerr << "error: argument \"-"
+                                              << argv[i][j]
+                                              << "\" is not supported."
+                                              << std::endl;
+                                    return 1;
+
+                                }
+                            }
+                        }
+                        break;
+
                     }
                 }
             }
@@ -164,7 +333,9 @@ int main(int argc, char * argv[])
         parser->parse();
         parser->generate();
 
-        return 0;
+        compiler->set_has_program(parser->has_program());
+
+        return compiler->compile();
     }
     catch(std::logic_error const & e)
     {

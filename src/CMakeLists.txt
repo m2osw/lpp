@@ -33,11 +33,13 @@ include_directories(
 
 add_executable(
     ${PROJECT_NAME}
+        lpp.cpp
+
+        compiler.cpp
         control_primitives.cpp
         exception.cpp
         inline_primitives.cpp
         lexer.cpp
-        lpp.cpp
         parser.cpp
         token.cpp
 )

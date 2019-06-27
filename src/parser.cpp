@@ -78,7 +78,7 @@ Parser::Parser()
             "primitive [procedure control inline] cond :clauses end\n"                      // MISSING
             "primitive [function arithmetic] cos :number1 end\n"                            // external
             "primitive [function] count :thing end\n"                                       // external
-            "primitive [function] cursor end\n"                                             // MISSING
+            "primitive [function] cursor end\n"                                             // external
             // D
             "primitive [function] definedp&defined? :name end\n"                            // external
             "primitive [function arithmetic] difference :number1 :number2 [:rest] end\n"    // external
@@ -100,8 +100,7 @@ Parser::Parser()
             "primitive [procedure control inline] forever :instructions end\n"              // inline
             "primitive [function] fput :item :thing end\n"                                  // external
             // G
-            "primitive [procedure] gc [:flag void] end\n"                                   // MISSING
-            "primitive [function] gensym end\n"                                             // MISSING
+            "primitive [function] gensym end\n"                                             // external
             "primitive [procedure] global :name [:rest] end\n"                              // MISSING
             "primitive [procedure control inline] goto :tag end\n"                          // inline
             "primitive [function] gprop :plistname :propname end\n"                         // MISSING
@@ -264,6 +263,12 @@ void Parser::set_output_object(bool status)
 void Parser::set_trace(bool status)
 {
     f_enable_trace = status;
+}
+
+
+void Parser::set_verbosity(bool status)
+{
+    f_verbose = status;
 }
 
 
@@ -983,6 +988,11 @@ void Parser::program()
         f_current_token->error("You can have at most one program in your logo files.");
         return;
     }
+    if(f_output_object)
+    {
+        f_current_token->error("The --output-object (-c) command line option and the \"program\" command cannot be used together.");
+        return;
+    }
 
     // we cannot immediately parse the program, so we just save all the tokens
     // in a list which we will parse later.
@@ -1006,6 +1016,11 @@ void Parser::program()
         case token_t::TOK_END:
             // we allow the END keyword to be followed by PROGRAM
             //
+            if(f_program->get_list_size() == 0)
+            {
+                f_current_token->error("You cannot have an empty program. Please do not create a program or put at least one instruction.");
+                return;
+            }
             next_lexer_token();
             if(f_current_token->get_token() == token_t::TOK_PROGRAM)
             {
@@ -1681,6 +1696,25 @@ void Parser::optimize()
 
 void Parser::generate()
 {
+    class auto_close
+    {
+    public:
+        auto_close(std::ofstream & stream)
+            : f_stream(stream)
+        {
+        }
+
+        ~auto_close()
+        {
+            f_stream.close();
+        }
+
+    private:
+        std::ofstream &     f_stream;
+    };
+
+    auto_close out_stream(f_out);
+
     f_out.open("l.cpp");
     if(!f_out.is_open())
     {
@@ -1754,8 +1788,8 @@ void Parser::generate()
         }
     }
 
-    f_rt_main = f_program->get_list_size() > 0;
-    if(f_rt_main)
+    f_has_program = f_program->get_list_size() > 0;
+    if(f_has_program)
     {
         f_out << "// Program Definition\n";
 
@@ -1766,6 +1800,12 @@ void Parser::generate()
         output_body(f_program);
         f_out << "}\n";
     }
+}
+
+
+bool Parser::has_program() const
+{
+    return f_has_program;
 }
 
 

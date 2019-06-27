@@ -67,6 +67,7 @@ add_library(
         primitive_first.cpp
         primitive_floatp.cpp
         primitive_fput.cpp
+        primitive_gensym.cpp
         primitive_greaterequalp.cpp
         primitive_greaterp.cpp
         primitive_int.cpp

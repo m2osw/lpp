@@ -108,8 +108,7 @@ lpp__procedure_info_t g_primitives[]
     { "fput",         primitive_fput,        2UL, 2UL,          2UL, PROCEDURE_FLAG_PRIMITIVE | PROCEDURE_FLAG_FUNCTION },
 
     // G
-//    "primitive [procedure] gc [:flag void] end\n"                                   // MISSING
-//    "primitive [function] gensym end\n"                                             // MISSING
+    { "gensym",        primitive_gensym,        0UL, 0UL,          0UL, PROCEDURE_FLAG_PRIMITIVE | PROCEDURE_FLAG_FUNCTION },
 //    "primitive [procedure] global :name [:rest] end\n"                              // MISSING
     { "goto",          nullptr,                 1UL, 1UL,          1UL, PROCEDURE_FLAG_PRIMITIVE },
 //    "primitive [function] gprop :plistname :propname end\n"                         // MISSING
