@@ -493,6 +493,8 @@ void primitive_lshift(lpp::lpp__context::pointer_t context);
 void primitive_make(lpp::lpp__context::pointer_t context);
 void primitive_mditem(lpp::lpp__context::pointer_t context);
 void primitive_mdsetitem(lpp::lpp__context::pointer_t context);
+void primitive_member(lpp::lpp__context::pointer_t context);
+void primitive_memberp(lpp::lpp__context::pointer_t context);
 void primitive_minus(lpp::lpp__context::pointer_t context);
 void primitive_modulo(lpp::lpp__context::pointer_t context);
 
@@ -546,6 +548,7 @@ void primitive_setitem(lpp::lpp__context::pointer_t context);
 void primitive_settextcolor(lpp::lpp__context::pointer_t context);
 void primitive_sin(lpp::lpp__context::pointer_t context);
 void primitive_sqrt(lpp::lpp__context::pointer_t context);
+void primitive_substringp(lpp::lpp__context::pointer_t context);
 void primitive_sum(lpp::lpp__context::pointer_t context);
 
 // T

@@ -86,6 +86,8 @@ add_library(
         primitive_make.cpp
         primitive_mditem.cpp
         primitive_mdsetitem.cpp
+        primitive_member.cpp
+        primitive_memberp.cpp
         primitive_minus.cpp
         primitive_modulo.cpp
         primitive_namep.cpp
@@ -93,6 +95,7 @@ add_library(
         primitive_not.cpp
         primitive_notequalp.cpp
         primitive_numberp.cpp
+        primitive_or.cpp
         primitive_pick.cpp
         primitive_plus.cpp
         primitive_power.cpp
@@ -125,6 +128,7 @@ add_library(
         primitive_show.cpp
         primitive_sin.cpp
         primitive_sqrt.cpp
+        primitive_substringp.cpp
         primitive_sum.cpp
         primitive_tan.cpp
         primitive_test.cpp

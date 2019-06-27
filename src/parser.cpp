@@ -134,8 +134,8 @@ Parser::Parser()
             "primitive [procedure] make :name :thing end\n"                                 // external
             "primitive [function] mditem :positions :list end\n"                            // external
             "primitive [function] mdsetitem :positions :list :value end\n"                  // external
-            "primitive [function] member :thing1 :thing2 end\n"                             // MISSING
-            "primitive [function] memberp&member? :thing end\n"                             // MISSING
+            "primitive [function] member :thing1 :thing2 end\n"                             // external
+            "primitive [function] memberp&member? :thing1 :thing2 end\n"                    // external
             "primitive [function arithmetic] minus :number end\n"                           // external
             "primitive [function arithmetic] modulo :number1 :number2 end\n"                // external
             // N
@@ -214,7 +214,7 @@ Parser::Parser()
             "primitive [function arithmetic] sqrt :number end\n"                            // external
             "primitive [procedure] standout :thing end\n"                                   // MISSING
             "primitive [procedure control inline] stop end\n"                               // inline
-            "primitive [function] substringp&substring? :thing end\n"                       // MISSING
+            "primitive [function] substringp&substring? :thing1 :thing2 end\n"              // external
             "primitive [function arithmetic] sum :number1 :number2 [:rest] end\n"           // external
             // T
             "primitive [procedure control inline] tag :tag end\n"                           // inline

@@ -42,8 +42,8 @@ void primitive_beforep(lpp::lpp__context::pointer_t context)
 {
     lpp::lpp__number::compare(
               context
-            , "thing1"
-            , "thing2"
+            , "word1"
+            , "word2"
             , "rest"
             , operation
             , true);

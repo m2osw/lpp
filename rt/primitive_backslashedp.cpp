@@ -66,7 +66,7 @@ void primitive_backslashedp(lpp::lpp__context::pointer_t context)
 
     }
 
-    lpp::lpp__value::pointer_t result(std::make_shared<lpp::lpp__value>(static_cast<lpp::lpp__integer_t>(boolean)));
+    lpp::lpp__value::pointer_t result(std::make_shared<lpp::lpp__value>(boolean));
 
     context->set_return_value(result);
 }
