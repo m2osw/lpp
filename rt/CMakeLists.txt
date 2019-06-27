@@ -80,6 +80,8 @@ add_library(
         primitive_list.cpp
         primitive_listp.cpp
         primitive_ln.cpp
+        primitive_local.cpp
+        primitive_localmake.cpp
         primitive_log.cpp
         primitive_lput.cpp
         primitive_lshift.cpp

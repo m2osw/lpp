@@ -81,6 +81,7 @@ bool Parser::inline_primitive(control_t & control_info)
 
 
 
+
 void Parser::primitive_thing(control_t & control_info)
 {
     if(control_info.f_max_args != 1)

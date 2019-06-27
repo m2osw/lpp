@@ -122,7 +122,8 @@ lpp__thing::pointer_t lpp__context::find_thing(std::string const & name) const
 lpp__thing::pointer_t lpp__context::get_thing(std::string const & name) const
 {
     lpp__thing::pointer_t thing(find_thing(name));
-    if(thing == nullptr)
+    if(thing == nullptr
+    || thing->get_value() == nullptr)
     {
         throw lpp__error(shared_from_this()
                        , lpp__error_code_t::ERROR_CODE_VARIABLE_NOT_SET
@@ -145,6 +146,10 @@ void lpp__context::set_thing(std::string const & name, lpp__value::pointer_t val
                 thing = std::make_shared<lpp__thing>();
                 thing->set_value(value, lpp__thing_type_t::LPP__THING_TYPE_GLOBAL);
                 auto global(f_global.lock());
+                if(global == nullptr)
+                {
+                    throw std::logic_error("could not lock the global pointer.");
+                }
                 global->f_things[name] = thing;
             }
             else
@@ -194,7 +199,7 @@ void lpp__context::set_thing(std::string const & name, lpp__value::pointer_t val
 
                 throw std::logic_error("could not set thing \""
                                      + name
-                                     + " in a procedure context.");
+                                     + "\" in a procedure context.");
             }
             else
             {
@@ -206,6 +211,10 @@ void lpp__context::set_thing(std::string const & name, lpp__value::pointer_t val
     case lpp__thing_type_t::LPP__THING_TYPE_GLOBAL:
         {
             auto global(f_global.lock());
+            if(global == nullptr)
+            {
+                throw std::logic_error("could not lock the global pointer.");
+            }
             auto it(global->f_things.find(name));
             if(it == global->f_things.end())
             {

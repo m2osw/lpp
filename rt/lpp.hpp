@@ -485,6 +485,8 @@ void primitive_lessp(lpp::lpp__context::pointer_t context);
 void primitive_list(lpp::lpp__context::pointer_t context);
 void primitive_listp(lpp::lpp__context::pointer_t context);
 void primitive_ln(lpp::lpp__context::pointer_t context);
+void primitive_local(lpp::lpp__context::pointer_t context);
+void primitive_localmake(lpp::lpp__context::pointer_t context);
 void primitive_log(lpp::lpp__context::pointer_t context);
 void primitive_lput(lpp::lpp__context::pointer_t context);
 void primitive_lshift(lpp::lpp__context::pointer_t context);

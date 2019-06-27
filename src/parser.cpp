@@ -101,7 +101,6 @@ Parser::Parser()
             "primitive [function] fput :item :thing end\n"                                  // external
             // G
             "primitive [function] gensym end\n"                                             // external
-            "primitive [procedure] global :name [:rest] end\n"                              // MISSING
             "primitive [procedure control inline] goto :tag end\n"                          // inline
             "primitive [function] gprop :plistname :propname end\n"                         // MISSING
             "primitive [function] greaterequalp&greaterequal? :thing1 :thing2 [:rest] end\n"    // external
@@ -125,8 +124,8 @@ Parser::Parser()
             "primitive [function] lessp&less? :thing1 :thing2 [:rest] end\n"                // external
             "primitive [function] list :thing [:rest] 2 end\n"                              // external
             "primitive [function] listp&list? :thing end\n"                                 // external
-            "primitive [procedure] local :name [:rest] end\n"                               // MISSING
-            "primitive [procedure] localmake :name :value end\n"                            // MISSING
+            "primitive [procedure] local :name [:rest] end\n"                               // external
+            "primitive [procedure] localmake :name :thing end\n"                            // external
             "primitive [function] lowercase :word end\n"                                    // MISSING
             "primitive [function] lput :item :thing end\n"                                  // external
             "primitive [function arithmetic] lshift :number :shift end\n"                   // external

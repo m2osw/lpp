@@ -41,7 +41,7 @@ void primitive_namep(lpp::lpp__context::pointer_t context)
 
     lpp::lpp__thing::pointer_t thing(context->find_thing(name->to_word()));
 
-    context->set_return_value(std::make_shared<lpp::lpp__value>(thing != nullptr));
+    context->set_return_value(std::make_shared<lpp::lpp__value>(thing != nullptr && thing->get_value() != nullptr));
 }
 
 

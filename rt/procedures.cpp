@@ -109,7 +109,6 @@ lpp__procedure_info_t g_primitives[]
 
     // G
     { "gensym",        primitive_gensym,        0UL, 0UL,          0UL, PROCEDURE_FLAG_PRIMITIVE | PROCEDURE_FLAG_FUNCTION },
-//    "primitive [procedure] global :name [:rest] end\n"                              // MISSING
     { "goto",          nullptr,                 1UL, 1UL,          1UL, PROCEDURE_FLAG_PRIMITIVE },
 //    "primitive [function] gprop :plistname :propname end\n"                         // MISSING
     { "greaterequal?", primitive_greaterequalp, 2UL, 2UL, MAX_MAX_ARGS, PROCEDURE_FLAG_PRIMITIVE | PROCEDURE_FLAG_FUNCTION },
@@ -142,8 +141,8 @@ lpp__procedure_info_t g_primitives[]
     { "list",         primitive_list,         1UL, 2UL, MAX_MAX_ARGS, PROCEDURE_FLAG_PRIMITIVE | PROCEDURE_FLAG_FUNCTION },
     { "list?",        primitive_listp,        1UL, 1UL,          1UL, PROCEDURE_FLAG_PRIMITIVE | PROCEDURE_FLAG_FUNCTION },
     { "listp",        primitive_listp,        1UL, 1UL,          1UL, PROCEDURE_FLAG_PRIMITIVE | PROCEDURE_FLAG_FUNCTION },
-//    "primitive [procedure] local :name [:rest] end\n"                               // MISSING
-//    "primitive [procedure] localmake :name :value end\n"                            // MISSING
+    { "local",        primitive_local,        1UL, 1UL, MAX_MAX_ARGS, PROCEDURE_FLAG_PRIMITIVE },
+    { "localmake",    primitive_localmake,    2UL, 2UL,          2UL, PROCEDURE_FLAG_PRIMITIVE },
 //    "primitive [function] lowercase :word end\n"                                    // MISSING
     { "lput",         primitive_lput,         2UL, 2UL,          2UL, PROCEDURE_FLAG_PRIMITIVE | PROCEDURE_FLAG_FUNCTION },
     { "lshift",       primitive_lshift,       2UL, 2UL,          2UL, PROCEDURE_FLAG_PRIMITIVE | PROCEDURE_FLAG_FUNCTION },

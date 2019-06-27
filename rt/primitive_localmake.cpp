@@ -27,7 +27,7 @@
 
 
 
-void primitive_make(lpp::lpp__context::pointer_t context)
+void primitive_localmake(lpp::lpp__context::pointer_t context)
 {
     lpp::lpp__value::pointer_t name(context->get_thing("name")->get_value());
     lpp::lpp__value::pointer_t thing(context->get_thing("thing")->get_value());
@@ -42,7 +42,7 @@ void primitive_make(lpp::lpp__context::pointer_t context)
 
     context->set_thing(name->to_word()
                      , thing
-                     , lpp::lpp__thing_type_t::LPP__THING_TYPE_DEFAULT);
+                     , lpp::lpp__thing_type_t::LPP__THING_TYPE_PROCEDURE);
 }
 
 
