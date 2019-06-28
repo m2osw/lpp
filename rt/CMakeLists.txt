@@ -30,6 +30,7 @@ add_library(
         procedures.cpp
         thing.cpp
         tty.cpp
+        utf8_iterator.cpp
         value.cpp
 
         # Primitives
@@ -83,6 +84,7 @@ add_library(
         primitive_local.cpp
         primitive_localmake.cpp
         primitive_log.cpp
+        primitive_lowercase.cpp
         primitive_lput.cpp
         primitive_lshift.cpp
         primitive_make.cpp
@@ -93,6 +95,7 @@ add_library(
         primitive_minus.cpp
         primitive_modulo.cpp
         primitive_namep.cpp
+        primitive_names.cpp
         primitive_nanp.cpp
         primitive_not.cpp
         primitive_notequalp.cpp
@@ -100,6 +103,7 @@ add_library(
         primitive_or.cpp
         primitive_pick.cpp
         primitive_plus.cpp
+        primitive_pop.cpp
         primitive_power.cpp
         primitive_primitivep.cpp
         primitive_primitives.cpp
@@ -107,6 +111,7 @@ add_library(
         primitive_procedurep.cpp
         primitive_procedures.cpp
         primitive_product.cpp
+        primitive_push.cpp
         primitive_queue.cpp
         primitive_quoted.cpp
         primitive_quotient.cpp
@@ -122,6 +127,7 @@ add_library(
         primitive_remove.cpp
         primitive_repcount.cpp
         primitive_rerandom.cpp
+        primitive_reverse.cpp
         primitive_round.cpp
         primitive_rseq.cpp
         primitive_sentence.cpp
@@ -131,6 +137,7 @@ add_library(
         primitive_show.cpp
         primitive_sin.cpp
         primitive_sqrt.cpp
+        primitive_standout.cpp
         primitive_substringp.cpp
         primitive_sum.cpp
         primitive_tan.cpp
@@ -139,6 +146,7 @@ add_library(
         primitive_ttyp.cpp
         primitive_type.cpp
         primitive_unorderedp.cpp
+        primitive_uppercase.cpp
         primitive_word.cpp
         primitive_wordp.cpp
         primitive_xor.cpp

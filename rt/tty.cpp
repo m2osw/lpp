@@ -39,6 +39,9 @@ namespace
 {
 
 
+// tables with various terminal codes
+// https://wiki.bash-hackers.org/scripting/terminalcodes
+
 
 //                            go to (1, 1)      clear screen
 //                            |                 |
@@ -51,6 +54,20 @@ char const g_clear_text[] = { '\x1B', '[', 'H', '\x1B', '[', 'J' };
 //                                |
 //                                v
 char const g_get_cursor_pos[] = { '\x1B', '[', '6', 'n' };
+
+
+
+//                                 print cursor position back to us
+//                                 |
+//                                 v
+char const g_remove_standout[] = { '\x1B', '[', '0', 'm' };
+
+
+
+//                          print cursor position back to us
+//                          |
+//                          v
+char const g_standout[] = { '\x1B', '[', '7', 'm' };
 
 
 
@@ -321,6 +338,34 @@ bool lpp__tty_set_text_colors(lpp__integer_t foreground, lpp__integer_t backgrou
     if(write(tty, set_text_colors.c_str(), set_text_colors.length()) != static_cast<ssize_t>(set_text_colors.length()))
     {
         return false;
+    }
+
+    return true;
+}
+
+
+bool lpp__tty_set_standout(bool on)
+{
+    int const tty(get_tty());
+    if(tty < 0)
+    {
+        return false;
+    }
+    lpp__tty_flush();
+
+    if(on)
+    {
+        if(write(tty, g_standout, sizeof(g_standout)) != sizeof(g_standout))
+        {
+            return false;
+        }
+    }
+    else
+    {
+        if(write(tty, g_remove_standout, sizeof(g_remove_standout)) != sizeof(g_remove_standout))
+        {
+            return false;
+        }
     }
 
     return true;

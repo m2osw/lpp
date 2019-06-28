@@ -23,6 +23,7 @@
 // C++ lib
 //
 #include <iostream>
+#include <set>
 
 
 namespace lpp
@@ -230,6 +231,36 @@ void lpp__context::set_thing(std::string const & name, lpp__value::pointer_t val
         break;
 
     }
+}
+
+
+lpp__value::pointer_t lpp__context::get_all_thing_names() const
+{
+    // use a set so that way we return each name uniquely
+    //
+    std::set<std::string> s;
+
+    lpp__context::const_pointer_t context(shared_from_this());
+    while(context != nullptr)
+    {
+        for(auto const & thing : context->f_things)
+        {
+            s.insert(thing.first);
+        }
+
+        context = context->f_parent;
+    }
+
+    // now convert our set in a vector of names
+    //
+    lpp__value::vector_t names;
+    names.reserve(s.size());
+    for(auto const & n : s)
+    {
+        names.push_back(std::make_shared<lpp__value>(n));
+    }
+
+    return std::make_shared<lpp__value>(names);
 }
 
 
