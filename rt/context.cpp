@@ -35,6 +35,10 @@ namespace
 
 
 
+lpp__thing::map_t       g_properties = lpp__thing::map_t();
+
+
+
 } // no name namespace
 
 
@@ -264,6 +268,93 @@ lpp__value::pointer_t lpp__context::get_all_thing_names() const
 }
 
 
+lpp__thing::pointer_t lpp__context::find_property(std::string const & listname) const
+{
+    auto const & it(g_properties.find(listname));
+    if(it != g_properties.end())
+    {
+        return it->second;
+    }
+
+    return lpp__thing::pointer_t();
+}
+
+
+void lpp__context::set_property(
+      std::string const & listname
+    , std::string const & propname
+    , lpp__value::pointer_t value)
+{
+    lpp__thing::pointer_t thing(find_property(listname));
+    if(thing == nullptr)
+    {
+        if(value == nullptr)
+        {
+            // do not create if value is nullptr
+            //
+            return;
+        }
+
+        thing = std::make_shared<lpp__thing>();
+        lpp__value::pointer_t new_prop(std::make_shared<lpp__value>());
+        lpp__value::map_t prop;
+        new_prop->set_prop(prop);
+        thing->set_value(new_prop);
+        g_properties[listname] = thing;
+    }
+
+    lpp__value::pointer_t prop_value(thing->get_value());
+    if(prop_value == nullptr)
+    {
+        throw std::logic_error("somehow the prop_value is nullptr.");
+    }
+    if(value == nullptr)
+    {
+        if(prop_value != nullptr)
+        {
+            lpp__value::map_t prop(prop_value->get_prop());
+            auto const & it(prop.find(propname));
+            if(it != prop.end())
+            {
+                prop.erase(it);
+                if(prop.empty())
+                {
+                    // once the property is completely empty, remove it
+                    // from the property list
+                    //
+                    auto const & itrem(g_properties.find(listname));
+                    g_properties.erase(itrem);
+                }
+                else
+                {
+                    prop_value->set_prop(prop);
+                }
+            }
+        }
+    }
+    else
+    {
+        lpp__value::map_t prop;
+        prop = prop_value->get_prop();
+        prop[propname] = value;
+        prop_value->set_prop(prop);
+    }
+}
+
+
+lpp__value::pointer_t lpp__context::list_properties() const
+{
+    lpp__value::vector_t result;
+
+    for(auto const & p : g_properties)
+    {
+        result.push_back(std::make_shared<lpp__value>(p.first));
+    }
+
+    return std::make_shared<lpp__value>(result);
+}
+
+
 bool lpp__context::has_returned_value() const
 {
     return f_return_value != nullptr;
@@ -464,6 +555,10 @@ std::ostream & operator << (std::ostream & out, lpp::lpp__value_type_t value_typ
 
     case lpp::lpp__value_type_t::LPP__VALUE_TYPE_LIST:
         out << "LPP__VALUE_TYPE_LIST";
+        break;
+
+    case lpp::lpp__value_type_t::LPP__VALUE_TYPE_PROPERTY_LIST:
+        out << "LPP__VALUE_TYPE_PROPERTY_LIST";
         break;
 
     }

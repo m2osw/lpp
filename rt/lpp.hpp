@@ -47,7 +47,8 @@ enum class lpp__value_type_t
     LPP__VALUE_TYPE_INTEGER,
     LPP__VALUE_TYPE_FLOAT,
     LPP__VALUE_TYPE_WORD,
-    LPP__VALUE_TYPE_LIST
+    LPP__VALUE_TYPE_LIST,
+    LPP__VALUE_TYPE_PROPERTY_LIST
 };
 
 constexpr int mix_value_types(lpp__value_type_t a, lpp__value_type_t b)
@@ -72,8 +73,9 @@ typedef std::vector<lpp__integer_t>     lpp__vector_integer_t;
 class lpp__value
 {
 public:
-    typedef std::shared_ptr<lpp__value>     pointer_t;
-    typedef std::vector<pointer_t>          vector_t;
+    typedef std::shared_ptr<lpp__value>         pointer_t;
+    typedef std::vector<pointer_t>              vector_t;
+    typedef std::map<std::string, pointer_t>    map_t;
 
                             lpp__value(lpp__special_value_t value = lpp__special_value_t::LPP__SPECIAL_VALUE_NOT_SET);
                             lpp__value(bool value);
@@ -81,6 +83,7 @@ public:
                             lpp__value(lpp__float_t value);
                             lpp__value(std::string const & value);
                             lpp__value(vector_t const & value);
+                            lpp__value(map_t const & value);
 
     lpp__value_type_t       type() const;
     bool                    is_set() const;
@@ -93,6 +96,7 @@ public:
     lpp__float_t            get_float() const;
     std::string const &     get_word() const;
     vector_t const &        get_list() const;
+    map_t const &           get_prop() const;
 
     void                    unset();
     void                    set_boolean(bool value);
@@ -100,6 +104,7 @@ public:
     void                    set_float(lpp__float_t value);
     void                    set_word(std::string const & value);
     void                    set_list(vector_t const & value);
+    void                    set_prop(map_t const & value);
 
     std::string             to_string(display_flag_t flags = 0, int depth = 0) const;
     std::string             to_word(display_flag_t flags = 0) const;
@@ -118,7 +123,8 @@ private:
                  , lpp__integer_t
                  , double
                  , std::string
-                 , vector_t>
+                 , vector_t
+                 , map_t>
                             f_value = lpp__special_value_t::LPP__SPECIAL_VALUE_NOT_SET;
 };
 
@@ -270,6 +276,12 @@ public:
                                     , lpp__value::pointer_t value
                                     , lpp__thing_type_t type = lpp__thing_type_t::LPP__THING_TYPE_DEFAULT);
     lpp__value::pointer_t   get_all_thing_names() const;
+
+    lpp__thing::pointer_t   find_property(std::string const & listname) const;
+    void                    set_property(std::string const & listname
+                                       , std::string const & propname
+                                       , lpp__value::pointer_t value);
+    lpp__value::pointer_t   list_properties() const;
 
     bool                    has_returned_value() const;
     lpp__value::pointer_t   get_returned_value() const; // throw if not set (i.e. last call did a STOP not an OUTPUT)
@@ -429,7 +441,6 @@ void primitive_arccos(lpp::lpp__context::pointer_t context);
 void primitive_arcsin(lpp::lpp__context::pointer_t context);
 void primitive_arctan(lpp::lpp__context::pointer_t context);
 void primitive_arity(lpp::lpp__context::pointer_t context);
-void primitive_ascii(lpp::lpp__context::pointer_t context);
 void primitive_ashift(lpp::lpp__context::pointer_t context);
 
 // B
@@ -442,6 +453,7 @@ void primitive_bitxor(lpp::lpp__context::pointer_t context);
 void primitive_butfirst(lpp::lpp__context::pointer_t context);
 void primitive_butlast(lpp::lpp__context::pointer_t context);
 void primitive_bye(lpp::lpp__context::pointer_t context);
+void primitive_byte(lpp::lpp__context::pointer_t context);
 
 // C
 void primitive_char(lpp::lpp__context::pointer_t context);
@@ -466,11 +478,13 @@ void primitive_exp(lpp::lpp__context::pointer_t context);
 
 // F
 void primitive_first(lpp::lpp__context::pointer_t context);
+void primitive_firstbyte(lpp::lpp__context::pointer_t context);
 void primitive_floatp(lpp::lpp__context::pointer_t context);
 void primitive_fput(lpp::lpp__context::pointer_t context);
 
 // G
 void primitive_gensym(lpp::lpp__context::pointer_t context);
+void primitive_gprop(lpp::lpp__context::pointer_t context);
 void primitive_greaterequalp(lpp::lpp__context::pointer_t context);
 void primitive_greaterp(lpp::lpp__context::pointer_t context);
 
@@ -482,6 +496,7 @@ void primitive_item(lpp::lpp__context::pointer_t context);
 
 // L
 void primitive_last(lpp::lpp__context::pointer_t context);
+void primitive_lastbyte(lpp::lpp__context::pointer_t context);
 void primitive_lessequalp(lpp::lpp__context::pointer_t context);
 void primitive_lessp(lpp::lpp__context::pointer_t context);
 void primitive_list(lpp::lpp__context::pointer_t context);
@@ -517,9 +532,13 @@ void primitive_or(lpp::lpp__context::pointer_t context);
 
 // P
 void primitive_pick(lpp::lpp__context::pointer_t context);
+void primitive_plist(lpp::lpp__context::pointer_t context);
+void primitive_plistp(lpp::lpp__context::pointer_t context);
+void primitive_plists(lpp::lpp__context::pointer_t context);
 void primitive_plus(lpp::lpp__context::pointer_t context);
 void primitive_pop(lpp::lpp__context::pointer_t context);
 void primitive_power(lpp::lpp__context::pointer_t context);
+void primitive_pprop(lpp::lpp__context::pointer_t context);
 void primitive_primitivep(lpp::lpp__context::pointer_t context);
 void primitive_primitives(lpp::lpp__context::pointer_t context);
 void primitive_print(lpp::lpp__context::pointer_t context);
@@ -544,6 +563,7 @@ void primitive_random(lpp::lpp__context::pointer_t context);
 void primitive_remainder(lpp::lpp__context::pointer_t context);
 void primitive_remdup(lpp::lpp__context::pointer_t context);
 void primitive_remove(lpp::lpp__context::pointer_t context);
+void primitive_remprop(lpp::lpp__context::pointer_t context);
 void primitive_repcount(lpp::lpp__context::pointer_t context);
 void primitive_rerandom(lpp::lpp__context::pointer_t context);
 void primitive_reverse(lpp::lpp__context::pointer_t context);
@@ -570,6 +590,7 @@ void primitive_ttyp(lpp::lpp__context::pointer_t context);
 void primitive_type(lpp::lpp__context::pointer_t context);
 
 // U
+void primitive_unicode(lpp::lpp__context::pointer_t context);
 void primitive_unorderedp(lpp::lpp__context::pointer_t context);
 void primitive_uppercase(lpp::lpp__context::pointer_t context);
 

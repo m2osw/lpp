@@ -19,7 +19,6 @@
 // self
 //
 #include "lpp.hpp"
-#include "utf8_iterator.hpp"
 
 // C++ lib
 //
@@ -28,33 +27,9 @@
 
 
 
-void primitive_char(lpp::lpp__context::pointer_t context)
+void primitive_plists(lpp::lpp__context::pointer_t context)
 {
-    lpp::lpp__value::pointer_t number(context->get_thing("number")->get_value());
-
-    int n(0);
-    switch(number->type())
-    {
-    case lpp::lpp__value_type_t::LPP__VALUE_TYPE_INTEGER:
-        n = number->get_integer();
-        break;
-
-    case lpp::lpp__value_type_t::LPP__VALUE_TYPE_FLOAT:
-        n = number->get_float();
-        break;
-
-    default:
-        throw lpp::lpp__error(context
-                            , lpp::lpp__error_code_t::ERROR_CODE_INVALID_DATUM
-                            , "logic"
-                            , "the :NUMBER argument is expected to be a number.");
-
-    }
-    std::string word(lpp::wctombs(static_cast<char32_t>(n)));
-
-    lpp::lpp__value::pointer_t result(std::make_shared<lpp::lpp__value>(word));
-
-    context->set_return_value(result);
+    context->set_return_value(context->list_properties());
 }
 
 

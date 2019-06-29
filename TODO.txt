@@ -1,0 +1,18 @@
+
+* Fix all the functions that work on words, they have to view words as UTF-8
+  and not just bytes.
+  - This includes BUTFIRST, BUTLAST, ITEM, etc. (FIRST and LAST are done) We
+    also add new functions so we still have access to bytes (i.e. FIRSTBYTE)
+  - Make sure the lexer works as expected; long term we could look into
+    offering support for extended character sets (i.e. recognize other
+    digits, fractions, signs/punctuation, etc.)
+
+* Actually write tests to verify every thing (i.e. full coverage, especially for a language!)
+
+* Add support for a Logo library (i.e. libraries written in logo that we
+  can link against)
+
+* Add support to interface with C functions, right now we can only call
+  Logo functions.
+
+vim: ts=4 sw=4 et

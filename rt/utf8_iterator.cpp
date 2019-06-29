@@ -322,8 +322,9 @@ int wctombs(char * mb, char32_t wc, size_t len)
 
 
 
-utf8_iterator::utf8_iterator(std::string const & str)
+utf8_iterator::utf8_iterator(std::string const & str, bool end)
     : f_str(str)
+    , f_pos(end ? str.length() : 0)
 {
 }
 
@@ -440,7 +441,7 @@ void utf8_iterator::increment()
         return;
     }
 
-    // increment is easy we can just get the current character and we know
+    // increment is easy we can just get the current byte and we know
     // the size of the character in UTF-8
     //
     unsigned char c(static_cast<unsigned char>(f_str[f_pos]));

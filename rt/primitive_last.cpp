@@ -19,6 +19,7 @@
 // self
 //
 #include "lpp.hpp"
+#include "utf8_iterator.hpp"
 
 // C++ lib
 //
@@ -63,7 +64,9 @@ void primitive_last(lpp::lpp__context::pointer_t context)
                                     , "error"
                                     , "last cannot be used against an empty string.");
             }
-            result->set_word(n.substr(n.length() - 1, 1));
+            lpp::utf8_iterator it(n, true);
+            std::string const r(lpp::wctombs(*--it));
+            result->set_word(r);
         }
         break;
 

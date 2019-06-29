@@ -41,7 +41,7 @@ namespace lpp
 class utf8_iterator
 {
 public:
-                                utf8_iterator(std::string const & str);
+                                utf8_iterator(std::string const & str, bool end = false);
 
     utf8_iterator &             operator ++ ();
     utf8_iterator               operator ++ (int);

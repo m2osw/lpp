@@ -19,7 +19,6 @@
 // self
 //
 #include "lpp.hpp"
-#include "utf8_iterator.hpp"
 
 // C++ lib
 //
@@ -28,16 +27,16 @@
 
 
 
-void primitive_first(lpp::lpp__context::pointer_t context)
+void primitive_firstbyte(lpp::lpp__context::pointer_t context)
 {
-    lpp::lpp__value::pointer_t thing(context->get_thing("thing")->get_value());
+    lpp::lpp__value::pointer_t word(context->get_thing("word")->get_value());
 
     lpp::lpp__value::pointer_t result(std::make_shared<lpp::lpp__value>());
 
-    switch(thing->type())
+    switch(word->type())
     {
     case lpp::lpp__value_type_t::LPP__VALUE_TYPE_BOOLEAN:
-        if(thing->get_boolean())
+        if(word->get_boolean())
         {
             result->set_word("t");
         }
@@ -49,45 +48,29 @@ void primitive_first(lpp::lpp__context::pointer_t context)
 
     case lpp::lpp__value_type_t::LPP__VALUE_TYPE_INTEGER:
         {
-            std::string const n(std::to_string(thing->get_integer()));
+            std::string const n(std::to_string(word->get_integer()));
             result->set_word(n.substr(0, 1));
         }
         break;
 
     case lpp::lpp__value_type_t::LPP__VALUE_TYPE_FLOAT:
         {
-            std::string const n(std::to_string(thing->get_float()));
+            std::string const n(std::to_string(word->get_float()));
             result->set_word(n.substr(0, 1));
         }
         break;
 
     case lpp::lpp__value_type_t::LPP__VALUE_TYPE_WORD:
         {
-            std::string const n(thing->get_word());
+            std::string const n(word->get_word());
             if(n.empty())
             {
                 throw lpp::lpp__error(context
                                     , lpp::lpp__error_code_t::ERROR_CODE_INVALID_DATUM
                                     , "error"
-                                    , "\"first\" cannot be used against an empty word.");
+                                    , "\"firstbyte\" cannot be used against an empty word.");
             }
-            lpp::utf8_iterator const it(n);
-            std::string const r(lpp::wctombs(*it));
-            result->set_word(r);
-        }
-        break;
-
-    case lpp::lpp__value_type_t::LPP__VALUE_TYPE_LIST:
-        {
-            lpp::lpp__value::vector_t const & l(thing->get_list());
-            if(l.empty())
-            {
-                throw lpp::lpp__error(context
-                                    , lpp::lpp__error_code_t::ERROR_CODE_INVALID_DATUM
-                                    , "error"
-                                    , "\"first\" cannot be used against an empty list.");
-            }
-            result = l[0];
+            result->set_word(n.substr(0, 1));
         }
         break;
 
@@ -95,7 +78,7 @@ void primitive_first(lpp::lpp__context::pointer_t context)
         throw lpp::lpp__error(context
                             , lpp::lpp__error_code_t::ERROR_CODE_FATAL_INVALID_DATUM
                             , "error"
-                            , "\"first\" used with an unexpected parameter type.");
+                            , "\"firstbyte\" used with an unexpected parameter type.");
 
     }
 

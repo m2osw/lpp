@@ -19,7 +19,6 @@
 // self
 //
 #include "lpp.hpp"
-#include "utf8_iterator.hpp"
 
 // C++ lib
 //
@@ -28,32 +27,22 @@
 
 
 
-void primitive_char(lpp::lpp__context::pointer_t context)
+void primitive_plistp(lpp::lpp__context::pointer_t context)
 {
-    lpp::lpp__value::pointer_t number(context->get_thing("number")->get_value());
+    lpp::lpp__value::pointer_t listname(context->get_thing("plistname")->get_value());
 
-    int n(0);
-    switch(number->type())
+    if(!listname->represents_word())
     {
-    case lpp::lpp__value_type_t::LPP__VALUE_TYPE_INTEGER:
-        n = number->get_integer();
-        break;
-
-    case lpp::lpp__value_type_t::LPP__VALUE_TYPE_FLOAT:
-        n = number->get_float();
-        break;
-
-    default:
         throw lpp::lpp__error(context
                             , lpp::lpp__error_code_t::ERROR_CODE_INVALID_DATUM
-                            , "logic"
-                            , "the :NUMBER argument is expected to be a number.");
-
+                            , "error"
+                            , "\"plistp\" first parameter must be a word representing the name of the property list.");
     }
-    std::string word(lpp::wctombs(static_cast<char32_t>(n)));
 
-    lpp::lpp__value::pointer_t result(std::make_shared<lpp::lpp__value>(word));
-
+    lpp::lpp__thing::pointer_t thing(context->find_property(listname->to_word()));
+    lpp::lpp__value::pointer_t result(std::make_shared<lpp::lpp__value>(
+                       thing != nullptr
+                    && thing->get_value() != nullptr));
     context->set_return_value(result);
 }
 

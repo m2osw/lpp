@@ -54,7 +54,6 @@ Parser::Parser()
             "primitive [function arithmetic] arcsin :number1 end\n"                         // external
             "primitive [function arithmetic] arctan :number1 [:number2] end\n"              // external
             "primitive [function] arity :name end \"arity\n"                                // external
-            "primitive [function] ascii :char end\n"                                        // external
             "primitive [function arithmetic] ashift :number :shift end\n"                   // external
             // B
             "primitive [function] backslashedp&backslashed? :char end\n"                    // external
@@ -66,6 +65,7 @@ Parser::Parser()
             "primitive [function] butfirst&bf :thing end\n"                                 // external
             "primitive [function] butlast&bl :thing end\n"                                  // external
             "primitive [procedure] bye [:code 0] end\n"                                     // external
+            "primitive [function] byte :word end byte\n"                                    // external
             // C
             "primitive [procedure control inline] case :value :clauses end\n"               // MISSING
             "primitive [procedure control inline] catch :tag :instructions end\n"           // inline
@@ -95,6 +95,7 @@ Parser::Parser()
             // F
             "primitive [function] filep&file? :filename end\n"                              // MISSING
             "primitive [function] first :thing end\n"                                       // external
+            "primitive [function] firstbyte :word end\n"                                       // external
             "primitive [function] floatp&float? :thing end\n"                               // external
             "primitive [procedure control inline] for :control :instructions end\n"         // inline
             "primitive [procedure control inline] forever :instructions end\n"              // inline
@@ -102,7 +103,7 @@ Parser::Parser()
             // G
             "primitive [function] gensym end\n"                                             // external
             "primitive [procedure control inline] goto :tag end\n"                          // inline
-            "primitive [function] gprop :plistname :propname end\n"                         // MISSING
+            "primitive [function] gprop :plistname :propname end gprop\n"                   // external
             "primitive [function] greaterequalp&greaterequal? :thing1 :thing2 [:rest] end\n"    // external
             "primitive [function] greaterp&greater? :thing1 :thing2 [:rest] end\n"          // external
             // H
@@ -119,7 +120,8 @@ Parser::Parser()
             // K
             "primitive [function] keyp&key? end\n"                                          // MISSING
             // L
-            "primitive [function] last :list end\n"                                         // external
+            "primitive [function] last :thing end last\n"                                   // external
+            "primitive [function] lastbyte :word end lastbyte\n"                            // external
             "primitive [function] lessequalp&lessequal? :thing1 :thing2 [:rest] end\n"      // external
             "primitive [function] lessp&less? :thing1 :thing2 [:rest] end\n"                // external
             "primitive [function] list :thing [:rest] 2 end\n"                              // external
@@ -154,11 +156,12 @@ Parser::Parser()
             "primitive [procedure control inline] output&op :thing end\n"                   // inline
             // P
             "primitive [function] pick :thing end\n"                                        // external
-            "primitive [function] plistp&plist? :name end\n"                                // MISSING
-            "primitive [function] plists end\n"                                             // MISSING
+            "primitive [function] plist :plistname end plist\n"                             // external
+            "primitive [function] plistp&plist? :plistname end plistp\n"                    // external
+            "primitive [function] plists end plists\n"                                      // external
             "primitive [function arithmetic] plus :number end\n"                            // external
             "primitive [function] pop :stack end\n"                                         // external
-            "primitive [procedure] pprop :plistname :propname :value end\n"                 // MISSING
+            "primitive [procedure] pprop :plistname :propname :value end pprop\n"           // external
             "primitive [function] prefix end\n"                                             // MISSING
             "primitive [function] primitivep&primitive? :name end\n"                        // external
             "primitive [function] primitives end\n"                                         // external
@@ -179,7 +182,6 @@ Parser::Parser()
             "primitive [function arithmetic] radsin :number1 end\n"                         // external
             "primitive [function arithmetic] radtan :number1 end\n"                         // external
             "primitive [function] random :number [:rest] end\n"                             // external
-            "primitive [function] rawascii :char end\n"                                     // MISSING
             "primitive [function] readchar&rc end\n"                                        // MISSING
             "primitive [function] readchars&rcs :number end\n"                              // MISSING
             "primitive [function] reader end\n"                                             // MISSING
@@ -188,9 +190,9 @@ Parser::Parser()
             "primitive [function] readrawline end\n"                                        // MISSING
             "primitive [function] readword&rw end\n"                                        // MISSING
             "primitive [function arithmetic] remainder :number1 :number2 end\n"             // external
-            "primitive [function] remdup :list end\n"                                       // external
+            "primitive [function] remdup :list end remdup\n"                                // external
             "primitive [function] remove :thing :list end\n"                                // external
-            "primitive [procedure] remprop :plistname :propname end\n"                      // MISSING
+            "primitive [procedure] remprop :plistname :propname end remprop\n"              // external
             "primitive [function] repcount end\n"                                           // external
             "primitive [procedure control inline] repeat :number :instructions end\n"       // inline
             "primitive [function] rerandom [:rest] end\n"                                   // external
@@ -225,6 +227,7 @@ Parser::Parser()
             "primitive [function] ttyp&tty? end ttyp\n"                                     // external
             "primitive [procedure] type :thing [:rest] end\n"                               // external
             // U
+            "primitive [function] unicode :word end unicode\n"                              // external
             "primitive [function arithmetic] unorderedp&unordered? :thing1 :thing2 end\n"   // external
             "primitive [procedure control inline] until :boolean :if_false end\n"           // inline
             "primitive [procedure] untrace :list end\n"                                     // MISSING

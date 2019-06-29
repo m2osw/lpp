@@ -39,7 +39,6 @@ add_library(
         primitive_arcsin.cpp
         primitive_arctan.cpp
         primitive_arity.cpp
-        primitive_ascii.cpp
         primitive_ashift.cpp
         primitive_backslashedp.cpp
         primitive_beforep.cpp
@@ -50,6 +49,7 @@ add_library(
         primitive_butfirst.cpp
         primitive_butlast.cpp
         primitive_bye.cpp
+        primitive_byte.cpp
         primitive_char.cpp
         primitive_cleartext.cpp
         primitive_combine.cpp
@@ -66,9 +66,11 @@ add_library(
         primitive_errorp.cpp
         primitive_exp.cpp
         primitive_first.cpp
+        primitive_firstbyte.cpp
         primitive_floatp.cpp
         primitive_fput.cpp
         primitive_gensym.cpp
+        primitive_gprop.cpp
         primitive_greaterequalp.cpp
         primitive_greaterp.cpp
         primitive_int.cpp
@@ -76,6 +78,7 @@ add_library(
         primitive_iseq.cpp
         primitive_item.cpp
         primitive_last.cpp
+        primitive_lastbyte.cpp
         primitive_lessequalp.cpp
         primitive_lessp.cpp
         primitive_list.cpp
@@ -103,8 +106,12 @@ add_library(
         primitive_or.cpp
         primitive_pick.cpp
         primitive_plus.cpp
+        primitive_plist.cpp
+        primitive_plistp.cpp
+        primitive_plists.cpp
         primitive_pop.cpp
         primitive_power.cpp
+        primitive_pprop.cpp
         primitive_primitivep.cpp
         primitive_primitives.cpp
         primitive_print.cpp
@@ -125,6 +132,7 @@ add_library(
         primitive_remainder.cpp
         primitive_remdup.cpp
         primitive_remove.cpp
+        primitive_remprop.cpp
         primitive_repcount.cpp
         primitive_rerandom.cpp
         primitive_reverse.cpp
@@ -145,6 +153,7 @@ add_library(
         primitive_time.cpp
         primitive_ttyp.cpp
         primitive_type.cpp
+        primitive_unicode.cpp
         primitive_unorderedp.cpp
         primitive_uppercase.cpp
         primitive_word.cpp

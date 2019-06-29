@@ -67,6 +67,12 @@ lpp__value::lpp__value(vector_t const & value)
 }
 
 
+lpp__value::lpp__value(map_t const & value)
+    : f_value(value)
+{
+}
+
+
 lpp__value_type_t lpp__value::type() const
 {
     return static_cast<lpp__value_type_t>(f_value.which());
@@ -196,6 +202,12 @@ lpp__value::vector_t const & lpp__value::get_list() const
 }
 
 
+lpp__value::map_t const & lpp__value::get_prop() const
+{
+    return boost::get<map_t>(f_value);
+}
+
+
 void lpp__value::unset()
 {
     f_value = lpp__special_value_t::LPP__SPECIAL_VALUE_NOT_SET;
@@ -227,6 +239,12 @@ void lpp__value::set_word(std::string const & value)
 
 
 void lpp__value::set_list(vector_t const & value)
+{
+    f_value = value;
+}
+
+
+void lpp__value::set_prop(map_t const & value)
 {
     f_value = value;
 }
@@ -279,6 +297,28 @@ std::string lpp__value::to_string(display_flag_t flags, int depth) const
                     ss << " ";
                     ss << list[i]->to_string(flags, depth + 1);
                 }
+            }
+        }
+        if(depth > 0
+        || (flags & DISPLAY_FLAG_TYPED) != 0)
+        {
+            ss << "]";
+        }
+        break;
+
+    case lpp__value_type_t::LPP__VALUE_TYPE_PROPERTY_LIST:
+        if(depth > 0
+        || (flags & DISPLAY_FLAG_TYPED) != 0)
+        {
+            ss << "[";
+        }
+        {
+            auto const & prop(get_prop());
+            for(auto const & p : prop)
+            {
+                ss << p.first;
+                ss << " ";
+                p.second->to_string(flags, depth + 1);
             }
         }
         if(depth > 0

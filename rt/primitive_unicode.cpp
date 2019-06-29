@@ -19,6 +19,7 @@
 // self
 //
 #include "lpp.hpp"
+#include "utf8_iterator.hpp"
 
 // C++ lib
 //
@@ -27,13 +28,22 @@
 
 
 
-void primitive_ascii(lpp::lpp__context::pointer_t context)
+void primitive_unicode(lpp::lpp__context::pointer_t context)
 {
-    lpp::lpp__value::pointer_t thing(context->get_thing("char")->get_value());
+    lpp::lpp__value::pointer_t thing(context->get_thing("word")->get_value());
 
     std::string const word(thing->to_word());
+    if(word.empty())
+    {
+        throw lpp::lpp__error(context
+                            , lpp::lpp__error_code_t::ERROR_CODE_INVALID_DATUM
+                            , "error"
+                            , "\"byte\" cannot be used against an empty word.");
+    }
 
-    lpp::lpp__value::pointer_t result(std::make_shared<lpp::lpp__value>(static_cast<lpp::lpp__integer_t>(word[0])));
+    lpp::utf8_iterator w(word);
+
+    lpp::lpp__value::pointer_t result(std::make_shared<lpp::lpp__value>(static_cast<lpp::lpp__integer_t>(*w)));
 
     context->set_return_value(result);
 }

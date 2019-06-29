@@ -19,7 +19,6 @@
 // self
 //
 #include "lpp.hpp"
-#include "utf8_iterator.hpp"
 
 // C++ lib
 //
@@ -28,31 +27,20 @@
 
 
 
-void primitive_char(lpp::lpp__context::pointer_t context)
+void primitive_byte(lpp::lpp__context::pointer_t context)
 {
-    lpp::lpp__value::pointer_t number(context->get_thing("number")->get_value());
+    lpp::lpp__value::pointer_t thing(context->get_thing("word")->get_value());
 
-    int n(0);
-    switch(number->type())
+    std::string const word(thing->to_word());
+    if(word.empty())
     {
-    case lpp::lpp__value_type_t::LPP__VALUE_TYPE_INTEGER:
-        n = number->get_integer();
-        break;
-
-    case lpp::lpp__value_type_t::LPP__VALUE_TYPE_FLOAT:
-        n = number->get_float();
-        break;
-
-    default:
         throw lpp::lpp__error(context
                             , lpp::lpp__error_code_t::ERROR_CODE_INVALID_DATUM
-                            , "logic"
-                            , "the :NUMBER argument is expected to be a number.");
-
+                            , "error"
+                            , "\"byte\" cannot be used against an empty word.");
     }
-    std::string word(lpp::wctombs(static_cast<char32_t>(n)));
 
-    lpp::lpp__value::pointer_t result(std::make_shared<lpp::lpp__value>(word));
+    lpp::lpp__value::pointer_t result(std::make_shared<lpp::lpp__value>(static_cast<lpp::lpp__integer_t>(static_cast<std::uint8_t>(word[0]))));
 
     context->set_return_value(result);
 }
