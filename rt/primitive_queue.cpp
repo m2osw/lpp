@@ -50,8 +50,19 @@ void primitive_queue(lpp::lpp__context::pointer_t context)
     {
         throw lpp::lpp__error(context
                             , lpp::lpp__error_code_t::ERROR_CODE_INVALID_DATUM
-                            , "logic"
+                            , "error"
                             , "the :QUEUE argument is not expected to be empty.");
+    }
+
+    // TODO: make this primitive inline so we can avoid this problem
+    //       or maybe we can have a context->get_parent()->get_thing()?
+    if(name == "queue"
+    || name == "thing")
+    {
+        throw lpp::lpp__error(context
+                            , lpp::lpp__error_code_t::ERROR_CODE_INVALID_DATUM
+                            , "logic"
+                            , "the \"queue\" primitive does not currently accept \"queue or \"thing as a queue name.");
     }
 
     lpp::lpp__value::pointer_t thing(context->get_thing("thing")->get_value());

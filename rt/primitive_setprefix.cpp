@@ -27,22 +27,11 @@
 
 
 
-void primitive_print(lpp::lpp__context::pointer_t context)
+
+void primitive_setprefix(lpp::lpp__context::pointer_t context)
 {
-    lpp::lpp__value::pointer_t thing(context->get_thing("thing")->get_value());
-    lpp::lpp__write_file(context, std::string(), thing);
-    lpp::lpp__thing::pointer_t rest(context->find_thing("rest"));
-    if(rest != nullptr)
-    {
-        auto list(rest->get_value()->get_list());
-        size_t const max(list.size());
-        for(size_t i(0); i < max; ++i)
-        {
-            lpp::lpp__write_file(context, std::string(), " ");
-            lpp::lpp__write_file(context, std::string(), list[i]);
-        }
-    }
-    lpp::lpp__write_file(context, std::string(), "\n");
+    lpp::lpp__value::pointer_t word(context->get_thing("prefix")->get_value());
+    lpp::lpp__set_prefix(word->to_word());
 }
 
 

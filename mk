@@ -44,4 +44,7 @@ case "$1" in
 esac
 
 
+# gdb ../BUILD/Debug/dist/bin/lpp
+# run -v --main-cpp "../BUILD/Debug/dist/lib/lpp/main.cpp" --rpath "`cd ../BUILD/Debug/dist/lib; pwd`" -I ../BUILD/Debug/dist/include -L ../BUILD/Debug/dist/lib tests/suite/syntax-print.logo
+
 # From the https://github.com/m2osw/lpp project

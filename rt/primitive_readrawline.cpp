@@ -27,22 +27,12 @@
 
 
 
-void primitive_print(lpp::lpp__context::pointer_t context)
+
+void primitive_readrawline(lpp::lpp__context::pointer_t context)
 {
-    lpp::lpp__value::pointer_t thing(context->get_thing("thing")->get_value());
-    lpp::lpp__write_file(context, std::string(), thing);
-    lpp::lpp__thing::pointer_t rest(context->find_thing("rest"));
-    if(rest != nullptr)
-    {
-        auto list(rest->get_value()->get_list());
-        size_t const max(list.size());
-        for(size_t i(0); i < max; ++i)
-        {
-            lpp::lpp__write_file(context, std::string(), " ");
-            lpp::lpp__write_file(context, std::string(), list[i]);
-        }
-    }
-    lpp::lpp__write_file(context, std::string(), "\n");
+    lpp::lpp__value::pointer_t filename(context->get_thing("filename")->get_value());
+    lpp::lpp__value::pointer_t result(lpp::lpp__read_file(context, filename->to_word(), lpp::read_mode_t::READ_MODE_LINE));
+    context->set_return_value(result);
 }
 
 

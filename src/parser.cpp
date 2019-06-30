@@ -48,12 +48,12 @@ Parser::Parser()
 {
     add_lexer(std::make_shared<Lexer>("primitives.logo",                                    // Current status
             // A
-            "primitive [function] allopen end \"allopen\n"                                  // MISSING
+            "primitive [function] allopen end allopen\n"                                    // external
             "primitive [function logic] and :boolean1 :boolean2 [:rest] end\n"              // external
             "primitive [function arithmetic] arccos :number1 end\n"                         // external
             "primitive [function arithmetic] arcsin :number1 end\n"                         // external
             "primitive [function arithmetic] arctan :number1 [:number2] end\n"              // external
-            "primitive [function] arity :name end \"arity\n"                                // external
+            "primitive [function] arity :name end arity\n"                                  // external
             "primitive [function arithmetic] ashift :number :shift end\n"                   // external
             // B
             "primitive [function] backslashedp&backslashed? :char end\n"                    // external
@@ -67,15 +67,16 @@ Parser::Parser()
             "primitive [procedure] bye [:code 0] end\n"                                     // external
             "primitive [function] byte :word end byte\n"                                    // external
             // C
-            "primitive [procedure control inline] case :value :clauses end\n"               // MISSING
-            "primitive [procedure control inline] catch :tag :instructions end\n"           // inline
-            "primitive [function] char :number end\n"                                       // external
-            "primitive [procedure] cleartext&ct end\n"                                      // external
-            "primitive [procedure] close :filename end\n"                                   // MISSING
-            "primitive [procedure] closeall end\n"                                          // MISSING
+            "primitive [procedure control inline] call :name :arguments end call\n"         // MISSING
+            "primitive [procedure control inline] case :value :clauses end case\n"          // MISSING
+            "primitive [procedure control inline] catch :tag :instructions end catch\n"     // inline
+            "primitive [function] char :number end char\n"                                  // external
+            "primitive [procedure] cleartext&ct end cleartext\n"                            // external
+            "primitive [procedure] close :filename [:force true] end close\n"               // external
+            "primitive [procedure] closeall end closeall\n"                                 // external
             "primitive [function] combine :thing1 :thing2 end\n"                            // external
             "primitive [function arithmetic] comparablep&comparable? :thing1 :thing2 end\n" // external
-            "primitive [procedure control inline] cond :clauses end\n"                      // MISSING
+            "primitive [procedure control inline] cond :clauses end cond\n"                 // MISSING
             "primitive [function arithmetic] cos :number1 end\n"                            // external
             "primitive [function] count :thing end\n"                                       // external
             "primitive [function] cursor end\n"                                             // external
@@ -88,14 +89,16 @@ Parser::Parser()
             // E
             "primitive [function] emptyp&empty? :thing end\n"                               // external
             "primitive [function] equalp&equal? :thing1 :thing2 [:rest] end\n"              // external
-            "primitive [function] eofp end\n"                                               // MISSING
-            "primitive [procedure] erasefile&erf :filename end\n"                           // MISSING
+            "primitive [function] eofp&eof? :filename end eofp\n"                           // external
+            "primitive [procedure] erase&er :names end erase\n"                             // external
+            "primitive [procedure] erasefile&erf :filename end erasefile\n"                 // external
             "primitive [function] error end\n"                                              // external
             "primitive [function] errorp&error? end\n"                                      // external
             // F
-            "primitive [function] filep&file? :filename end\n"                              // MISSING
+            "primitive [function] fileinfo :filename end\n"                                 // external
+            "primitive [function] filep&file? :filename end\n"                              // external
             "primitive [function] first :thing end\n"                                       // external
-            "primitive [function] firstbyte :word end\n"                                       // external
+            "primitive [function] firstbyte :word end firstbyte\n"                          // external
             "primitive [function] floatp&float? :thing end\n"                               // external
             "primitive [procedure control inline] for :control :instructions end\n"         // inline
             "primitive [procedure control inline] forever :instructions end\n"              // inline
@@ -148,10 +151,10 @@ Parser::Parser()
             "primitive [function] notequalp&notequal? :thing1 :thing2 [:rest] end\n"        // external
             "primitive [function] numberp&number? :thing end\n"                             // external
             // O
-            "primitive [procedure] openappend :filename end\n"                              // MISSING
-            "primitive [procedure] openread :filename end\n"                                // MISSING
-            "primitive [procedure] openupdate :filename end\n"                              // MISSING
-            "primitive [procedure] openwrite :filename end\n"                               // MISSING
+            "primitive [procedure] openappend :filename end\n"                              // external
+            "primitive [procedure] openread :filename end\n"                                // external
+            "primitive [procedure] openupdate :filename end\n"                              // external
+            "primitive [procedure] openwrite :filename end\n"                               // external
             "primitive [function logic] or :boolean1 :boolean2 [:rest] end\n"               // external
             "primitive [procedure control inline] output&op :thing end\n"                   // inline
             // P
@@ -162,7 +165,7 @@ Parser::Parser()
             "primitive [function arithmetic] plus :number end\n"                            // external
             "primitive [function] pop :stack end\n"                                         // external
             "primitive [procedure] pprop :plistname :propname :value end pprop\n"           // external
-            "primitive [function] prefix end\n"                                             // MISSING
+            "primitive [function] prefix end\n"                                             // external
             "primitive [function] primitivep&primitive? :name end\n"                        // external
             "primitive [function] primitives end\n"                                         // external
             "primitive [procedure] print&pr :thing [:rest] end\n"                           // external
@@ -182,13 +185,15 @@ Parser::Parser()
             "primitive [function arithmetic] radsin :number1 end\n"                         // external
             "primitive [function arithmetic] radtan :number1 end\n"                         // external
             "primitive [function] random :number [:rest] end\n"                             // external
-            "primitive [function] readchar&rc end\n"                                        // MISSING
-            "primitive [function] readchars&rcs :number end\n"                              // MISSING
-            "primitive [function] reader end\n"                                             // MISSING
-            "primitive [function] readlist&rl end\n"                                        // MISSING
-            "primitive [function] readpos end\n"                                            // MISSING
-            "primitive [function] readrawline end\n"                                        // MISSING
-            "primitive [function] readword&rw end\n"                                        // MISSING
+            "primitive [function] readbyte [:filename \"] end readbyte\n"                   // external
+            "primitive [function] readbytes :number [:filename \"] end readbytes\n"         // external
+            "primitive [function] readchar&rc [:filename \"] end readchar\n"                // external
+            "primitive [function] readchars&rcs :number [:filename \"] end readchars\n"     // external
+            "primitive [function] reader end reader\n"                                      // external
+            "primitive [function] readlist&rl [:filename \"] end readlist\n"                // external
+            "primitive [function] readpos [:filename \"] end readpos\n"                     // external
+            "primitive [function] readrawline [:filename \"] end readrawline\n"             // external
+            "primitive [function] readword&rw end\n"                                        // external
             "primitive [function arithmetic] remainder :number1 :number2 end\n"             // external
             "primitive [function] remdup :list end remdup\n"                                // external
             "primitive [function] remove :thing :list end\n"                                // external
@@ -201,12 +206,12 @@ Parser::Parser()
             "primitive [function] sentence&se :thing [:rest] 2 end\n"                       // external
             "primitive [procedure] setcursor :position end\n"                               // external
             "primitive [function] setitem :position :list :value end\n"                     // external
-            "primitive [procedure] setprefix :prefix end\n"                                 // MISSING
-            "primitive [procedure] setread :filename end\n"                                 // MISSING
-            "primitive [procedure] setreadpos :number end\n"                                // MISSING
+            "primitive [procedure] setprefix :prefix end setprefix\n"                       // external
+            "primitive [procedure] setread :filename end setread\n"                         // external
+            "primitive [procedure] setreadpos :number [:filename \"] end setreadpos\n"      // external
             "primitive [procedure] settextcolor :foreground :background end\n"              // external
-            "primitive [procedure] setwrite :filename end\n"                                // MISSING
-            "primitive [procedure] setwritepos :number end\n"                               // MISSING
+            "primitive [procedure] setwrite :filename end setwrite\n"                       // external
+            "primitive [procedure] setwritepos :number [:filename \"] end setwritepos\n"    // external
             "primitive [function] shell :command [:wordflag] end\n"                         // MISSING
             "primitive [procedure] show :thing [:rest] end\n"                               // external
             "primitive [function arithmetic] sin :number1 end\n"                            // external
@@ -238,8 +243,9 @@ Parser::Parser()
             "primitive [procedure control inline] while :boolean :if_true end\n"            // inline
             "primitive [function] word :word1 :word2 [:rest] end\n"                         // external
             "primitive [function] wordp&word? :thing end\n"                                 // external
-            "primitive [function] writepos end \"writepos\n"                                // MISSING
-            "primitive [function] writer end writer\n"                                      // MISSING
+            "primitive [procedure] write :filename :data end write\n"                       // external
+            "primitive [function] writepos [:filename \"] end writepos\n"                   // external
+            "primitive [function] writer end writer\n"                                      // external
             // X
             "primitive [function logic] xor :boolean1 :boolean2 [:rest] end xor\n"          // external
             // Y
@@ -1070,6 +1076,12 @@ void Parser::parse_declarations()
     auto const & declaration(f_declarations->get_map());
     for(auto d : declaration)
     {
+        if((d.second->get_procedure_flags() & PROCEDURE_FLAG_OPTIONAL_OPTION_PARSED) != 0)
+        {
+            continue;
+        }
+        d.second->add_procedure_flags(PROCEDURE_FLAG_OPTIONAL_OPTION_PARSED);
+
         // we want to verify all the optional arguments since
         // those expressions were just added to a list thus far
         //
@@ -2056,7 +2068,7 @@ void Parser::output_argument(Token::pointer_t arg, std::string const & value_nam
         f_out << "lpp::lpp__value::pointer_t "
               << value_name
               << "(std::make_shared<lpp::lpp__value>("
-              << arg->get_boolean()
+              << (arg->get_boolean() ? "true" : "false")
               << "));\n";
         break;
 

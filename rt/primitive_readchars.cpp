@@ -27,22 +27,19 @@
 
 
 
-void primitive_print(lpp::lpp__context::pointer_t context)
+
+void primitive_readchars(lpp::lpp__context::pointer_t context)
 {
-    lpp::lpp__value::pointer_t thing(context->get_thing("thing")->get_value());
-    lpp::lpp__write_file(context, std::string(), thing);
-    lpp::lpp__thing::pointer_t rest(context->find_thing("rest"));
-    if(rest != nullptr)
+    lpp::lpp__value::pointer_t number(context->get_thing("number")->get_value());
+    lpp::lpp__integer_t count(static_cast<lpp::lpp__integer_t>(number->to_float()));
+    lpp::lpp__value::pointer_t filename(context->get_thing("filename")->get_value());
+    std::string word;
+    for(int c(0); c < count; ++c)
     {
-        auto list(rest->get_value()->get_list());
-        size_t const max(list.size());
-        for(size_t i(0); i < max; ++i)
-        {
-            lpp::lpp__write_file(context, std::string(), " ");
-            lpp::lpp__write_file(context, std::string(), list[i]);
-        }
+        word += lpp::lpp__read_file(context, filename->to_word(), lpp::read_mode_t::READ_MODE_CHAR)->get_word();
     }
-    lpp::lpp__write_file(context, std::string(), "\n");
+    lpp::lpp__value::pointer_t result(std::make_shared<lpp::lpp__value>(word));
+    context->set_return_value(result);
 }
 
 

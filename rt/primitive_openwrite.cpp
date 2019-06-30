@@ -27,22 +27,24 @@
 
 
 
-void primitive_print(lpp::lpp__context::pointer_t context)
+
+void primitive_openwrite(lpp::lpp__context::pointer_t context)
 {
-    lpp::lpp__value::pointer_t thing(context->get_thing("thing")->get_value());
-    lpp::lpp__write_file(context, std::string(), thing);
-    lpp::lpp__thing::pointer_t rest(context->find_thing("rest"));
-    if(rest != nullptr)
+    lpp::lpp__value::pointer_t filename(context->get_thing("filename")->get_value());
+    if(filename->type() == lpp::lpp__value_type_t::LPP__VALUE_TYPE_LIST)
     {
-        auto list(rest->get_value()->get_list());
-        size_t const max(list.size());
-        for(size_t i(0); i < max; ++i)
-        {
-            lpp::lpp__write_file(context, std::string(), " ");
-            lpp::lpp__write_file(context, std::string(), list[i]);
-        }
+        // we ignore the size, the "filename" is actually the name of
+        // a variable which gets created whenever the file gets closed
+        // the size of the variable will be whatever the user wrote to
+        // this buffer
+        //
+        lpp::lpp__value::vector_t buf(filename->get_list());
+        lpp::lpp__open_file(context, buf[0]->to_word(), lpp::open_mode_t::OPEN_MODE_WRITE_BUFFER);
     }
-    lpp::lpp__write_file(context, std::string(), "\n");
+    else
+    {
+        lpp::lpp__open_file(context, filename->to_word(), lpp::open_mode_t::OPEN_MODE_WRITE);
+    }
 }
 
 

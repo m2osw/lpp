@@ -22,8 +22,11 @@
 
 // C++ lib
 //
+#include <fstream>
 #include <iostream>
+#include <sstream>
 #include <set>
+
 
 
 namespace lpp
@@ -234,6 +237,31 @@ void lpp__context::set_thing(std::string const & name, lpp__value::pointer_t val
         }
         break;
 
+    }
+}
+
+
+void lpp__context::erase_thing(std::string const & name)
+{
+    // erase global variables
+    //
+    auto global(f_global.lock());
+    if(global == nullptr)
+    {
+        throw std::logic_error("could not lock the global pointer.");
+    }
+    auto git(global->f_things.find(name));
+    if(git != global->f_things.end())
+    {
+        global->f_things.erase(git);
+    }
+
+    // erase properties
+    //
+    auto pit(g_properties.find(name));
+    if(pit != g_properties.end())
+    {
+        g_properties.erase(pit);
     }
 }
 

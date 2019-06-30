@@ -27,22 +27,14 @@
 
 
 
-void primitive_print(lpp::lpp__context::pointer_t context)
+
+void primitive_closeall(lpp::lpp__context::pointer_t context)
 {
-    lpp::lpp__value::pointer_t thing(context->get_thing("thing")->get_value());
-    lpp::lpp__write_file(context, std::string(), thing);
-    lpp::lpp__thing::pointer_t rest(context->find_thing("rest"));
-    if(rest != nullptr)
+    lpp::lpp__value::vector_t list(lpp::lpp__file_list());
+    for(auto f : list)
     {
-        auto list(rest->get_value()->get_list());
-        size_t const max(list.size());
-        for(size_t i(0); i < max; ++i)
-        {
-            lpp::lpp__write_file(context, std::string(), " ");
-            lpp::lpp__write_file(context, std::string(), list[i]);
-        }
+        lpp::lpp__close_file(context, f->get_word(), false);
     }
-    lpp::lpp__write_file(context, std::string(), "\n");
 }
 
 

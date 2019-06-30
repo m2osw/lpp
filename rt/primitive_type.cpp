@@ -30,18 +30,18 @@
 void primitive_type(lpp::lpp__context::pointer_t context)
 {
     lpp::lpp__value::pointer_t thing(context->get_thing("thing")->get_value());
-    std::cout << thing->to_string();
+    lpp::lpp__write_file(context, std::string(), thing);
     lpp::lpp__thing::pointer_t rest(context->find_thing("rest"));
     if(rest != nullptr)
     {
-        // reimplement the list because we need to not have spaces between
+        // go through the list because we need to not have spaces between
         // each element
         //
         auto list(rest->get_value()->get_list());
         size_t const max(list.size());
         for(size_t i(0); i < max; ++i)
         {
-            std::cout << list[i]->to_string();
+            lpp::lpp__write_file(context, std::string(), list[i]);
         }
     }
 }

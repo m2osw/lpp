@@ -27,22 +27,25 @@
 
 
 
-void primitive_print(lpp::lpp__context::pointer_t context)
+
+void primitive_erase(lpp::lpp__context::pointer_t context)
 {
-    lpp::lpp__value::pointer_t thing(context->get_thing("thing")->get_value());
-    lpp::lpp__write_file(context, std::string(), thing);
-    lpp::lpp__thing::pointer_t rest(context->find_thing("rest"));
-    if(rest != nullptr)
+    lpp::lpp__value::pointer_t names(context->get_thing("names")->get_value());
+
+    if(names->type() != lpp::lpp__value_type_t::LPP__VALUE_TYPE_LIST)
     {
-        auto list(rest->get_value()->get_list());
-        size_t const max(list.size());
-        for(size_t i(0); i < max; ++i)
-        {
-            lpp::lpp__write_file(context, std::string(), " ");
-            lpp::lpp__write_file(context, std::string(), list[i]);
-        }
+        throw lpp::lpp__error(context
+                            , lpp::lpp__error_code_t::ERROR_CODE_INVALID_DATUM
+                            , "error"
+                            , "the :NAMES argument is expected to be a list.");
     }
-    lpp::lpp__write_file(context, std::string(), "\n");
+
+    lpp::lpp__value::vector_t list(names->get_list());
+    for(auto & it : list)
+    {
+        std::string const item_name(it->to_word());
+        context->erase_thing(item_name);
+    }
 }
 
 

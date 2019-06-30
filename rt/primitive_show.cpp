@@ -30,7 +30,7 @@
 void primitive_show(lpp::lpp__context::pointer_t context)
 {
     lpp::lpp__value::pointer_t thing(context->get_thing("thing")->get_value());
-    std::cout << thing->to_string(lpp::DISPLAY_FLAG_TYPED);
+    lpp::lpp__write_file(context, std::string(), thing->to_string(lpp::DISPLAY_FLAG_TYPED));
     lpp::lpp__thing::pointer_t rest(context->find_thing("rest"));
     if(rest != nullptr)
     {
@@ -50,11 +50,11 @@ void primitive_show(lpp::lpp__context::pointer_t context)
         //
         for(size_t idx(0); idx < max; ++idx)
         {
-            std::cout << " ";
-            std::cout << list[idx]->to_string(lpp::DISPLAY_FLAG_TYPED);
+            lpp::lpp__write_file(context, std::string(), " ");
+            lpp::lpp__write_file(context, std::string(), list[idx]->to_string(lpp::DISPLAY_FLAG_TYPED));
         }
     }
-    std::cout << "\n";
+    lpp::lpp__write_file(context, std::string(), "\n");
 }
 
 

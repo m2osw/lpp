@@ -1,4 +1,23 @@
 
+* Lists ending with an operator do no work. Try `print [test =]`
+
+* Inline primitives that use `context::get_thing(<varname>)` or create a
+  `context::get_parent()` because otherwise their own parameters are in the
+  way; i.e. the QUEUE primitive accepts two parameters, the first one is named
+  `queue`. So if you call that primitive as in: `queue "queue [some list]`,
+  the `"queue` parameter is saved in the local `:queue` parameter and
+  therefore the use `"queue` references it and not the user's `"queue`
+  variable.
+
+    ; the current implementation looks like this:
+    to queue :queue :thing
+      make :queue sentence :thing thing :queue
+    end queue
+
+    ; the `make :queue ...` inside the queue procedure above sets the local
+    ; variable named `:queue`
+    queue "queue [1 2 3]
+
 * Fix all the functions that work on words, they have to view words as UTF-8
   and not just bytes.
   - This includes BUTFIRST, BUTLAST, ITEM, etc. (FIRST and LAST are done) We

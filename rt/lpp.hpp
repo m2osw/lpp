@@ -176,11 +176,11 @@ enum class lpp__error_code_t
     ERROR_CODE_OUTPUT_EXPECTED,             //  5   PROC didn't output to PROC
     ERROR_CODE_MISSING_ARGUMENTS,           //  6   Not enough inputs to PROC                        [NOT RELEVANT]
     ERROR_CODE_INVALID_DATUM,               //  7   PROC doesn't like DATUM as input (recoverable)
-    ERROR_CODE_TOO_MANY_PARENTHESIS,        //  8   Too much inside ()'s                             [NOT RELEVANT]
+    ERROR_CODE_TOO_MANY_PARENTHESIS,        //  8   Too much inside ()'s
     ERROR_CODE_TOO_MANY_INPUTS,             //  9   You don't say what to do with DATUM              [NOT RELEVANT]
     ERROR_CODE_MISSING_CLOSE_PARENTHESIS,   // 10   ')' not found                                    [NOT RELEVANT]
     ERROR_CODE_VARIABLE_NOT_SET,            // 11   VAR has no value
-    ERROR_CODE_UNEXPECTED_CLOSE_PARENTHESIS,// 12   Unexpected ')'                                   [NOT RELEVANT]
+    ERROR_CODE_UNEXPECTED_CLOSE_PARENTHESIS,// 12   Unexpected ')'
     ERROR_CODE_UNKNOWN_PROCEDURE,           // 13   I don't know how to PROC (recoverable)           [NOT RELEVANT]
     ERROR_CODE_CATCH_TAG_NOT_FOUND,         // 14   Can't find catch tag for THROW
     ERROR_CODE_PROCEDURE_ALREADY_DEFINED,   // 15   PROC is already defined                          [NOT RELEVANT]
@@ -194,7 +194,7 @@ enum class lpp__error_code_t
     ERROR_CODE_CANNOT_USE__TO__HERE,        // 23   Can't use TO inside a procedure                  [NOT RELEVANT]
     ERROR_CODE_FATAL_UNKNOWN_PROCEDURE,     // 24   I don't know how to PROC (not recoverable)       [NOT RELEVANT]
     ERROR_CODE_IFTRUE_IFFALSE_WITHOUT_TEST, // 25   IFTRUE/IFFALSE without TEST
-    ERROR_CODE_UNEXPECTED_CLOSE_LIST,       // 26   Unexpected ']'                                   [NOT RELEVANT]
+    ERROR_CODE_UNEXPECTED_CLOSE_LIST,       // 26   Unexpected ']'
     ERROR_CODE_UNEXPECTED_CLOSE_BRACKET,    // 27   Unexpected '}'                                   [NOT RELEVANT]
     ERROR_CODE_NO_GRAPHICS_AVAILABLE,       // 28   Couldn't initialize graphics                     [NOT RELEVANT]
     ERROR_CODE_INVALID_MACRO_RETURNED_VALUE,// 29   Macro returned VALUE instead of a list
@@ -205,6 +205,11 @@ enum class lpp__error_code_t
     ERROR_CODE_REALLY_OUT_OF_MEMORY,        // 34   Really out of memory (can't be caught)
     ERROR_CODE_ARITHMETIC_ERROR,            // 35   --added to lpp--
     ERROR_CODE_SYSTEM_ERROR,                // 36   --added to lpp--
+    ERROR_CODE_FILE_IS_OPEN,                // 37   --added to lpp--
+    ERROR_CODE_FILE_IS_NOT_OPEN,            // 38   --added to lpp--
+    ERROR_CODE_MISSING_CLOSE_LIST,          // 39   --added to lpp--
+    ERROR_CODE_TOO_MANY_LISTS,              // 40   --added to lpp--
+    ERROR_CODE_FILE_ACCESS_MISMATCH,        // 41   --added to lpp--
 };
 
 
@@ -275,6 +280,7 @@ public:
     void                    set_thing(std::string const & name
                                     , lpp__value::pointer_t value
                                     , lpp__thing_type_t type = lpp__thing_type_t::LPP__THING_TYPE_DEFAULT);
+    void                    erase_thing(std::string const & name);
     lpp__value::pointer_t   get_all_thing_names() const;
 
     lpp__thing::pointer_t   find_property(std::string const & listname) const;
@@ -421,13 +427,60 @@ lpp__value::vector_t                    get_procedures(procedure_flag_t flag);
 
 
 
+enum class open_mode_t : std::int8_t
+{
+    OPEN_MODE_APPEND,
+    OPEN_MODE_READ,
+    OPEN_MODE_UPDATE,
+    OPEN_MODE_WRITE,
+    OPEN_MODE_WRITE_BUFFER
+};
+
+std::string                 to_string(lpp::open_mode_t mode);
+
+
+enum class read_mode_t : std::int8_t
+{
+    READ_MODE_BYTE,
+    READ_MODE_LINE,
+    READ_MODE_CHAR,
+    READ_MODE_WORD,
+    READ_MODE_LIST
+};
+
+
 bool                        lpp__tty_flush();
 bool                        lpp__tty_isatty();
-bool                        lpp__tty_clear();
+bool                        lpp__tty_clear_screen();
 bool                        lpp__tty_get_cursor(lpp__integer_t & x, lpp__integer_t & y);
 bool                        lpp__tty_set_cursor(lpp__integer_t x, lpp__integer_t y);
 bool                        lpp__tty_set_text_colors(lpp__integer_t foreground, lpp__integer_t background);
 bool                        lpp__tty_set_standout(bool on);
+
+// TODO: I extracted those from the context but most need the context pointer
+//       so I want to put them back there instead...
+//
+void                        lpp__flush_file(lpp__context::pointer_t context, std::string const & filename);
+lpp__value::vector_t        lpp__file_list();
+lpp__value::pointer_t       lpp__file_info(lpp__context::pointer_t context, std::string const & filename);
+void                        lpp__set_prefix(std::string const & path);
+std::string                 lpp__get_prefix();
+bool                        lpp__filep(lpp__context::pointer_t context, std::string const & filename);
+bool                        lpp__open_file(lpp__context::pointer_t context, std::string const & filename, open_mode_t mode);
+lpp__value::pointer_t       lpp__read_file(lpp__context::pointer_t context, std::string const & filename, read_mode_t mode);
+lpp__integer_t              lpp__read_position(lpp__context::pointer_t context, std::string const & filename);
+void                        lpp__set_read_position(lpp__context::pointer_t context, std::string const & filename, lpp__integer_t pos);
+void                        lpp__set_reader(lpp__context::pointer_t context, std::string const & filename);
+std::string                 lpp__get_reader();
+void                        lpp__write_file(lpp__context::pointer_t context, std::string const & filename, lpp__value::pointer_t data);
+void                        lpp__write_file(lpp__context::pointer_t context, std::string const & filename, std::string const & data);
+lpp__integer_t              lpp__write_position(lpp__context::pointer_t context, std::string const & filename);
+void                        lpp__set_write_position(lpp__context::pointer_t context, std::string const & filename, lpp__integer_t pos);
+void                        lpp__set_writer(lpp__context::pointer_t context, std::string const & filename);
+std::string                 lpp__get_writer();
+bool                        lpp__eofp(lpp__context::pointer_t context, std::string const & filename);
+void                        lpp__close_file(lpp__context::pointer_t context, std::string const & filename, bool force);
+void                        lpp__erase_file(lpp__context::pointer_t context, std::string const & filename);
 
 
 
@@ -436,6 +489,7 @@ bool                        lpp__tty_set_standout(bool on);
 // primitives
 
 // A
+void primitive_allopen(lpp::lpp__context::pointer_t context);
 void primitive_and(lpp::lpp__context::pointer_t context);
 void primitive_arccos(lpp::lpp__context::pointer_t context);
 void primitive_arcsin(lpp::lpp__context::pointer_t context);
@@ -458,6 +512,8 @@ void primitive_byte(lpp::lpp__context::pointer_t context);
 // C
 void primitive_char(lpp::lpp__context::pointer_t context);
 void primitive_cleartext(lpp::lpp__context::pointer_t context);
+void primitive_close(lpp::lpp__context::pointer_t context);
+void primitive_closeall(lpp::lpp__context::pointer_t context);
 void primitive_combine(lpp::lpp__context::pointer_t context);
 void primitive_comparablep(lpp::lpp__context::pointer_t context);
 void primitive_cos(lpp::lpp__context::pointer_t context);
@@ -471,12 +527,17 @@ void primitive_dequeue(lpp::lpp__context::pointer_t context);
 
 // E
 void primitive_emptyp(lpp::lpp__context::pointer_t context);
+void primitive_eofp(lpp::lpp__context::pointer_t context);
 void primitive_equalp(lpp::lpp__context::pointer_t context);
+void primitive_erase(lpp::lpp__context::pointer_t context);
+void primitive_erasefile(lpp::lpp__context::pointer_t context);
 void primitive_error(lpp::lpp__context::pointer_t context);
 void primitive_errorp(lpp::lpp__context::pointer_t context);
 void primitive_exp(lpp::lpp__context::pointer_t context);
 
 // F
+void primitive_fileinfo(lpp::lpp__context::pointer_t context);
+void primitive_filep(lpp::lpp__context::pointer_t context);
 void primitive_first(lpp::lpp__context::pointer_t context);
 void primitive_firstbyte(lpp::lpp__context::pointer_t context);
 void primitive_floatp(lpp::lpp__context::pointer_t context);
@@ -528,6 +589,10 @@ void primitive_notequalp(lpp::lpp__context::pointer_t context);
 void primitive_numberp(lpp::lpp__context::pointer_t context);
 
 // O
+void primitive_openappend(lpp::lpp__context::pointer_t context);
+void primitive_openread(lpp::lpp__context::pointer_t context);
+void primitive_openupdate(lpp::lpp__context::pointer_t context);
+void primitive_openwrite(lpp::lpp__context::pointer_t context);
 void primitive_or(lpp::lpp__context::pointer_t context);
 
 // P
@@ -539,6 +604,7 @@ void primitive_plus(lpp::lpp__context::pointer_t context);
 void primitive_pop(lpp::lpp__context::pointer_t context);
 void primitive_power(lpp::lpp__context::pointer_t context);
 void primitive_pprop(lpp::lpp__context::pointer_t context);
+void primitive_prefix(lpp::lpp__context::pointer_t context);
 void primitive_primitivep(lpp::lpp__context::pointer_t context);
 void primitive_primitives(lpp::lpp__context::pointer_t context);
 void primitive_print(lpp::lpp__context::pointer_t context);
@@ -560,6 +626,15 @@ void primitive_radcos(lpp::lpp__context::pointer_t context);
 void primitive_radsin(lpp::lpp__context::pointer_t context);
 void primitive_radtan(lpp::lpp__context::pointer_t context);
 void primitive_random(lpp::lpp__context::pointer_t context);
+void primitive_readbyte(lpp::lpp__context::pointer_t context);
+void primitive_readbytes(lpp::lpp__context::pointer_t context);
+void primitive_readchar(lpp::lpp__context::pointer_t context);
+void primitive_readchars(lpp::lpp__context::pointer_t context);
+void primitive_reader(lpp::lpp__context::pointer_t context);
+void primitive_readlist(lpp::lpp__context::pointer_t context);
+void primitive_readpos(lpp::lpp__context::pointer_t context);
+void primitive_readrawline(lpp::lpp__context::pointer_t context);
+void primitive_readword(lpp::lpp__context::pointer_t context);
 void primitive_remainder(lpp::lpp__context::pointer_t context);
 void primitive_remdup(lpp::lpp__context::pointer_t context);
 void primitive_remove(lpp::lpp__context::pointer_t context);
@@ -574,6 +649,11 @@ void primitive_rseq(lpp::lpp__context::pointer_t context);
 void primitive_sentence(lpp::lpp__context::pointer_t context);
 void primitive_setcursor(lpp::lpp__context::pointer_t context);
 void primitive_setitem(lpp::lpp__context::pointer_t context);
+void primitive_setprefix(lpp::lpp__context::pointer_t context);
+void primitive_setread(lpp::lpp__context::pointer_t context);
+void primitive_setreadpos(lpp::lpp__context::pointer_t context);
+void primitive_setwrite(lpp::lpp__context::pointer_t context);
+void primitive_setwritepos(lpp::lpp__context::pointer_t context);
 void primitive_settextcolor(lpp::lpp__context::pointer_t context);
 void primitive_show(lpp::lpp__context::pointer_t context);
 void primitive_sin(lpp::lpp__context::pointer_t context);
@@ -597,6 +677,9 @@ void primitive_uppercase(lpp::lpp__context::pointer_t context);
 // W
 void primitive_word(lpp::lpp__context::pointer_t context);
 void primitive_wordp(lpp::lpp__context::pointer_t context);
+void primitive_writepos(lpp::lpp__context::pointer_t context);
+void primitive_write(lpp::lpp__context::pointer_t context);
+void primitive_writer(lpp::lpp__context::pointer_t context);
 
 // X
 void primitive_xor(lpp::lpp__context::pointer_t context);

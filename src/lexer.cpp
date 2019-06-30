@@ -179,7 +179,7 @@ Token::pointer_t Lexer::next_token()
                         ungetc(c);
                         return word;
 
-                    case '+':       // TBD: quoted words are expected to include this character and following?!
+                    case '+':
                     case '-':
                     case '*':
                     case '/':

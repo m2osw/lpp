@@ -26,14 +26,15 @@ add_library(
         # Utility Classes
         context.cpp
         error.cpp
+        file.cpp
         number.cpp
         procedures.cpp
         thing.cpp
-        tty.cpp
         utf8_iterator.cpp
         value.cpp
 
         # Primitives
+        primitive_allopen.cpp
         primitive_and.cpp
         primitive_arccos.cpp
         primitive_arcsin.cpp
@@ -52,6 +53,8 @@ add_library(
         primitive_byte.cpp
         primitive_char.cpp
         primitive_cleartext.cpp
+        primitive_close.cpp
+        primitive_closeall.cpp
         primitive_combine.cpp
         primitive_comparablep.cpp
         primitive_cos.cpp
@@ -61,10 +64,15 @@ add_library(
         primitive_definedp.cpp
         primitive_dequeue.cpp
         primitive_emptyp.cpp
+        primitive_eofp.cpp
         primitive_equalp.cpp
+        primitive_erase.cpp
+        primitive_erasefile.cpp
         primitive_error.cpp
         primitive_errorp.cpp
         primitive_exp.cpp
+        primitive_fileinfo.cpp
+        primitive_filep.cpp
         primitive_first.cpp
         primitive_firstbyte.cpp
         primitive_floatp.cpp
@@ -103,12 +111,17 @@ add_library(
         primitive_not.cpp
         primitive_notequalp.cpp
         primitive_numberp.cpp
+        primitive_openappend.cpp
+        primitive_openread.cpp
+        primitive_openupdate.cpp
+        primitive_openwrite.cpp
         primitive_or.cpp
         primitive_pick.cpp
         primitive_plus.cpp
         primitive_plist.cpp
         primitive_plistp.cpp
         primitive_plists.cpp
+        primitive_prefix.cpp
         primitive_pop.cpp
         primitive_power.cpp
         primitive_pprop.cpp
@@ -129,6 +142,15 @@ add_library(
         primitive_radsin.cpp
         primitive_radtan.cpp
         primitive_random.cpp
+        primitive_readbyte.cpp
+        primitive_readbytes.cpp
+        primitive_readchar.cpp
+        primitive_readchars.cpp
+        primitive_reader.cpp
+        primitive_readlist.cpp
+        primitive_readpos.cpp
+        primitive_readrawline.cpp
+        primitive_readword.cpp
         primitive_remainder.cpp
         primitive_remdup.cpp
         primitive_remove.cpp
@@ -141,7 +163,12 @@ add_library(
         primitive_sentence.cpp
         primitive_setcursor.cpp
         primitive_setitem.cpp
+        primitive_setprefix.cpp
+        primitive_setread.cpp
+        primitive_setreadpos.cpp
         primitive_settextcolor.cpp
+        primitive_setwrite.cpp
+        primitive_setwritepos.cpp
         primitive_show.cpp
         primitive_sin.cpp
         primitive_sqrt.cpp
@@ -158,6 +185,9 @@ add_library(
         primitive_uppercase.cpp
         primitive_word.cpp
         primitive_wordp.cpp
+        primitive_write.cpp
+        primitive_writepos.cpp
+        primitive_writer.cpp
         primitive_xor.cpp
 )
 

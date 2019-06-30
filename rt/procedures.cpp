@@ -43,13 +43,13 @@ constexpr std::uint32_t     MAX_MAX_ARGS = 4294967295UL;
 lpp__procedure_info_t g_primitives[]
 {
     // A
-    { "allopen", nullptr,          0UL, 0UL,          0UL, PROCEDURE_FLAG_PRIMITIVE | PROCEDURE_FLAG_FUNCTION },
-    { "and",     primitive_and,    2UL, 2UL, MAX_MAX_ARGS, PROCEDURE_FLAG_PRIMITIVE | PROCEDURE_FLAG_FUNCTION },
-    { "arccos",  primitive_arccos, 1UL, 1UL,          1UL, PROCEDURE_FLAG_PRIMITIVE | PROCEDURE_FLAG_FUNCTION },
-    { "arcsin",  primitive_arcsin, 1UL, 1UL,          1UL, PROCEDURE_FLAG_PRIMITIVE | PROCEDURE_FLAG_FUNCTION },
-    { "arctan",  primitive_arctan, 1UL, 1UL,          1UL, PROCEDURE_FLAG_PRIMITIVE | PROCEDURE_FLAG_FUNCTION },
-    { "arity",   primitive_arity,  1UL, 1UL,          1UL, PROCEDURE_FLAG_PRIMITIVE | PROCEDURE_FLAG_FUNCTION },
-    { "ashift",  primitive_ashift, 2UL, 2UL,          2UL, PROCEDURE_FLAG_PRIMITIVE | PROCEDURE_FLAG_FUNCTION },
+    { "allopen", primitive_allopen, 0UL, 0UL,          0UL, PROCEDURE_FLAG_PRIMITIVE | PROCEDURE_FLAG_FUNCTION },
+    { "and",     primitive_and,     2UL, 2UL, MAX_MAX_ARGS, PROCEDURE_FLAG_PRIMITIVE | PROCEDURE_FLAG_FUNCTION },
+    { "arccos",  primitive_arccos,  1UL, 1UL,          1UL, PROCEDURE_FLAG_PRIMITIVE | PROCEDURE_FLAG_FUNCTION },
+    { "arcsin",  primitive_arcsin,  1UL, 1UL,          1UL, PROCEDURE_FLAG_PRIMITIVE | PROCEDURE_FLAG_FUNCTION },
+    { "arctan",  primitive_arctan,  1UL, 1UL,          1UL, PROCEDURE_FLAG_PRIMITIVE | PROCEDURE_FLAG_FUNCTION },
+    { "arity",   primitive_arity,   1UL, 1UL,          1UL, PROCEDURE_FLAG_PRIMITIVE | PROCEDURE_FLAG_FUNCTION },
+    { "ashift",  primitive_ashift,  2UL, 2UL,          2UL, PROCEDURE_FLAG_PRIMITIVE | PROCEDURE_FLAG_FUNCTION },
 
     // B
     { "backslashed?", primitive_backslashedp, 1UL, 1UL,          1UL, PROCEDURE_FLAG_PRIMITIVE | PROCEDURE_FLAG_FUNCTION },
@@ -70,8 +70,8 @@ lpp__procedure_info_t g_primitives[]
     { "catch",        nullptr,                2UL, 2UL,          2UL, PROCEDURE_FLAG_PRIMITIVE },
     { "char",         primitive_char,         1UL, 1UL,          1UL, PROCEDURE_FLAG_PRIMITIVE | PROCEDURE_FLAG_FUNCTION },
     { "cleartext",    primitive_cleartext,    0UL, 0UL,          0UL, PROCEDURE_FLAG_PRIMITIVE },
-//    "primitive [procedure] close :filename end\n"                                   // MISSING
-//    "primitive [procedure] closeall end\n"                                          // MISSING
+    { "close",        primitive_close,        1UL, 1UL,          2UL, PROCEDURE_FLAG_PRIMITIVE },
+    { "closeall",     primitive_closeall,     0UL, 0UL,          0UL, PROCEDURE_FLAG_PRIMITIVE },
     { "combine",      primitive_combine,      2UL, 2UL,          2UL, PROCEDURE_FLAG_PRIMITIVE | PROCEDURE_FLAG_FUNCTION },
     { "comparable?",  primitive_comparablep,  2UL, 2UL,          2UL, PROCEDURE_FLAG_PRIMITIVE | PROCEDURE_FLAG_FUNCTION },
     { "comparablep",  primitive_comparablep,  2UL, 2UL,          2UL, PROCEDURE_FLAG_PRIMITIVE | PROCEDURE_FLAG_FUNCTION },
@@ -94,13 +94,18 @@ lpp__procedure_info_t g_primitives[]
     { "equal?",       primitive_equalp,      2UL, 2UL, MAX_MAX_ARGS, PROCEDURE_FLAG_PRIMITIVE | PROCEDURE_FLAG_FUNCTION },
     { "equalp",       primitive_equalp,      2UL, 2UL, MAX_MAX_ARGS, PROCEDURE_FLAG_PRIMITIVE | PROCEDURE_FLAG_FUNCTION },
 //    "primitive [function] eofp end\n"                                               // MISSING
-//    "primitive [procedure] erasefile&erf :filename end\n"                           // MISSING
+    { "eofp",         primitive_eofp,        1UL, 1UL,          1UL, PROCEDURE_FLAG_PRIMITIVE | PROCEDURE_FLAG_FUNCTION },
+    { "erase",        primitive_erase,       1UL, 1UL,          1UL, PROCEDURE_FLAG_PRIMITIVE | PROCEDURE_FLAG_FUNCTION },
+    { "erf",          primitive_erasefile,   1UL, 1UL,          1UL, PROCEDURE_FLAG_PRIMITIVE | PROCEDURE_FLAG_FUNCTION },
+    { "erasefile",    primitive_erasefile,   1UL, 1UL,          1UL, PROCEDURE_FLAG_PRIMITIVE | PROCEDURE_FLAG_FUNCTION },
     { "error",        primitive_error,       0UL, 0UL,          0UL, PROCEDURE_FLAG_PRIMITIVE | PROCEDURE_FLAG_FUNCTION },
     { "error?",       primitive_errorp,      0UL, 0UL,          0UL, PROCEDURE_FLAG_PRIMITIVE | PROCEDURE_FLAG_FUNCTION },
     { "errorp",       primitive_errorp,      0UL, 0UL,          0UL, PROCEDURE_FLAG_PRIMITIVE | PROCEDURE_FLAG_FUNCTION },
 
     // F
-//    "primitive [function] filep&file? :filename end\n"                              // MISSING
+    { "fileinfo",     primitive_fileinfo,    1UL, 1UL,          1UL, PROCEDURE_FLAG_PRIMITIVE | PROCEDURE_FLAG_FUNCTION },
+    { "file?",        primitive_filep,       1UL, 1UL,          1UL, PROCEDURE_FLAG_PRIMITIVE | PROCEDURE_FLAG_FUNCTION },
+    { "filep",        primitive_filep,       1UL, 1UL,          1UL, PROCEDURE_FLAG_PRIMITIVE | PROCEDURE_FLAG_FUNCTION },
     { "first",        primitive_first,       1UL, 1UL,          1UL, PROCEDURE_FLAG_PRIMITIVE | PROCEDURE_FLAG_FUNCTION },
     { "firstbyte",    primitive_firstbyte,   1UL, 1UL,          1UL, PROCEDURE_FLAG_PRIMITIVE | PROCEDURE_FLAG_FUNCTION },
     { "floatp",       primitive_floatp,      1UL, 1UL,          1UL, PROCEDURE_FLAG_PRIMITIVE | PROCEDURE_FLAG_FUNCTION },
@@ -190,7 +195,7 @@ lpp__procedure_info_t g_primitives[]
     { "plus",              primitive_plus,              1UL, 1UL,          1UL, PROCEDURE_FLAG_PRIMITIVE | PROCEDURE_FLAG_FUNCTION },
     { "pop",               primitive_pop,               1UL, 1UL,          1UL, PROCEDURE_FLAG_PRIMITIVE | PROCEDURE_FLAG_FUNCTION },
     { "pprop",             primitive_pprop,             2UL, 2UL,          2UL, PROCEDURE_FLAG_PRIMITIVE },
-//    "primitive [function] prefix end\n"                                             // MISSING
+    { "prefix",            primitive_prefix,            0UL, 0UL,          0UL, PROCEDURE_FLAG_PRIMITIVE | PROCEDURE_FLAG_FUNCTION },
     { "primitive?",        primitive_primitivep,        1UL, 1UL,          1UL, PROCEDURE_FLAG_PRIMITIVE | PROCEDURE_FLAG_FUNCTION },
     { "primitivep",        primitive_primitivep,        1UL, 1UL,          1UL, PROCEDURE_FLAG_PRIMITIVE | PROCEDURE_FLAG_FUNCTION },
     { "primitives",        primitive_primitives,        0UL, 0UL,          0UL, PROCEDURE_FLAG_PRIMITIVE | PROCEDURE_FLAG_FUNCTION },
@@ -215,14 +220,19 @@ lpp__procedure_info_t g_primitives[]
     { "radsin",        primitive_radsin,      1UL, 1UL,          1UL, PROCEDURE_FLAG_PRIMITIVE | PROCEDURE_FLAG_FUNCTION },
     { "radtan",        primitive_radtan,      1UL, 1UL,          1UL, PROCEDURE_FLAG_PRIMITIVE | PROCEDURE_FLAG_FUNCTION },
     { "random",        primitive_random,      1UL, 1UL, MAX_MAX_ARGS, PROCEDURE_FLAG_PRIMITIVE | PROCEDURE_FLAG_FUNCTION },
-//    "primitive [function] rawascii :char end\n"                                     // MISSING
-//    "primitive [function] readchar&rc end\n"                                        // MISSING
-//    "primitive [function] readchars&rcs :number end\n"                              // MISSING
-//    "primitive [function] reader end\n"                                             // MISSING
-//    "primitive [function] readlist&rl end\n"                                        // MISSING
-//    "primitive [function] readpos end\n"                                            // MISSING
-//    "primitive [function] readrawline end\n"                                        // MISSING
-//    "primitive [function] readword&rw end\n"                                        // MISSING
+    { "readbyte",      primitive_readbyte,    0UL, 0UL,          1UL, PROCEDURE_FLAG_PRIMITIVE | PROCEDURE_FLAG_FUNCTION },
+    { "readbytes",     primitive_readbytes,   1UL, 1UL,          2UL, PROCEDURE_FLAG_PRIMITIVE | PROCEDURE_FLAG_FUNCTION },
+    { "rc",            primitive_readchar,    0UL, 0UL,          1UL, PROCEDURE_FLAG_PRIMITIVE | PROCEDURE_FLAG_FUNCTION },
+    { "readchar",      primitive_readchar,    0UL, 0UL,          1UL, PROCEDURE_FLAG_PRIMITIVE | PROCEDURE_FLAG_FUNCTION },
+    { "rcs",           primitive_readchars,   1UL, 1UL,          2UL, PROCEDURE_FLAG_PRIMITIVE | PROCEDURE_FLAG_FUNCTION },
+    { "readchars",     primitive_readchars,   1UL, 1UL,          2UL, PROCEDURE_FLAG_PRIMITIVE | PROCEDURE_FLAG_FUNCTION },
+    { "reader",        primitive_reader,      0UL, 0UL,          0UL, PROCEDURE_FLAG_PRIMITIVE | PROCEDURE_FLAG_FUNCTION },
+    { "rl",            primitive_readlist,    0UL, 0UL,          1UL, PROCEDURE_FLAG_PRIMITIVE | PROCEDURE_FLAG_FUNCTION },
+    { "readlist",      primitive_readlist,    0UL, 0UL,          1UL, PROCEDURE_FLAG_PRIMITIVE | PROCEDURE_FLAG_FUNCTION },
+    { "readpos",       primitive_readpos,     0UL, 0UL,          1UL, PROCEDURE_FLAG_PRIMITIVE | PROCEDURE_FLAG_FUNCTION },
+    { "readrawline",   primitive_readrawline, 0UL, 0UL,          1UL, PROCEDURE_FLAG_PRIMITIVE | PROCEDURE_FLAG_FUNCTION },
+    { "rw",            primitive_readword,    0UL, 0UL,          1UL, PROCEDURE_FLAG_PRIMITIVE | PROCEDURE_FLAG_FUNCTION },
+    { "readword",      primitive_readword,    0UL, 0UL,          1UL, PROCEDURE_FLAG_PRIMITIVE | PROCEDURE_FLAG_FUNCTION },
     { "remainder",     primitive_remainder,   2UL, 2UL,          2UL, PROCEDURE_FLAG_PRIMITIVE | PROCEDURE_FLAG_FUNCTION },
     { "remdup",        primitive_remdup,      2UL, 2UL,          2UL, PROCEDURE_FLAG_PRIMITIVE | PROCEDURE_FLAG_FUNCTION },
     { "remove",        primitive_remove,      2UL, 2UL,          2UL, PROCEDURE_FLAG_PRIMITIVE | PROCEDURE_FLAG_FUNCTION },
@@ -237,12 +247,12 @@ lpp__procedure_info_t g_primitives[]
     { "sentence",       primitive_sentence,      1UL, 2UL, MAX_MAX_ARGS, PROCEDURE_FLAG_PRIMITIVE | PROCEDURE_FLAG_FUNCTION },
     { "setcursor",      primitive_setcursor,     1UL, 1UL,          1UL, PROCEDURE_FLAG_PRIMITIVE },
     { "setitem",        primitive_setitem,       3UL, 3UL,          3UL, PROCEDURE_FLAG_PRIMITIVE | PROCEDURE_FLAG_FUNCTION },
-//    "primitive [procedure] setprefix :prefix end\n"                                 // MISSING
-//    "primitive [procedure] setread :filename end\n"                                 // MISSING
-//    "primitive [procedure] setreadpos :number end\n"                                // MISSING
+    { "setprefix",      primitive_setprefix,     1UL, 1UL,          1UL, PROCEDURE_FLAG_PRIMITIVE },
+    { "setread",        primitive_setread,       1UL, 1UL,          1UL, PROCEDURE_FLAG_PRIMITIVE },
+    { "setreadpos",     primitive_setreadpos,    1UL, 1UL,          2UL, PROCEDURE_FLAG_PRIMITIVE },
     { "settextcolor",   primitive_settextcolor,  2UL, 2UL,          2UL, PROCEDURE_FLAG_PRIMITIVE },
-//    "primitive [procedure] setwrite :filename end\n"                                // MISSING
-//    "primitive [procedure] setwritepos :number end\n"                               // MISSING
+    { "setwrite",       primitive_setwrite,      1UL, 1UL,          1UL, PROCEDURE_FLAG_PRIMITIVE },
+    { "setwritepos",    primitive_setwritepos,   1UL, 1UL,          2UL, PROCEDURE_FLAG_PRIMITIVE },
 //    "primitive [function] shell :command [:wordflag] end\n"                         // MISSING
     { "show",           primitive_show,        1UL, 1UL, MAX_MAX_ARGS, PROCEDURE_FLAG_PRIMITIVE },
     { "sin",            primitive_sin,         1UL, 1UL,          1UL, PROCEDURE_FLAG_PRIMITIVE | PROCEDURE_FLAG_FUNCTION },
@@ -280,8 +290,9 @@ lpp__procedure_info_t g_primitives[]
     { "word",         primitive_word,        2UL, 2UL, MAX_MAX_ARGS, PROCEDURE_FLAG_PRIMITIVE | PROCEDURE_FLAG_FUNCTION },
     { "word?",        primitive_wordp,       1UL, 1UL,          1UL, PROCEDURE_FLAG_PRIMITIVE | PROCEDURE_FLAG_FUNCTION },
     { "wordp",        primitive_wordp,       1UL, 1UL,          1UL, PROCEDURE_FLAG_PRIMITIVE | PROCEDURE_FLAG_FUNCTION },
-//    "primitive [function] writepos end \"writepos\n"                                // MISSING
-//    "primitive [function] writer end\n"                                             // MISSING
+    { "write",        primitive_write,       2UL, 2UL,          2UL, PROCEDURE_FLAG_PRIMITIVE | PROCEDURE_FLAG_FUNCTION },
+    { "writepos",     primitive_writepos,    0UL, 0UL,          1UL, PROCEDURE_FLAG_PRIMITIVE | PROCEDURE_FLAG_FUNCTION },
+    { "writer",       primitive_writer,      0UL, 0UL,          0UL, PROCEDURE_FLAG_PRIMITIVE | PROCEDURE_FLAG_FUNCTION },
 
     // X
     { "xor",          primitive_xor,         2UL, 2UL, MAX_MAX_ARGS, PROCEDURE_FLAG_PRIMITIVE | PROCEDURE_FLAG_FUNCTION }

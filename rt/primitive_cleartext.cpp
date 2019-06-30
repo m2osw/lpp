@@ -30,7 +30,7 @@
 void primitive_cleartext(lpp::lpp__context::pointer_t context)
 {
     static_cast<void>(context);
-    if(!lpp::lpp__tty_clear())
+    if(!lpp::lpp__tty_clear_screen())
     {
         throw lpp::lpp__error(context
                             , lpp::lpp__error_code_t::ERROR_CODE_SYSTEM_ERROR

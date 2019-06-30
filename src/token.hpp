@@ -106,6 +106,8 @@ constexpr procedure_flag_t          PROCEDURE_FLAG_ARITHMETIC   = 0x00000020;
 constexpr procedure_flag_t          PROCEDURE_FLAG_CONTROL      = 0x00000040;
 constexpr procedure_flag_t          PROCEDURE_FLAG_FUNCTION     = 0x00000080;       // function uses OUTPUT <expr>
 
+constexpr procedure_flag_t          PROCEDURE_FLAG_OPTIONAL_OPTION_PARSED = 0x80000000;       // function uses OUTPUT <expr>
+
 
 typedef std::int64_t                integer_t;
 typedef double                      float_t;

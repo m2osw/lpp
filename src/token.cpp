@@ -451,7 +451,13 @@ Token::vector_t::size_type Token::get_list_size() const
     default:
         throw std::logic_error("get_list_size() called with the token type set to "
                              + to_string(f_token)
-                             + ", it expects one of TOK_LIST/TOK_FUNCTION_CALL");
+                             + " ("
+                             + (f_token == token_t::TOK_QUOTED
+                                    ? '"' + get_word()
+                                    : (f_token == token_t::TOK_WORD
+                                        ? get_word()
+                                        : std::string("other")))
+                             + "), it expects one of TOK_LIST/TOK_FUNCTION_CALL");
 
     }
 
@@ -552,7 +558,14 @@ std::ostream & operator << (std::ostream & out, lpp::Token const & token)
         break;
 
     case lpp::token_t::TOK_QUOTED:
-        out << '"' << token.get_word();
+        if(token.get_word().empty())
+        {
+            out << "\"<empty quoted>";
+        }
+        else
+        {
+            out << '"' << token.get_word();
+        }
         break;
 
     case lpp::token_t::TOK_THING:
@@ -568,6 +581,14 @@ std::ostream & operator << (std::ostream & out, lpp::Token const & token)
         {
             out << token.get_word();
         }
+        break;
+
+    case lpp::token_t::TOK_BOOLEAN:
+        out << "BOOLEAN " << (token.get_boolean() ? "true" : "false");
+        break;
+
+    case lpp::token_t::TOK_INTEGER:
+        out << "INTEGER " << token.get_integer();
         break;
 
     default:
