@@ -53,6 +53,7 @@ int main(int argc, char * argv[])
     {
         lpp::Parser::pointer_t parser(std::make_shared<lpp::Parser>());
         lpp::Compiler::pointer_t compiler(std::make_shared<lpp::Compiler>());
+        bool do_compile(true);
 
         bool stdin_used_up(false);
         for(int i(1); i < argc; ++i)
@@ -134,6 +135,18 @@ int main(int argc, char * argv[])
                         else if(arg == "disable-trace")
                         {
                             parser->set_trace(false);
+                        }
+                        else if(arg == "do-compile")
+                        {
+                            do_compile = true;
+                        }
+                        else if(arg == "no-compile")
+                        {
+                            do_compile = false;
+                        }
+                        else if(arg == "keep-l-cpp")
+                        {
+                            parser->set_keep_l_cpp(true);
                         }
                         else if(arg == "main-cpp")
                         {
@@ -293,6 +306,11 @@ int main(int argc, char * argv[])
                                     compiler->set_output_object(true);
                                     break;
 
+                                case 'E':
+                                    parser->set_keep_l_cpp(true);
+                                    do_compile = false;
+                                    break;
+
                                 case 't':
                                     parser->set_trace(true);
                                     break;
@@ -333,8 +351,12 @@ int main(int argc, char * argv[])
         parser->parse();
         parser->generate();
 
-        compiler->set_has_program(parser->has_program());
+        if(!do_compile)
+        {
+            return 0;
+        }
 
+        compiler->set_has_program(parser->has_program());
         return compiler->compile();
     }
     catch(std::logic_error const & e)

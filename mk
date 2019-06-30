@@ -30,6 +30,7 @@ case "$1" in
 	echo "-- lpp compiling..."
 	../BUILD/Debug/dist/bin/lpp \
 		-v \
+		--keep-l-cpp \
 		--main-cpp "../BUILD/Debug/dist/lib/lpp/main.cpp" \
 		--rpath "`cd ../BUILD/Debug/dist/lib; pwd`" \
 		-I ../BUILD/Debug/dist/include \

@@ -260,6 +260,15 @@ Parser::Parser()
 }
 
 
+Parser::~Parser()
+{
+    if(!f_keep_l_cpp)
+    {
+        unlink("l.cpp");
+    }
+}
+
+
 void Parser::set_output_object(bool status)
 {
     f_output_object = status;
@@ -275,6 +284,18 @@ void Parser::set_trace(bool status)
 void Parser::set_verbosity(bool status)
 {
     f_verbose = status;
+}
+
+
+void Parser::set_keep_l_cpp(bool status)
+{
+    f_keep_l_cpp = status;
+}
+
+
+bool Parser::get_keep_l_cpp() const
+{
+    return f_keep_l_cpp;
 }
 
 
@@ -1244,13 +1265,13 @@ Token::pointer_t Parser::call_function(bool must_return)
     argument_count_t def_args(declaration->get_def_args());
     argument_count_t max_args(declaration->get_max_args());
 
-std::cerr << "----- working on [" << func_call->get_word() << "] "
-          << min_args
-          << "/"
-          << def_args
-          << "/"
-          << max_args
-          << "\n";
+//std::cerr << "----- working on [" << func_call->get_word() << "] "
+//          << min_args
+//          << "/"
+//          << def_args
+//          << "/"
+//          << max_args
+//          << "\n";
 
     // change the WORD into a FUNCTION-CALL
     //
@@ -1284,7 +1305,7 @@ std::cerr << "----- working on [" << func_call->get_word() << "] "
             // EOF found?
             //
             bool eoa(f_current_token->get_token() == token_t::TOK_EOF);
-std::cerr << "checking eoa -- " << (eoa ? "TOK_EOF" : "no EOF") << " -- count/max: " << func_call->get_list_size() << "/" << max_args << "\n";
+//std::cerr << "checking eoa -- " << (eoa ? "TOK_EOF" : "no EOF") << " -- count/max: " << func_call->get_list_size() << "/" << max_args << "\n";
 
             // we found the maximum number of arguments supported
             // anything else will create an error (i.e. use IGNORE ...)
@@ -1293,7 +1314,7 @@ std::cerr << "checking eoa -- " << (eoa ? "TOK_EOF" : "no EOF") << " -- count/ma
             if(!eoa
             && func_call->get_list_size() >= max_args)
             {
-std::cerr << "   eoa -- max_args reached " << max_args << "\n";
+//std::cerr << "   eoa -- max_args reached " << max_args << "\n";
                 eoa = true;
             }
 
@@ -1305,7 +1326,7 @@ std::cerr << "   eoa -- max_args reached " << max_args << "\n";
             && must_return
             && func_call->get_list_size() >= def_args)
             {
-std::cerr << "   eoa -- def_args reached " << def_args << "\n";
+//std::cerr << "   eoa -- def_args reached " << def_args << "\n";
                 eoa = true;
             }
 
@@ -1319,10 +1340,10 @@ std::cerr << "   eoa -- def_args reached " << def_args << "\n";
                 if(word_declaration != nullptr
                 && (word_declaration->get_procedure_flags() & PROCEDURE_FLAG_FUNCTION) == 0)
                 {
-std::cerr << "   eoa -- WORD " << f_current_token->get_word() << " is procedure\n";
+//std::cerr << "   eoa -- WORD " << f_current_token->get_word() << " is procedure\n";
                     eoa = true;
                 }
-else std::cerr << "   eoa -- WORD " << f_current_token->get_word() << " is function\n";
+//else std::cerr << "   eoa -- WORD " << f_current_token->get_word() << " is function\n";
             }
 
             // next two tokens are '(' + WORD and the word is a procedure?
@@ -1339,10 +1360,10 @@ else std::cerr << "   eoa -- WORD " << f_current_token->get_word() << " is funct
                     if(word_declaration != nullptr
                     && (word_declaration->get_procedure_flags() & PROCEDURE_FLAG_FUNCTION) == 0)
                     {
-std::cerr << "   eoa -- (WORD " << next_token->get_word() << " ...) is procedure\n";
+//std::cerr << "   eoa -- (WORD " << next_token->get_word() << " ...) is procedure\n";
                         eoa = true;
                     }
-else std::cerr << "   eoa -- (WORD " << next_token->get_word() << " ...) is function\n";
+//else std::cerr << "   eoa -- (WORD " << next_token->get_word() << " ...) is function\n";
                 }
             }
 
@@ -1353,7 +1374,7 @@ else std::cerr << "   eoa -- (WORD " << next_token->get_word() << " ...) is func
                     || f_current_token->get_token() == token_t::TOK_CLOSE_LIST))
             {
                 eoa = true;
-std::cerr << "   eoa -- the ) and ] close things too\n";
+//std::cerr << "   eoa -- the ) and ] close things too\n";
             }
 
             if(eoa)
@@ -1951,7 +1972,7 @@ void Parser::output_function_call(Token::pointer_t function_call, std::string co
                 {
                     if(arg_name != nullptr)
                     {
-std::cerr << "    -> set param \"" << arg_name->get_word() << "\"\n";
+//std::cerr << "    -> set param \"" << arg_name->get_word() << "\"\n";
                         f_out << context_name
                               << "->set_thing("
                               << word_to_cpp_literal_string(arg_name->get_word())
@@ -2030,7 +2051,7 @@ std::cerr << "    -> set param \"" << arg_name->get_word() << "\"\n";
                     break;
 
                 }
-std::cerr << "    -> call func. \"" << declaration->get_word() << "\"\n";
+//std::cerr << "    -> call func. \"" << declaration->get_word() << "\"\n";
                 f_out << logo_to_cpp_name(declaration->get_word())
                       << "("
                       << context_name

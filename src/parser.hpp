@@ -34,10 +34,13 @@ public:
     typedef std::shared_ptr<Parser>     pointer_t;
 
                             Parser();
+                            ~Parser();
 
     void                    set_output_object(bool status);
     void                    set_trace(bool status);
     void                    set_verbosity(bool status);
+    void                    set_keep_l_cpp(bool status);
+    bool                    get_keep_l_cpp() const;
     void                    add_lexer(Lexer::pointer_t lexer);
 
     void                    parse();
@@ -106,6 +109,7 @@ private:
     bool                    f_enable_trace = false;
     bool                    f_has_program = false;
     bool                    f_verbose = false;
+    bool                    f_keep_l_cpp = false;
     std::uint_fast32_t      f_body_pos = 0;
     Token::pointer_t        f_body = Token::pointer_t();
     Token::pointer_t        f_function = Token::pointer_t();
