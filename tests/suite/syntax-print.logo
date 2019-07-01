@@ -44,7 +44,7 @@ end safe
 to display :msg [:unused 5] [:rest] 2
   repeat 10 - 1 [type  word "- repcount]
   print "-
-  print :msg "MORE sqrt -21 + callfunction :box ["x (thing :redirect) * 2] [Info] first [a b c]
+  print :msg "MORE sqrt -21 + callfunction :box [["x (thing :redirect) * 2]] [Info] first [a b c]
   iftrue [stop]
   repeat 2 * 2 [type "-]
   print "-

@@ -281,10 +281,116 @@ void Parser::control_call(control_t & control_info, bool function_call)
           << "->f_flags&lpp::PROCEDURE_FLAG_PRIMITIVE)!=0"
              "));\n";
 
+    Token::pointer_t arguments(control_info.f_function_call->get_list_item(1));
+    if(arguments->get_token() != token_t::TOK_LIST)
+    {
+        arguments->error("unexpected token type ("
+                  + to_string(arguments->get_token())
+                  + ") for the list of arguments of the call instruction.");
+        return;
+    }
 
-        // sub_context->set_thing("variablename", variable_name, lpp__thing_type_t::LPP__THING_TYPE_CONTEXT);
-        // lpp::lpp__value::vector_t rest;
-        // sub_context->set_thing("rest", std::make_shared<lpp::lpp__value>(rest), lpp__thing_type_t::LPP__THING_TYPE_CONTEXT);
+    size_t const max(arguments->get_list_size());
+    for(size_t idx(0); idx < max; ++idx)
+    {
+        Token::pointer_t item(arguments->get_list_item(idx));
+        if(item->get_token() != token_t::TOK_LIST)
+        {
+            arguments->error("unexpected token type ("
+                      + to_string(item->get_token())
+                      + ") for an argument of the call instruction, each item must be a list.");
+            return;
+        }
+        if(item->get_list_size() != 2)
+        {
+            arguments->error("each argument of the call instruction must be a list of two items with the name of the variable and the content; this list has "
+                           + std::to_string(item->get_list_size())
+                           + ".");
+            return;
+        }
+        Token::pointer_t arg_name(item->get_list_item(0));
+        if(arg_name->get_token() != token_t::TOK_WORD
+        && arg_name->get_token() != token_t::TOK_QUOTED)
+        {
+            arguments->error("unexpected token type ("
+                      + to_string(arg_name->get_token())
+                      + ") for an argument of the call instruction, the first item must be a word representing the argument name.");
+            return;
+        }
+        Token::pointer_t arg_value(item->get_list_item(1));
+
+        // execute the value first then save th value in this arg_name
+        //
+        std::string const arg_var(get_unique_name());
+        std::string value;
+        bool arg_direct_value(false);
+        switch(arg_value->get_token())
+        {
+        case token_t::TOK_FUNCTION_CALL:
+            // the output of a function call will generate a parameter
+            //
+            f_out << "lpp::lpp__value::pointer_t "
+                  << arg_var
+                  << ";\n";
+            output_function_call(arg_value, arg_var);
+            break;
+
+        case token_t::TOK_INTEGER:
+            arg_direct_value = true;
+            value = "static_cast<lpp::lpp__integer_t>(" + std::to_string(arg_value->get_integer()) + ")";
+            break;
+
+        case token_t::TOK_FLOAT:
+            arg_direct_value = true;
+            value = "static_cast<lpp::lpp__float_t>(" + std::to_string(arg_value->get_float()) + ")";
+            break;
+
+        case token_t::TOK_QUOTED:
+        case token_t::TOK_WORD:
+            arg_direct_value = true;
+            value = "std::string(" + word_to_cpp_string_literal(arg_value->get_word()) + ")";
+            break;
+
+        case token_t::TOK_THING:
+            f_out << "lpp::lpp__value::pointer_t "
+                  << arg_var
+                  << "(context->get_thing("
+                  << word_to_cpp_string_literal(arg_value->get_word())
+                  << ")->get_value());\n";
+            break;
+
+        default:
+            arg_value->error("unexpected token type ("
+                      + to_string(arg_value->get_token())
+                      + ") for the procedure name of the \"call\" instruction.");
+            return;
+
+        }
+
+        f_out << context_name
+              << "->set_thing("
+              << word_to_cpp_string_literal(arg_name->get_word())
+              << ",";
+
+        if(arg_direct_value)
+        {
+            f_out << "std::make_shared<lpp::lpp__value>("
+                  << value
+                  << ")";
+        }
+        else
+        {
+            f_out << arg_var;
+        }
+
+        f_out << ",lpp::lpp__thing_type_t::LPP__THING_TYPE_CONTEXT);\n";
+    }
+
+    // we expect the user to define a "rest in his list when necessary
+    //
+    //f_out << "lpp::lpp__value::vector_t rest;\n"
+    //      << context_name
+    //      << "->set_thing(\"rest\",std::make_shared<lpp::lpp__value>(rest),lpp::lpp__thing_type_t::LPP__THING_TYPE_CONTEXT);\n";
 
     f_out << context_name
           << "->attach(context);\n"
