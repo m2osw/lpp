@@ -66,6 +66,8 @@ lpp__procedure_info_t const g_primitives[]
     { "byte",         primitive_byte,         1UL, 1UL,          1UL, PROCEDURE_FLAG_PRIMITIVE | PROCEDURE_FLAG_FUNCTION },
 
     // C
+    { "call",         nullptr,                2UL, 2UL,          2UL, PROCEDURE_FLAG_PRIMITIVE },
+    { "callfunction", nullptr,                2UL, 2UL,          2UL, PROCEDURE_FLAG_PRIMITIVE | PROCEDURE_FLAG_FUNCTION },
 //    "primitive [procedure control inline] case :value :clauses end\n"               // MISSING
     { "catch",        nullptr,                2UL, 2UL,          2UL, PROCEDURE_FLAG_PRIMITIVE },
     { "char",         primitive_char,         1UL, 1UL,          1UL, PROCEDURE_FLAG_PRIMITIVE | PROCEDURE_FLAG_FUNCTION },

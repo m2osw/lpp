@@ -29,6 +29,17 @@ GetVersion( LPP ${CMAKE_CURRENT_SOURCE_DIR} )
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17 -fdiagnostics-color -g -O0 -Werror -Wall -Wextra -pedantic -Wcast-align -Wcast-qual -Wctor-dtor-privacy -Winit-self -Wlogical-op -Wmissing-include-dirs -Woverloaded-virtual -Wredundant-decls -Wshadow -Wsign-promo -Wstrict-null-sentinel -Wstrict-overflow=2 -Wundef -Wno-unused -Wunused-variable -Wno-variadic-macros -Wno-parentheses -Wno-unknown-pragmas -Wwrite-strings -Wswitch -Wunused-parameter -Wfloat-equal -Wnon-virtual-dtor -Weffc++ -fdiagnostics-show-option")
 
+execute_process(
+    COMMAND
+        ${CMAKE_CXX_COMPILER} -dumpversion
+
+    OUTPUT_VARIABLE
+        GCC_VERSION
+)
+if(GCC_VERSION VERSION_GREATER 7.0)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wimplicit-fallthrough")
+endif()
+
 include_directories(
     ${PROJECT_SOURCE_DIR}
     ${CMAKE_CURRENT_BINARY_DIR}

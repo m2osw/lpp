@@ -50,7 +50,12 @@ void Parser::control_primitive(control_t & control_info)
     case 'c':
         if(name == "call")
         {
-            control_call(control_info);
+            control_call(control_info, false);
+            return;
+        }
+        else if(name == "callfunction")
+        {
+            control_call(control_info, true);
             return;
         }
         else if(name == "catch")
@@ -179,11 +184,13 @@ void Parser::control_primitive(control_t & control_info)
 }
 
 
-void Parser::control_call(control_t & control_info)
+void Parser::control_call(control_t & control_info, bool function_call)
 {
     if(control_info.f_max_args != 2)
     {
-        throw std::logic_error("primitive \"call\" called with a number of parameters not equal to 2.");
+        throw std::logic_error("primitive \""
+                             + control_info.f_function_call->get_word()
+                             + "\" called with a number of parameters not equal to 2.");
     }
 
     std::string proc_value;
@@ -252,18 +259,18 @@ void Parser::control_call(control_t & control_info)
     std::string const proc_info(get_unique_name());
     std::string const context_name(get_unique_name());
     f_out << ");\n"
-             "lpp__procedure_info_t const * "
+             "lpp::lpp__procedure_info_t const*"
           << proc_info
-          << "(find_procedure("
+          << "(lpp::find_procedure("
           << actual_proc_name
           << "));\n"
              "if("
           << proc_info
           << "==nullptr)\n"
              "{\n"
-             "throw lpp__error(shared_from_this(),lpp__error_code_t::ERROR_CODE_UNKNOWN_PROCEDURE,\"error\",\"procedure named \\\"+"
+             "throw lpp::lpp__error(context,lpp::lpp__error_code_t::ERROR_CODE_UNKNOWN_PROCEDURE,\"error\",\"procedure named \\\"\"+"
           << actual_proc_name
-          << "+\\\" not found.\");\n"
+          << "+\"\\\" not found.\");\n"
              "}\n"
              "lpp::lpp__context::pointer_t "
           << context_name
@@ -271,7 +278,7 @@ void Parser::control_call(control_t & control_info)
           << actual_proc_name
           << ",0,("
           << proc_info
-          << "&PROCEDURE_FLAG_PRIMITIVE)!=0"
+          << "->f_flags&lpp::PROCEDURE_FLAG_PRIMITIVE)!=0"
              "));\n";
 
 
@@ -280,12 +287,22 @@ void Parser::control_call(control_t & control_info)
         // sub_context->set_thing("rest", std::make_shared<lpp::lpp__value>(rest), lpp__thing_type_t::LPP__THING_TYPE_CONTEXT);
 
     f_out << context_name
-          << "->attach(shared_from_this());\n"
+          << "->attach(context);\n"
           << "(*"
           << proc_info
           << "->f_procedure)("
           << context_name
           << ");\n";
+
+    if(function_call)
+    {
+        f_out << control_info.f_result_var
+              << "="
+              << context_name
+              << "->get_returned_value();\n";
+    }
+
+    f_out << "}\n";
 }
 
 

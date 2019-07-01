@@ -72,6 +72,8 @@ Parser::Parser()
             "primitive [function] byte :word end byte\n"                                    // external
             // C
             "primitive [procedure control inline] call :name :arguments end call\n"         // inline
+            "primitive [function control inline] callfunction :name :arguments end callfunction\n"
+                                                                                            // inline
             "primitive [procedure control inline] case :value :clauses end case\n"          // MISSING
             "primitive [procedure control inline] catch :tag :instructions end catch\n"     // inline
             "primitive [function] char :number end char\n"                                  // external
