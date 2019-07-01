@@ -37,7 +37,7 @@ debuild -S -sa
 # files
 cd ..
 
-echo dput ppa:alexis-m2osw/lpp ${MODULE}_${VERSION}_source.changes
+dput ppa:alexis-m2osw/lpp ${MODULE}_${VERSION}_source.changes
 
 # Get rid of those files from our source tree
 mkdir -p $TMP/sources

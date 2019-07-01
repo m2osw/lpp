@@ -2001,7 +2001,9 @@ void Parser::output_function_call(Token::pointer_t function_call, std::string co
                     if(reserve > 0)
                     {
                         f_out << "rest.reserve("
-                              << std::min(std::max(static_cast<size_t>(0), reserve), 20UL)
+                              << std::min(std::max(static_cast<decltype(reserve)>(0)
+                                                 , reserve)
+                                        , static_cast<decltype(reserve)>(20))
                               << ");\n";
                     }
                 }
