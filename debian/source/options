@@ -1,2 +1,4 @@
 tar-ignore = "tmp"
 tar-ignore = ".git"
+tar-ignore = "a.out"
+tar-ignore = "l.cpp"

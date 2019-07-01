@@ -41,6 +41,7 @@ public:
     void                    set_output_object(bool status);
     void                    set_has_program(bool has_program);
     void                    set_verbosity(bool status);
+    void                    set_include_debug(bool status);
     void                    set_main_cpp(std::string const & path);
     void                    set_output(std::string const & output);
     void                    add_include_path(std::string const & path);
@@ -54,6 +55,7 @@ private:
     bool                    f_output_object = false;
     bool                    f_has_program = false;
     bool                    f_verbose = false;
+    bool                    f_include_debug = false;
     string_list_t           f_include_paths = string_list_t();
     std::string             f_main_cpp = std::string("/usr/lib/lpp/main.cpp");
     std::string             f_output = std::string();

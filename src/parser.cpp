@@ -24,6 +24,10 @@
 //
 #include "exception.hpp"
 
+// common files
+//
+#include "utf8_iterator.hpp"
+
 // boost lib
 //
 #include <boost/algorithm/string.hpp>
@@ -149,6 +153,7 @@ Parser::Parser()
             "primitive [function arithmetic] nanp&nan? :number end\n"                       // external
             "primitive [function] not :boolean end\n"                                       // external
             "primitive [function] notequalp&notequal? :thing1 :thing2 [:rest] end\n"        // external
+            "primitive [function] notify :procedure :variable end\n"                        // external
             "primitive [function] numberp&number? :thing end\n"                             // external
             // O
             "primitive [procedure] openappend :filename end\n"                              // external
@@ -212,7 +217,7 @@ Parser::Parser()
             "primitive [procedure] settextcolor :foreground :background end\n"              // external
             "primitive [procedure] setwrite :filename end setwrite\n"                       // external
             "primitive [procedure] setwritepos :number [:filename \"] end setwritepos\n"    // external
-            "primitive [function] shell :command [:wordflag] end\n"                         // MISSING
+            "primitive [function] shell :command [:wordflag] end\n"                         // external
             "primitive [procedure] show :thing [:rest] end\n"                               // external
             "primitive [function arithmetic] sin :number1 end\n"                            // external
             "primitive [function arithmetic] sqrt :number end\n"                            // external
@@ -227,15 +232,15 @@ Parser::Parser()
             "primitive [function inline] thing :name end\n"                                 // inline
             "primitive [procedure control inline] throw :tag [:value void] 2 end\n"         // inline
             "primitive [function] time end\n"                                               // external
-            "primitive [procedure] trace :list end\n"                                       // MISSING
-            "primitive [function] tracedp&traced? :list end\n"                              // MISSING
+            "primitive [procedure] trace :list end\n"                                       // external
+            "primitive [function] tracedp&traced? :list end\n"                              // external
             "primitive [function] ttyp&tty? end ttyp\n"                                     // external
             "primitive [procedure] type :thing [:rest] end\n"                               // external
             // U
             "primitive [function] unicode :word end unicode\n"                              // external
             "primitive [function arithmetic] unorderedp&unordered? :thing1 :thing2 end\n"   // external
             "primitive [procedure control inline] until :boolean :if_false end\n"           // inline
-            "primitive [procedure] untrace :list end\n"                                     // MISSING
+            "primitive [procedure] untrace :list end\n"                                     // external
             "primitive [function] uppercase :word end uppercase\n"                          // external
             // V
             // W
@@ -605,6 +610,13 @@ void Parser::procedure(Token::pointer_t keyword)
                         }
                         break;
 
+                    case 't':
+                        if(flag_name == "trace")
+                        {
+                            procedure_flags |= PROCEDURE_FLAG_TRACE;
+                        }
+                        break;
+
                     }
                 }
                 continue;
@@ -665,6 +677,20 @@ void Parser::procedure(Token::pointer_t keyword)
     }
 
     std::string long_name(name->get_word());
+    if((procedure_flags & PROCEDURE_FLAG_TYPE_MASK) != PROCEDURE_FLAG_C)
+    {
+        // force lowercase on all procedure names
+        // (unless it is a C function in which case we do not want to
+        // do that)
+        //
+        for(auto & c : long_name)
+        {
+            if(c >= 'A' && c <= 'Z')
+            {
+                c |= 0x20;
+            }
+        }
+    }
     std::string short_name;
     std::string::size_type const pos(long_name.find('&'));
     if(pos != std::string::npos)
@@ -1773,7 +1799,7 @@ void Parser::generate()
         f_out << "// Function Registration\n"
                  "namespace\n"
                  "{\n"
-                 "lpp::lpp__procedure_info_t lpp__procedures[]{\n";
+                 "lpp::lpp__procedure_info_t const lpp__procedures[]{\n";
 
         auto const & procedures(f_procedures->get_map());
         for(auto p : procedures)
@@ -1793,6 +1819,7 @@ void Parser::generate()
                   << "UL,"
                      "lpp::PROCEDURE_FLAG_PROCEDURE"
                   << ((declaration->get_procedure_flags() & PROCEDURE_FLAG_FUNCTION) != 0 ? "|lpp::PROCEDURE_FLAG_FUNCTION" : "")
+                  << ((declaration->get_procedure_flags() & PROCEDURE_FLAG_TRACE)    != 0 ? "|lpp::PROCEDURE_FLAG_TRACE"    : "")
                   << "},\n";
         }
 
@@ -1814,9 +1841,34 @@ void Parser::generate()
             f_function = p.second;
 
             std::string const cpp_name(logo_to_cpp_name(p.first));
-            f_out << "void procedure_" << cpp_name << "(lpp::lpp__context::pointer_t context)\n";
-            f_out << "{\n";
+            f_out << "void procedure_"
+                  << cpp_name
+                  << "(lpp::lpp__context::pointer_t context)\n"
+                     "{\n";
+
+            if(f_enable_trace)
+            {
+                f_out << "context->trace_procedure(lpp::trace_mode_t::TRACE_MODE_ENTER,lpp::lpp__value::pointer_t());\n";
+            }
+
             output_body(p.second->get_list_item(max - 1));
+
+            // a procedure must OUTPUT <expr> and never reached the END
+            //
+            // TODO: detect this problem at compile time (which is definitely
+            //       doable...) and avoid this throw
+            //
+            Token::pointer_t declaration(f_declarations->get_map_item(p.first));
+            procedure_flag_t const procedure_flags(declaration->get_procedure_flags());
+            if((procedure_flags & PROCEDURE_FLAG_FUNCTION) != 0)
+            {
+                f_out << "context->end_of_function_reached();\n";
+            }
+            else if(f_enable_trace)
+            {
+                f_out << "context->trace_procedure(lpp::trace_mode_t::TRACE_MODE_EXIT,lpp::lpp__value::pointer_t());\n";
+            }
+
             f_out << "}\n";
         }
     }
@@ -1828,8 +1880,8 @@ void Parser::generate()
 
         f_function.reset();
 
-        f_out << "void lpp__startup(lpp::lpp__context::pointer_t context)\n";
-        f_out << "{\n";
+        f_out << "void lpp__startup(lpp::lpp__context::pointer_t context)\n"
+                 "{\n";
         output_body(f_program);
         f_out << "}\n";
     }
@@ -2264,8 +2316,9 @@ std::string Parser::logo_to_cpp_name(std::string const & name)
     std::stringstream result;
 
     result << std::hex;
-    for(auto c : name)
+    for(utf8_iterator in(name); in != name.end(); ++in)
     {
+        char32_t c(*in);
         if((c >= 'a' && c <= 'z')
         || (c >= 'A' && c <= 'Z')
         || (c >= '0' && c <= '9'))
@@ -2275,7 +2328,7 @@ std::string Parser::logo_to_cpp_name(std::string const & name)
         else
         {
             result << '_'
-                   << static_cast<int>(c);
+                   << static_cast<std::int32_t>(c);
         }
     }
 

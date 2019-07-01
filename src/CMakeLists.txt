@@ -42,6 +42,7 @@ add_executable(
         lexer.cpp
         parser.cpp
         token.cpp
+        ../common/utf8_iterator.cpp
 )
 
 

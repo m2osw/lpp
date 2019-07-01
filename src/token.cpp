@@ -505,7 +505,19 @@ Token::pointer_t Token::get_map_item(std::string const & name) const
     auto it(f_map.find(name));
     if(it == f_map.end())
     {
-        return Token::pointer_t();
+        std::string lowercase(name);
+        for(auto & l : lowercase)
+        {
+            if(l >= 'A' && l <= 'Z')
+            {
+                l |= 0x20;
+            }
+        }
+        it = f_map.find(lowercase);
+        if(it == f_map.end())
+        {
+            return Token::pointer_t();
+        }
     }
 
     return it->second;

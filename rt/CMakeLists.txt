@@ -30,7 +30,7 @@ add_library(
         number.cpp
         procedures.cpp
         thing.cpp
-        utf8_iterator.cpp
+        ../common/utf8_iterator.cpp
         value.cpp
 
         # Primitives
@@ -169,6 +169,7 @@ add_library(
         primitive_settextcolor.cpp
         primitive_setwrite.cpp
         primitive_setwritepos.cpp
+        primitive_shell.cpp
         primitive_show.cpp
         primitive_sin.cpp
         primitive_sqrt.cpp
@@ -178,10 +179,13 @@ add_library(
         primitive_tan.cpp
         primitive_test.cpp
         primitive_time.cpp
+        primitive_trace.cpp
+        primitive_tracedp.cpp
         primitive_ttyp.cpp
         primitive_type.cpp
         primitive_unicode.cpp
         primitive_unorderedp.cpp
+        primitive_untrace.cpp
         primitive_uppercase.cpp
         primitive_word.cpp
         primitive_wordp.cpp

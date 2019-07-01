@@ -15,6 +15,7 @@ Package: lpp
 Section: devel
 Architecture: any
 Depends: ${misc:Depends}
+Suggests: lpp-doc
 Description: Logo to binary compiler.
  A compiler that transforms Logo procedures to binary.
 
@@ -23,6 +24,6 @@ Section: doc
 Architecture: all
 Depends: ${misc:Depends}
 Description: Documentation for the lpp compiler.
- The documentation about the lpp compiler.
+ The documentation about the lpp compiler, functionality and primitives.
 
 # vim: ts=4 sw=4 et

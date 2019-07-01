@@ -148,6 +148,14 @@ int main(int argc, char * argv[])
                         {
                             parser->set_keep_l_cpp(true);
                         }
+                        else if(arg == "debug")
+                        {
+                            compiler->set_include_debug(true);
+                        }
+                        else if(arg == "no-debug")
+                        {
+                            compiler->set_include_debug(false);
+                        }
                         else if(arg == "main-cpp")
                         {
                             if(equal != std::string::npos)
@@ -313,6 +321,11 @@ int main(int argc, char * argv[])
 
                                 case 't':
                                     parser->set_trace(true);
+                                    break;
+
+                                case 'g':
+                                    parser->set_trace(true);
+                                    compiler->set_include_debug(true);
                                     break;
 
                                 case 'h':

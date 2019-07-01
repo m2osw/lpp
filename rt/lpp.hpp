@@ -248,12 +248,60 @@ private:
 };
 
 
+
+
+
+
+typedef std::uint_fast32_t      procedure_flag_t;
+
+constexpr procedure_flag_t      PROCEDURE_FLAG_PRIMITIVE = 0x00000001;  // it's a language/system primitive
+constexpr procedure_flag_t      PROCEDURE_FLAG_PROCEDURE = 0x00000002;  // it's a user defined procedure
+constexpr procedure_flag_t      PROCEDURE_FLAG_FUNCTION  = 0x00000004;  // it returns something
+
+typedef void (*lpp__procedure_t)(std::shared_ptr<lpp__context> context);
+
+struct lpp__procedure_info_t
+{
+    char const *                f_name = nullptr;
+    lpp__procedure_t            f_procedure = nullptr;
+    std::uint32_t               f_min_args = 0;
+    std::uint32_t               f_def_args = 0;
+    std::uint32_t               f_max_args = 0;
+    procedure_flag_t            f_flags = 0;
+};
+
+class lpp__auto_register_procedures
+{
+public:
+    lpp__auto_register_procedures(lpp__procedure_info_t const * procedures, size_t count);
+};
+
+
+lpp__procedure_info_t const *           find_procedure(std::string const & name);
+lpp__value::vector_t                    get_procedures(procedure_flag_t flag);
+
+
+
+
+
+
+
 enum class test_t : std::int8_t
 {
     TEST_UNDEFINED,
     TEST_TRUE,
     TEST_FALSE
 };
+
+enum class trace_mode_t : std::int8_t
+{
+    TRACE_MODE_ENTER,
+    TRACE_MODE_EXIT,
+    TRACE_MODE_STOP,
+    TRACE_MODE_OUTPUT
+};
+
+
 
 
 class lpp__context
@@ -304,6 +352,11 @@ public:
     test_t                  get_test() const;
 
     void                    attach(pointer_t parent);
+
+    [[noreturn]] void       end_of_function_reached();
+    void                    set_trace(std::string const & name, bool trace);
+    bool                    is_traced(std::string const & name) const;
+    void                    trace_procedure(trace_mode_t action, lpp__value::pointer_t data);
 
 private:
     weak_pointer_t          f_global = lpp__context::pointer_t();
@@ -397,32 +450,6 @@ private:
 
 
 
-typedef std::uint_fast32_t      procedure_flag_t;
-
-constexpr procedure_flag_t      PROCEDURE_FLAG_PRIMITIVE = 0x00000001;  // it's a language/system primitive
-constexpr procedure_flag_t      PROCEDURE_FLAG_PROCEDURE = 0x00000002;  // it's a user defined procedure
-constexpr procedure_flag_t      PROCEDURE_FLAG_FUNCTION  = 0x00000004;  // it returns something
-
-typedef void (*lpp__procedure_t)(lpp::lpp__context::pointer_t context);
-
-struct lpp__procedure_info_t
-{
-    char const *                f_name = nullptr;
-    lpp__procedure_t            f_procedure = nullptr;
-    std::uint32_t               f_min_args = 0;
-    std::uint32_t               f_def_args = 0;
-    std::uint32_t               f_max_args = 0;
-    procedure_flag_t            f_flags = 0;
-};
-
-class lpp__auto_register_procedures
-{
-public:
-    lpp__auto_register_procedures(lpp__procedure_info_t const * procedures, size_t count);
-};
-
-lpp__procedure_info_t const *           find_procedure(std::string const & name);
-lpp__value::vector_t                    get_procedures(procedure_flag_t flag);
 
 
 
@@ -655,6 +682,7 @@ void primitive_setreadpos(lpp::lpp__context::pointer_t context);
 void primitive_setwrite(lpp::lpp__context::pointer_t context);
 void primitive_setwritepos(lpp::lpp__context::pointer_t context);
 void primitive_settextcolor(lpp::lpp__context::pointer_t context);
+void primitive_shell(lpp::lpp__context::pointer_t context);
 void primitive_show(lpp::lpp__context::pointer_t context);
 void primitive_sin(lpp::lpp__context::pointer_t context);
 void primitive_sqrt(lpp::lpp__context::pointer_t context);
@@ -666,12 +694,15 @@ void primitive_sum(lpp::lpp__context::pointer_t context);
 void primitive_tan(lpp::lpp__context::pointer_t context);
 void primitive_test(lpp::lpp__context::pointer_t context);
 void primitive_time(lpp::lpp__context::pointer_t context);
+void primitive_trace(lpp::lpp__context::pointer_t context);
+void primitive_tracedp(lpp::lpp__context::pointer_t context);
 void primitive_ttyp(lpp::lpp__context::pointer_t context);
 void primitive_type(lpp::lpp__context::pointer_t context);
 
 // U
 void primitive_unicode(lpp::lpp__context::pointer_t context);
 void primitive_unorderedp(lpp::lpp__context::pointer_t context);
+void primitive_untrace(lpp::lpp__context::pointer_t context);
 void primitive_uppercase(lpp::lpp__context::pointer_t context);
 
 // W

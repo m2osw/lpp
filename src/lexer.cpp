@@ -401,10 +401,20 @@ Token::pointer_t Lexer::next_token()
                     std::string const word(get_word(c));
                     if(word.length() > 1)
                     {
-                        switch(word[0])
+                        // keywords are case insensitive
+                        //
+                        std::string keyword(word);
+                        for(auto & k : keyword)
+                        {
+                            if(k >= 'A' && k <= 'Z')
+                            {
+                                k |= 0x20;
+                            }
+                        }
+                        switch(keyword[0])
                         {
                         case 'd':
-                            if(word == "declare")
+                            if(keyword == "declare")
                             {
                                 result->set_token(token_t::TOK_DECLARE);
                                 return result;
@@ -412,7 +422,7 @@ Token::pointer_t Lexer::next_token()
                             break;
 
                         case 'e':
-                            if(word == "end")
+                            if(keyword == "end")
                             {
                                 result->set_token(token_t::TOK_END);
                                 return result;
@@ -420,12 +430,12 @@ Token::pointer_t Lexer::next_token()
                             break;
 
                         case 'f':
-                            if(word == "false")
+                            if(keyword == "false")
                             {
                                 result->set_boolean(false);
                                 return result;
                             }
-                            else if(word == "function")
+                            else if(keyword == "function")
                             {
                                 result->set_token(token_t::TOK_FUNCTION);
                                 return result;
@@ -433,7 +443,7 @@ Token::pointer_t Lexer::next_token()
                             break;
 
                         case 'n':
-                            if(word == "nan")
+                            if(keyword == "nan")
                             {
                                 result->set_float(std::numeric_limits<float_t>::quiet_NaN());
                                 return result;
@@ -441,17 +451,17 @@ Token::pointer_t Lexer::next_token()
                             break;
 
                         case 'p':
-                            if(word == "primitive")
+                            if(keyword == "primitive")
                             {
                                 result->set_token(token_t::TOK_PRIMITIVE);
                                 return result;
                             }
-                            else if(word == "procedure")
+                            else if(keyword == "procedure")
                             {
                                 result->set_token(token_t::TOK_PROCEDURE);
                                 return result;
                             }
-                            else if(word == "program")
+                            else if(keyword == "program")
                             {
                                 result->set_token(token_t::TOK_PROGRAM);
                                 return result;
@@ -459,12 +469,12 @@ Token::pointer_t Lexer::next_token()
                             break;
 
                         case 't':
-                            if(word == "to")
+                            if(keyword == "to")
                             {
                                 result->set_token(token_t::TOK_TO);
                                 return result;
                             }
-                            else if(word == "true")
+                            else if(keyword == "true")
                             {
                                 result->set_boolean(true);
                                 return result;
@@ -472,7 +482,7 @@ Token::pointer_t Lexer::next_token()
                             break;
 
                         case 'v':
-                            if(word == "void")
+                            if(keyword == "void")
                             {
                                 result->set_token(token_t::TOK_VOID);
                                 return result;

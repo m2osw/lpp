@@ -34,8 +34,6 @@ int main(int argc, char * argv[])
 {
     try
     {
-        std::cout << "-- setup context & `arguments`... --\n";
-
         lpp::lpp__auto_register_procedures primitives(nullptr, 0);  // register primitives
 
         lpp::lpp__context::pointer_t context(std::make_shared<lpp::lpp__context>(std::string(), "program", 0, false));
@@ -71,12 +69,10 @@ int main(int argc, char * argv[])
             }
             else
             {
-std::cout << "-- got an exit code! " << exit_code->get_integer() << " --\n";
                 return exit_code->get_integer();
             }
         }
 
-std::cout << "-- no exit code, return 0 by default --\n";
         return 0;
     }
     catch(lpp::lpp__error const & e)

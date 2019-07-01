@@ -736,8 +736,16 @@ void Parser::control_output(control_t & control_info)
     output_argument(control_info.f_function_call->get_list_item(0), value_name);
     f_out << "context->set_return_value("
           << value_name
-          << ");\n"
-             "return;\n";
+          << ");\n";
+
+    if(f_enable_trace)
+    {
+        f_out << "context->trace_procedure(lpp::trace_mode_t::TRACE_MODE_OUTPUT,"
+              << value_name
+              << ");\n";
+    }
+
+    f_out << "return;\n";
 }
 
 
@@ -863,6 +871,11 @@ void Parser::control_repeat(control_t & control_info)
 void Parser::control_stop(control_t & control_info)
 {
     static_cast<void>(control_info);
+
+    if(f_enable_trace)
+    {
+        f_out << "context->trace_procedure(lpp::trace_mode_t::TRACE_MODE_STOP,lpp::lpp__value::pointer_t());\n";
+    }
 
     f_out << "return;\n";
 }

@@ -41,6 +41,9 @@ namespace
 lpp__thing::map_t       g_properties = lpp__thing::map_t();
 
 
+typedef std::map<std::string, bool>    trace_t;
+trace_t                 g_trace = trace_t();
+
 
 } // no name namespace
 
@@ -536,6 +539,107 @@ void lpp__context::attach(pointer_t parent)
 
     f_parent = parent;
     f_global = parent->f_global;
+}
+
+
+void lpp__context::end_of_function_reached()
+{
+    throw lpp__error(shared_from_this()
+                   , lpp::lpp__error_code_t::ERROR_CODE_OUTPUT_EXPECTED
+                   , "error"
+                   , "function must return, end of procedure reached instead.");
+}
+
+
+void lpp__context::set_trace(std::string const & name, bool trace)
+{
+    if(trace)
+    {
+        g_trace[name] = true;
+    }
+    else
+    {
+        auto it(g_trace.find(name));
+        if(it != g_trace.end())
+        {
+            g_trace.erase(it);
+        }
+    }
+}
+
+
+bool lpp__context::is_traced(std::string const & name) const
+{
+    return g_trace.find(name) != g_trace.end();
+}
+
+
+void lpp__context::trace_procedure(trace_mode_t action, lpp__value::pointer_t data)
+{
+    // is this procedure being traced?
+    //
+    if(!is_traced(f_procedure))
+    {
+        return;
+    }
+
+    std::stringstream ss;
+    switch(action)
+    {
+    case trace_mode_t::TRACE_MODE_ENTER:
+        {
+            ss << "CALL \""
+               << f_procedure;
+            if(!f_things.empty())
+            {
+                ss << " [";
+                bool first(true);
+                for(auto t : f_things)
+                {
+                    if(!first)
+                    {
+                        ss << " ";
+                    }
+                    else
+                    {
+                        first = false;
+                    }
+                    ss << "[:"
+                       << t.first
+                       << " "
+                       << t.second->get_value()->to_string(DISPLAY_FLAG_BACKSLASHED | DISPLAY_FLAG_TYPED)
+                       << "]";
+                }
+                ss << "]";
+            }
+        }
+        break;
+
+    case trace_mode_t::TRACE_MODE_EXIT:
+        ss << "RETURN \""
+           << f_procedure
+           << " with END";
+        break;
+
+    case trace_mode_t::TRACE_MODE_STOP:
+        ss << "RETURN \""
+           << f_procedure
+           << " with STOP";
+        break;
+
+    case trace_mode_t::TRACE_MODE_OUTPUT:
+        ss << "RETURN \""
+           << f_procedure
+           << " with OUTPUT "
+           << data->to_string(DISPLAY_FLAG_BACKSLASHED | DISPLAY_FLAG_TYPED);
+        break;
+
+    }
+
+    // output to terminal
+    //
+    ss << std::endl;
+    lpp__write_file(shared_from_this(), std::string(), ss.str());
 }
 
 

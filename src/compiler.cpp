@@ -76,6 +76,12 @@ void Compiler::set_verbosity(bool status)
 }
 
 
+void Compiler::set_include_debug(bool status)
+{
+    f_include_debug = status;
+}
+
+
 void Compiler::add_include_path(std::string const & path)
 {
     f_include_paths.push_back(path);
@@ -112,9 +118,15 @@ int Compiler::compile()
     //
     option.push_back("-std=c++14");
 
-    // debug and optimizations
+    // debug
     //
-    option.push_back("-g");
+    if(f_include_debug)
+    {
+        option.push_back("-g");
+    }
+
+    // optimizations
+    //
     option.push_back("-O0");
 
     // include paths

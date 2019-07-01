@@ -23,30 +23,26 @@
 // C++ lib
 //
 #include <iostream>
-#include <sstream>
 
 
 
 
-void primitive_make(lpp::lpp__context::pointer_t context)
+void primitive_trace(lpp::lpp__context::pointer_t context)
 {
-    lpp::lpp__value::pointer_t name(context->get_thing("name")->get_value());
-    lpp::lpp__value::pointer_t thing(context->get_thing("thing")->get_value());
-
-    std::string n(name->to_word());
-    context->set_thing(n
-                     , thing
-                     , lpp::lpp__thing_type_t::LPP__THING_TYPE_DEFAULT);
-
-    if(context->is_traced(n))
+    lpp::lpp__value::pointer_t list(context->get_thing("list")->get_value());
+    if(list->type() != lpp::lpp__value_type_t::LPP__VALUE_TYPE_LIST)
     {
-        std::stringstream ss;
-        ss << "MAKE \""
-           << n
-           << " "
-           << thing->to_string(lpp::DISPLAY_FLAG_BACKSLASHED | lpp::DISPLAY_FLAG_TYPED)
-           << "\n";
-        lpp__write_file(context, std::string(), ss.str());
+        throw lpp::lpp__error(context
+                            , lpp::lpp__error_code_t::ERROR_CODE_INVALID_DATUM
+                            , "error"
+                            , "the first argument of \"trace\" is expected to be a list.");
+    }
+
+    lpp::lpp__value::vector_t const & l(list->get_list());
+    size_t const max(l.size());
+    for(size_t i(0); i < max; ++i)
+    {
+        context->set_trace(l[i]->to_word(), true);
     }
 }
 

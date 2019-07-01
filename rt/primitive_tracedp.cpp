@@ -23,31 +23,15 @@
 // C++ lib
 //
 #include <iostream>
-#include <sstream>
 
 
 
 
-void primitive_make(lpp::lpp__context::pointer_t context)
+void primitive_tracedp(lpp::lpp__context::pointer_t context)
 {
     lpp::lpp__value::pointer_t name(context->get_thing("name")->get_value());
-    lpp::lpp__value::pointer_t thing(context->get_thing("thing")->get_value());
 
-    std::string n(name->to_word());
-    context->set_thing(n
-                     , thing
-                     , lpp::lpp__thing_type_t::LPP__THING_TYPE_DEFAULT);
-
-    if(context->is_traced(n))
-    {
-        std::stringstream ss;
-        ss << "MAKE \""
-           << n
-           << " "
-           << thing->to_string(lpp::DISPLAY_FLAG_BACKSLASHED | lpp::DISPLAY_FLAG_TYPED)
-           << "\n";
-        lpp__write_file(context, std::string(), ss.str());
-    }
+    context->set_return_value(std::make_shared<lpp::lpp__value>(context->is_traced(name->to_word())));
 }
 
 
