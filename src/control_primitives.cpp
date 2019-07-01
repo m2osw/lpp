@@ -235,6 +235,11 @@ void Parser::control_call(control_t & control_info)
 
     }
 
+    std::string const actual_proc_name(get_unique_name());
+    f_out << "{\n"
+             "std::string const "
+          << actual_proc_name
+          << "(";
     if(direct_value)
     {
         f_out << word_to_cpp_string_literal(proc_name);
@@ -244,6 +249,43 @@ void Parser::control_call(control_t & control_info)
         f_out << proc_value
               << "->to_word()";
     }
+    std::string const proc_info(get_unique_name());
+    std::string const context_name(get_unique_name());
+    f_out << ");\n"
+             "lpp__procedure_info_t const * "
+          << proc_info
+          << "(find_procedure("
+          << actual_proc_name
+          << "));\n"
+             "if("
+          << proc_info
+          << "==nullptr)\n"
+             "{\n"
+             "throw lpp__error(shared_from_this(),lpp__error_code_t::ERROR_CODE_UNKNOWN_PROCEDURE,\"error\",\"procedure named \\\"+"
+          << actual_proc_name
+          << "+\\\" not found.\");\n"
+             "}\n"
+             "lpp::lpp__context::pointer_t "
+          << context_name
+          << "(std::make_shared<lpp::lpp__context>(std::string(),"
+          << actual_proc_name
+          << ",0,("
+          << proc_info
+          << "&PROCEDURE_FLAG_PRIMITIVE)!=0"
+             "));\n";
+
+
+        // sub_context->set_thing("variablename", variable_name, lpp__thing_type_t::LPP__THING_TYPE_CONTEXT);
+        // lpp::lpp__value::vector_t rest;
+        // sub_context->set_thing("rest", std::make_shared<lpp::lpp__value>(rest), lpp__thing_type_t::LPP__THING_TYPE_CONTEXT);
+
+    f_out << context_name
+          << "->attach(shared_from_this());\n"
+          << "(*"
+          << proc_info
+          << "->f_procedure)("
+          << context_name
+          << ");\n";
 }
 
 
