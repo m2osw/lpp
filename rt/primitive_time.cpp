@@ -30,7 +30,7 @@
 
 void primitive_time(lpp::lpp__context::pointer_t context)
 {
-    lpp::lpp__value::pointer_t result(std::make_shared<lpp::lpp__value>(time(nullptr)));
+    lpp::lpp__value::pointer_t result(std::make_shared<lpp::lpp__value>(static_cast<lpp::lpp__integer_t>(time(nullptr))));
     context->set_return_value(result);
 }
 
