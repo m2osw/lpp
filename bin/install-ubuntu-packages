@@ -1,0 +1,15 @@
+#!/bin/sh
+#
+
+set -e
+
+# Install required packages so one can compile on Ubuntu 16.04
+#
+
+sudo apt-get install \
+	cmake \
+	debhelper \
+	doxygen \
+	graphviz \
+	libboost-dev
+

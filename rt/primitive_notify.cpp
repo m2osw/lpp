@@ -23,32 +23,19 @@
 // C++ lib
 //
 #include <iostream>
-#include <sstream>
 
 
 
 
-void primitive_make(lpp::lpp__context::pointer_t context)
+void primitive_notify(lpp::lpp__context::pointer_t context)
 {
-    lpp::lpp__value::pointer_t name(context->get_thing("name")->get_value());
-    lpp::lpp__value::pointer_t thing(context->get_thing("thing")->get_value());
+    lpp::lpp__value::pointer_t procedure(context->get_thing("procedure")->get_value());
+    lpp::lpp__value::pointer_t variable(context->get_thing("variable")->get_value());
 
-    std::string n(name->to_word());
+    std::string const procedure_name(procedure->to_word());
+    std::string const variable_name(variable->to_word());
 
-    if(context->is_traced(n))
-    {
-        std::stringstream ss;
-        ss << "MAKE \""
-           << n
-           << " "
-           << thing->to_string(lpp::DISPLAY_FLAG_BACKSLASHED | lpp::DISPLAY_FLAG_TYPED)
-           << "\n";
-        lpp__write_file(context, std::string(), ss.str());
-    }
-
-    context->set_thing(n
-                     , thing
-                     , lpp::lpp__thing_type_t::LPP__THING_TYPE_DEFAULT);
+    context->set_notify(variable_name, procedure_name);
 }
 
 

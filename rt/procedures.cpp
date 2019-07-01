@@ -174,6 +174,7 @@ lpp__procedure_info_t const g_primitives[]
     { "not",          primitive_not,          1UL, 1UL,          1UL, PROCEDURE_FLAG_PRIMITIVE | PROCEDURE_FLAG_FUNCTION },
     { "notequal?",    primitive_notequalp,    2UL, 2UL, MAX_MAX_ARGS, PROCEDURE_FLAG_PRIMITIVE | PROCEDURE_FLAG_FUNCTION },
     { "notequalp",    primitive_notequalp,    2UL, 2UL, MAX_MAX_ARGS, PROCEDURE_FLAG_PRIMITIVE | PROCEDURE_FLAG_FUNCTION },
+    { "notify",       primitive_notify,       2UL, 2UL,          2UL, PROCEDURE_FLAG_PRIMITIVE },
     { "number?",      primitive_numberp,      2UL, 2UL, MAX_MAX_ARGS, PROCEDURE_FLAG_PRIMITIVE | PROCEDURE_FLAG_FUNCTION },
     { "numberp",      primitive_numberp,      1UL, 1UL,          1UL, PROCEDURE_FLAG_PRIMITIVE | PROCEDURE_FLAG_FUNCTION },
 
@@ -279,6 +280,7 @@ lpp__procedure_info_t const g_primitives[]
 
     // U
     { "unicode",      primitive_unicode,     1UL, 1UL,          1UL, PROCEDURE_FLAG_PRIMITIVE | PROCEDURE_FLAG_FUNCTION },
+    { "unnotify",     primitive_unnotify,    1UL, 2UL,          2UL, PROCEDURE_FLAG_PRIMITIVE },
     { "unordered?",   primitive_unorderedp,  2UL, 2UL,          2UL, PROCEDURE_FLAG_PRIMITIVE | PROCEDURE_FLAG_FUNCTION },
     { "unorderedp",   primitive_unorderedp,  2UL, 2UL,          2UL, PROCEDURE_FLAG_PRIMITIVE | PROCEDURE_FLAG_FUNCTION },
     { "until",        nullptr,               2UL, 2UL,          2UL, PROCEDURE_FLAG_PRIMITIVE },

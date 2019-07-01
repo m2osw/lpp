@@ -1,5 +1,7 @@
 
-* Lists ending with an operator do no work. Try `print [test =]`
+* Lists ending with an operator do no work. Try `print [test =]`.
+
+* Lists of words break on keywords such as TO. Try `print [a to b]`.
 
 * Inline primitives that use `context::get_thing(<varname>)` or create a
   `context::get_parent()` because otherwise their own parameters are in the

@@ -110,6 +110,7 @@ add_library(
         primitive_nanp.cpp
         primitive_not.cpp
         primitive_notequalp.cpp
+        primitive_notify.cpp
         primitive_numberp.cpp
         primitive_openappend.cpp
         primitive_openread.cpp
@@ -184,6 +185,7 @@ add_library(
         primitive_ttyp.cpp
         primitive_type.cpp
         primitive_unicode.cpp
+        primitive_unnotify.cpp
         primitive_unorderedp.cpp
         primitive_untrace.cpp
         primitive_uppercase.cpp

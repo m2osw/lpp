@@ -1,19 +1,20 @@
 PROGRAM
-      Print [Hello world!]
+  notify "global "varchange
   trace [global safe display square]
   make "global 123
   make "redirect "global
-  openwrite "foo.txt
-  setwrite "foo.txt
+  ;openwrite "foo.txt
+  ;setwrite "foo.txt
   print [lo lo lo writer:] writer
-  openread "tests/suite/syntax-print.logo
-  print [from syntax print:] (readbytes 7.3 "tests/suite/syntax-print.logo) [111 222 333] reader
+  ;openread "tests/suite/syntax-print.logo
+  ;print [from syntax print:] (readbytes 7.3 "tests/suite/syntax-print.logo) [111 222 333] reader
   show (LIST [a b c] :global [more lists] "word [numbers 1 2 3] 1 2 3)
   show shell "date
   ;print setitem 1 [[[1 2 3] [4 5 6] [7 8 9]] [[11 12 13] [14 15 16] [17 18 19]] [[21 22 23] [24 25 26] [27 28 29]]] "Poof
   test # :arguments > 2
-  print reverse "123456789111213141516171819212223242526272829
+  print reverse :arguments
   ift [make "global item 2 :arguments]
+  (print "new\ global :global)
   (standout uppercase "wait...\  on\  time)
   wait 1.0
   print "
@@ -54,3 +55,8 @@ to square :x
   if :x = 0 [output 0]
   op :x * :x
 end "square
+
+procedure varchange :variablename
+  print [The change "to variable] (word "" :variablename "") ["->] thing :variablename [was detected!]
+  if and :variablename = "global :global > 200 [make "global 200]
+end varchange

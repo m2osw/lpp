@@ -181,7 +181,7 @@ enum class lpp__error_code_t
     ERROR_CODE_MISSING_CLOSE_PARENTHESIS,   // 10   ')' not found                                    [NOT RELEVANT]
     ERROR_CODE_VARIABLE_NOT_SET,            // 11   VAR has no value
     ERROR_CODE_UNEXPECTED_CLOSE_PARENTHESIS,// 12   Unexpected ')'
-    ERROR_CODE_UNKNOWN_PROCEDURE,           // 13   I don't know how to PROC (recoverable)           [NOT RELEVANT]
+    ERROR_CODE_UNKNOWN_PROCEDURE,           // 13   I don't know how to PROC (recoverable)
     ERROR_CODE_CATCH_TAG_NOT_FOUND,         // 14   Can't find catch tag for THROW
     ERROR_CODE_PROCEDURE_ALREADY_DEFINED,   // 15   PROC is already defined                          [NOT RELEVANT]
     ERROR_CODE_STOPPED,                     // 16   Stopped                                          [NOT RELEVANT]
@@ -351,12 +351,15 @@ public:
     void                    set_test(test_t value);
     test_t                  get_test() const;
 
-    void                    attach(pointer_t parent);
-
     [[noreturn]] void       end_of_function_reached();
     void                    set_trace(std::string const & name, bool trace);
     bool                    is_traced(std::string const & name) const;
     void                    trace_procedure(trace_mode_t action, lpp__value::pointer_t data);
+
+    void                    set_notify(std::string const & variable_name, std::string const & procedure_name);
+    void                    remove_notify(std::string const & variable_name, std::string const & procedure_name);
+
+    void                    attach(pointer_t parent);
 
 private:
     weak_pointer_t          f_global = lpp__context::pointer_t();
@@ -613,6 +616,7 @@ void primitive_names(lpp::lpp__context::pointer_t context);
 void primitive_nanp(lpp::lpp__context::pointer_t context);
 void primitive_not(lpp::lpp__context::pointer_t context);
 void primitive_notequalp(lpp::lpp__context::pointer_t context);
+void primitive_notify(lpp::lpp__context::pointer_t context);
 void primitive_numberp(lpp::lpp__context::pointer_t context);
 
 // O
@@ -701,6 +705,7 @@ void primitive_type(lpp::lpp__context::pointer_t context);
 
 // U
 void primitive_unicode(lpp::lpp__context::pointer_t context);
+void primitive_unnotify(lpp::lpp__context::pointer_t context);
 void primitive_unorderedp(lpp::lpp__context::pointer_t context);
 void primitive_untrace(lpp::lpp__context::pointer_t context);
 void primitive_uppercase(lpp::lpp__context::pointer_t context);

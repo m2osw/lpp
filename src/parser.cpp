@@ -153,7 +153,7 @@ Parser::Parser()
             "primitive [function arithmetic] nanp&nan? :number end\n"                       // external
             "primitive [function] not :boolean end\n"                                       // external
             "primitive [function] notequalp&notequal? :thing1 :thing2 [:rest] end\n"        // external
-            "primitive [function] notify :procedure :variable end\n"                        // external
+            "primitive [procedure] notify :variable :procedure end\n"                       // external
             "primitive [function] numberp&number? :thing end\n"                             // external
             // O
             "primitive [procedure] openappend :filename end\n"                              // external
@@ -238,16 +238,17 @@ Parser::Parser()
             "primitive [procedure] type :thing [:rest] end\n"                               // external
             // U
             "primitive [function] unicode :word end unicode\n"                              // external
+            "primitive [procedure] unnotify :variable [:procedure \"] 2 end unnotify\n"     // external
             "primitive [function arithmetic] unorderedp&unordered? :thing1 :thing2 end\n"   // external
             "primitive [procedure control inline] until :boolean :if_false end\n"           // inline
             "primitive [procedure] untrace :list end\n"                                     // external
             "primitive [function] uppercase :word end uppercase\n"                          // external
             // V
             // W
-            "primitive [procedure inline] wait :seconds end\n"                              // inline
-            "primitive [procedure control inline] while :boolean :if_true end\n"            // inline
-            "primitive [function] word :word1 :word2 [:rest] end\n"                         // external
-            "primitive [function] wordp&word? :thing end\n"                                 // external
+            "primitive [procedure inline] wait :seconds end wait\n"                         // inline
+            "primitive [procedure control inline] while :boolean :if_true end while\n"      // inline
+            "primitive [function] word :word1 :word2 [:rest] end word\n"                    // external
+            "primitive [function] wordp&word? :thing end wordp\n"                           // external
             "primitive [procedure] write :filename :data end write\n"                       // external
             "primitive [function] writepos [:filename \"] end writepos\n"                   // external
             "primitive [function] writer end writer\n"                                      // external
@@ -519,26 +520,46 @@ void Parser::line()
 
 void Parser::procedure(Token::pointer_t keyword)
 {
-    bool const declaration_only(keyword->get_token() != token_t::TOK_TO);
-    bool const primitive(keyword->get_token() == token_t::TOK_PRIMITIVE);
+    bool declaration_only(false);
+    bool primitive(false);
+    bool marked_as_procedure(false);
+    procedure_flag_t procedure_flags(0);
 
-    next_lexer_token();
-
-    // TO | DECLARE | PRIMITIVE [ flags ]
-    //                          ^
-    //
-    bool mark_as_procedure(keyword->get_token() == token_t::TOK_PROCEDURE);
-    procedure_flag_t procedure_flags(
-                primitive
-                    ? PROCEDURE_FLAG_PRIMITIVE
-                    : (declaration_only
-                        ? PROCEDURE_FLAG_DECLARE
-                        : PROCEDURE_FLAG_PROCEDURE)
-        );
-    if(keyword->get_token() == token_t::TOK_FUNCTION)
+    switch(keyword->get_token())
     {
-        procedure_flags |= PROCEDURE_FLAG_FUNCTION;
+    case token_t::TOK_TO:
+        procedure_flags |= PROCEDURE_FLAG_PROCEDURE;
+        break;
+
+    case token_t::TOK_PROCEDURE:
+        marked_as_procedure = true;
+        procedure_flags |= PROCEDURE_FLAG_PROCEDURE;
+        break;
+
+    case token_t::TOK_FUNCTION:
+        procedure_flags |= PROCEDURE_FLAG_PROCEDURE | PROCEDURE_FLAG_FUNCTION;
+        break;
+
+    case token_t::TOK_PRIMITIVE:
+        declaration_only = true;
+        primitive = true;
+        procedure_flags |= PROCEDURE_FLAG_PRIMITIVE;
+        break;
+
+    case token_t::TOK_DECLARE:
+        declaration_only = true;
+        procedure_flags |= PROCEDURE_FLAG_DECLARE;
+        break;
+
+    default:
+        throw std::logic_error("procedure() called with an unsupported token");
+
     }
+
+    // TO | PROCEDURE | FUNCTION | DECLARE | PRIMITIVE [ flags ]
+    //                                                   ^
+    //
+    next_lexer_token();
     if(f_current_token->get_token() == token_t::TOK_OPEN_LIST)
     {
         for(;;)
@@ -604,16 +625,9 @@ void Parser::procedure(Token::pointer_t keyword)
                         if(flag_name == "logic")
                         {
                             // logic is considered the same as arithmetic
-                            // (we probably mean "expression" in a way...)
+                            // (we probably mean "inline expression"...)
                             //
                             procedure_flags |= PROCEDURE_FLAG_ARITHMETIC;
-                        }
-                        break;
-
-                    case 't':
-                        if(flag_name == "trace")
-                        {
-                            procedure_flags |= PROCEDURE_FLAG_TRACE;
                         }
                         break;
 
@@ -626,7 +640,7 @@ void Parser::procedure(Token::pointer_t keyword)
                 continue;
 
             case token_t::TOK_PROCEDURE:
-                mark_as_procedure = true;
+                marked_as_procedure = true;
                 continue;
 
             case token_t::TOK_EOF:
@@ -660,20 +674,11 @@ void Parser::procedure(Token::pointer_t keyword)
         if(name->get_token() != token_t::TOK_QUOTED) // accept `TO "name` as well
         {
             f_current_token->error(to_string(keyword->get_token())
-                                 + std::string(" definition expects a WORD representing the procedure name as its first parameter."));
+                                 + " definition expects a WORD representing the procedure name as its first parameter.");
             // TODO: search the END token
             return;
         }
         name->set_token(token_t::TOK_WORD);
-    }
-
-    if(mark_as_procedure
-    && (procedure_flags & PROCEDURE_FLAG_FUNCTION) != 0)
-    {
-        f_current_token->error("procedure \""
-                             + name->get_word()
-                             + "\" cannot be declared a PROCEDURE (use `STOP`) and FUNCTION (use `OUTPUT <expr>`) at the same time.");
-        return;
     }
 
     std::string long_name(name->get_word());
@@ -697,6 +702,15 @@ void Parser::procedure(Token::pointer_t keyword)
     {
         long_name = name->get_word().substr(0, pos);
         short_name = name->get_word().substr(pos + 1);
+    }
+
+    if(marked_as_procedure
+    && (procedure_flags & PROCEDURE_FLAG_FUNCTION) != 0)
+    {
+        f_current_token->error("procedure \""
+                             + long_name
+                             + "\" cannot be declared a PROCEDURE (use `STOP`) and FUNCTION (use `OUTPUT <expr>`) at the same time.");
+        return;
     }
 
     // TO WORD thing_list
@@ -907,9 +921,11 @@ std::cerr << to_string(keyword->get_token())
     {
         if(f_current_token->get_token() != token_t::TOK_END)
         {
-            f_current_token->error("reached the end of a "
+            f_current_token->error("reached the end of "
                                  + to_string(keyword->get_token())
-                                 + " without an END keyword.");
+                                 + " \""
+                                 + long_name
+                                 + "\" without an END keyword.");
             return;
         }
     }
@@ -984,7 +1000,7 @@ std::cerr << to_string(keyword->get_token())
 
         if(output_found)
         {
-            if(mark_as_procedure)
+            if(marked_as_procedure)
             {
                 f_current_token->error("procedure \""
                                      + name->get_word()
@@ -1819,7 +1835,6 @@ void Parser::generate()
                   << "UL,"
                      "lpp::PROCEDURE_FLAG_PROCEDURE"
                   << ((declaration->get_procedure_flags() & PROCEDURE_FLAG_FUNCTION) != 0 ? "|lpp::PROCEDURE_FLAG_FUNCTION" : "")
-                  << ((declaration->get_procedure_flags() & PROCEDURE_FLAG_TRACE)    != 0 ? "|lpp::PROCEDURE_FLAG_TRACE"    : "")
                   << "},\n";
         }
 

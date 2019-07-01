@@ -45,6 +45,35 @@ typedef std::map<std::string, bool>    trace_t;
 trace_t                 g_trace = trace_t();
 
 
+typedef std::set<lpp__procedure_info_t const *>         procedure_list_t;
+typedef std::map<std::string, procedure_list_t>         variable_notification_t;
+typedef std::set<std::string>                           processing_notification_t;
+
+variable_notification_t     g_notifications;
+procedure_list_t            g_processing_notifications;
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Weffc++"
+class safe_processing
+{
+public:
+    safe_processing(lpp__procedure_info_t const * proc)
+        : f_proc(proc)
+    {
+        g_processing_notifications.insert(f_proc);
+    }
+
+    ~safe_processing()
+    {
+        g_processing_notifications.erase(f_proc);
+    }
+
+private:
+    lpp__procedure_info_t const *   f_proc;
+};
+#pragma GCC diagnostic pop
+
+
 } // no name namespace
 
 
@@ -202,15 +231,18 @@ void lpp__context::set_thing(std::string const & name, lpp__value::pointer_t val
                     if(!context->f_primitive)
                     {
                         context->f_things[name] = thing;
-                        return;
+                        break;
                     }
 
                     context = context->f_parent;
                 }
 
-                throw std::logic_error("could not set thing \""
-                                     + name
-                                     + "\" in a procedure context.");
+                if(context == nullptr)
+                {
+                    throw std::logic_error("could not set thing \""
+                                         + name
+                                         + "\" in a procedure context.");
+                }
             }
             else
             {
@@ -240,6 +272,39 @@ void lpp__context::set_thing(std::string const & name, lpp__value::pointer_t val
         }
         break;
 
+    }
+
+    auto it(g_notifications.find(name));
+    if(it == g_notifications.end())
+    {
+        return;
+    }
+
+    // make a copy, just in case one of those was to make a modification
+    // to the set while we're going through it
+    //
+    // TODO: how do we want to handle exceptions? (i.e. is it normal for
+    //       a callback not to get called if another earlier one decides
+    //       to throw?)
+    //
+    lpp__value::pointer_t variable_name(std::make_shared<lpp::lpp__value>(name));
+    procedure_list_t procedures(it->second);
+    for(auto proc : procedures)
+    {
+        if(g_processing_notifications.find(proc) != g_processing_notifications.end())
+        {
+            // TODO: generate a loop warning
+            continue;
+        }
+
+        safe_processing sp(proc);
+
+        lpp__context::pointer_t sub_context(std::make_shared<lpp__context>(std::string(), proc->f_name, 0, false));
+        sub_context->set_thing("variablename", variable_name, lpp__thing_type_t::LPP__THING_TYPE_CONTEXT);
+        lpp::lpp__value::vector_t rest;
+        sub_context->set_thing("rest", std::make_shared<lpp::lpp__value>(rest), lpp__thing_type_t::LPP__THING_TYPE_CONTEXT);
+        sub_context->attach(shared_from_this());
+        (*proc->f_procedure)(sub_context);
     }
 }
 
@@ -530,18 +595,6 @@ test_t lpp__context::get_test() const
 }
 
 
-void lpp__context::attach(pointer_t parent)
-{
-    if(f_parent != nullptr)
-    {
-        throw std::logic_error("this context is being attached more than once?");
-    }
-
-    f_parent = parent;
-    f_global = parent->f_global;
-}
-
-
 void lpp__context::end_of_function_reached()
 {
     throw lpp__error(shared_from_this()
@@ -641,6 +694,81 @@ void lpp__context::trace_procedure(trace_mode_t action, lpp__value::pointer_t da
     ss << std::endl;
     lpp__write_file(shared_from_this(), std::string(), ss.str());
 }
+
+
+void lpp__context::set_notify(std::string const & variable_name, std::string const & procedure_name)
+{
+    // name of procedure to call whenever a given variable changes
+    //
+    lpp__procedure_info_t const * info(find_procedure(procedure_name));
+    if(info == nullptr)
+    {
+        throw lpp__error(shared_from_this()
+                       , lpp__error_code_t::ERROR_CODE_UNKNOWN_PROCEDURE
+                       , "error"
+                       , "procedure named \"" + procedure_name + "\" not found.");
+    }
+
+    auto it(g_notifications.find(variable_name));
+    if(it == g_notifications.end())
+    {
+        procedure_list_t list{info};
+        g_notifications[variable_name] = list;
+    }
+    else
+    {
+        it->second.insert(info);
+    }
+}
+
+
+void lpp__context::remove_notify(std::string const & variable_name, std::string const & procedure_name)
+{
+    auto it(g_notifications.find(variable_name));
+    if(it != g_notifications.end())
+    {
+        if(procedure_name.empty())
+        {
+            g_notifications.erase(it);
+        }
+        else
+        {
+            lpp__procedure_info_t const * info(find_procedure(procedure_name));
+            if(info == nullptr)
+            {
+                throw lpp__error(shared_from_this()
+                               , lpp__error_code_t::ERROR_CODE_UNKNOWN_PROCEDURE
+                               , "error"
+                               , "procedure named \"" + procedure_name + "\" not found.");
+            }
+
+            auto proc(it->second.find(info));
+            if(proc != it->second.end())
+            {
+                it->second.erase(proc);
+                if(it->second.empty())
+                {
+                    g_notifications.erase(it);
+                }
+            }
+        }
+    }
+}
+
+
+void lpp__context::attach(pointer_t parent)
+{
+    if(f_parent != nullptr)
+    {
+        throw std::logic_error("this context is being attached more than once?");
+    }
+
+    f_parent = parent;
+    f_global = parent->f_global;
+}
+
+
+
 
 
 

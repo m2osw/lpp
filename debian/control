@@ -4,7 +4,8 @@ Maintainer: Alexis Wilke <alexis@m2osw.com>
 Build-Depends: cmake,
     debhelper,
     doxygen,
-    graphviz
+    graphviz,
+    libboost-dev
 Standards-Version: 3.9.4
 Section: devel
 Homepage: https://www.m2osw.com/lpp
