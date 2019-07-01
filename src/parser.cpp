@@ -71,7 +71,7 @@ Parser::Parser()
             "primitive [procedure] bye [:code 0] end\n"                                     // external
             "primitive [function] byte :word end byte\n"                                    // external
             // C
-            "primitive [procedure control inline] call :name :arguments end call\n"         // MISSING
+            "primitive [procedure control inline] call :name :arguments end call\n"         // inline
             "primitive [procedure control inline] case :value :clauses end case\n"          // MISSING
             "primitive [procedure control inline] catch :tag :instructions end catch\n"     // inline
             "primitive [function] char :number end char\n"                                  // external
@@ -2042,7 +2042,7 @@ void Parser::output_function_call(Token::pointer_t function_call, std::string co
 //std::cerr << "    -> set param \"" << arg_name->get_word() << "\"\n";
                         f_out << context_name
                               << "->set_thing("
-                              << word_to_cpp_literal_string(arg_name->get_word())
+                              << word_to_cpp_string_literal(arg_name->get_word())
                               << ","
                               << value_name
                               << ",lpp::lpp__thing_type_t::LPP__THING_TYPE_CONTEXT);\n";
@@ -2086,7 +2086,7 @@ void Parser::output_function_call(Token::pointer_t function_call, std::string co
                 {
                     f_out << context_name
                           << "->set_thing("
-                          << word_to_cpp_literal_string(arg_name->get_word())
+                          << word_to_cpp_string_literal(arg_name->get_word())
                           << ","
                           << value_name
                           << ",lpp::lpp__thing_type_t::LPP__THING_TYPE_CONTEXT);\n";
@@ -2099,7 +2099,7 @@ void Parser::output_function_call(Token::pointer_t function_call, std::string co
                 {
                     f_out << context_name
                           << "->set_thing("
-                          << word_to_cpp_literal_string(rest_argument->get_word())
+                          << word_to_cpp_string_literal(rest_argument->get_word())
                           << ",std::make_shared<lpp::lpp__value>(rest),lpp::lpp__thing_type_t::LPP__THING_TYPE_CONTEXT);\n";
                 }
 
@@ -2188,7 +2188,7 @@ void Parser::output_argument(Token::pointer_t arg, std::string const & value_nam
               << value_name
               << "(std::make_shared<lpp::lpp__value>("
                  "std::string("
-              << word_to_cpp_literal_string(arg->get_word())
+              << word_to_cpp_string_literal(arg->get_word())
               << ")"
                  ")"
                  ");\n";
@@ -2199,7 +2199,7 @@ void Parser::output_argument(Token::pointer_t arg, std::string const & value_nam
               << value_name
               << "(std::make_shared<lpp::lpp__value>("
                  "std::string("
-              << word_to_cpp_literal_string(arg->get_word())
+              << word_to_cpp_string_literal(arg->get_word())
               << ")"
                  ")"
                  ");\n";
@@ -2209,7 +2209,7 @@ void Parser::output_argument(Token::pointer_t arg, std::string const & value_nam
         f_out << "lpp::lpp__value::pointer_t "
               << value_name
               << "(context->get_thing("
-              << word_to_cpp_literal_string(arg->get_word())
+              << word_to_cpp_string_literal(arg->get_word())
               << ")->get_value());\n";
         break;
 
@@ -2278,21 +2278,21 @@ void Parser::build_list_item(Token::pointer_t item)
 
     case token_t::TOK_THING:
         f_out << "std::make_shared<lpp::lpp__value>(':' + std::string("
-              << word_to_cpp_literal_string(item->get_word())
+              << word_to_cpp_string_literal(item->get_word())
               << "))\n";
         break;
 
     case token_t::TOK_WORD:
     case token_t::TOK_QUOTED:
         f_out << "std::make_shared<lpp::lpp__value>(std::string("
-              << word_to_cpp_literal_string(item->get_word())
+              << word_to_cpp_string_literal(item->get_word())
               << "))\n";
         break;
 
     case token_t::TOK_FUNCTION_CALL:    // TODO: operators get transformed in this way...
         {
             f_out << "std::make_shared<lpp::lpp__value>(std::string("
-                  << word_to_cpp_literal_string(item->get_word())
+                  << word_to_cpp_string_literal(item->get_word())
                   << "))\n";
             auto const fcmax(item->get_list_size());
             if(fcmax > 0)
@@ -2351,7 +2351,7 @@ std::string Parser::logo_to_cpp_name(std::string const & name)
 }
 
 
-std::string Parser::word_to_cpp_literal_string(std::string const & word)
+std::string Parser::word_to_cpp_string_literal(std::string const & word)
 {
     std::stringstream result;
 

@@ -86,9 +86,10 @@ private:
     void                    control_primitive(control_t & control_info);
     bool                    inline_primitive(control_t & control_info);
     std::string             logo_to_cpp_name(std::string const & name);
-    std::string             word_to_cpp_literal_string(std::string const & word);
+    std::string             word_to_cpp_string_literal(std::string const & word);
     std::string             get_unique_name();
 
+    void                    control_call(control_t & control_info);
     void                    control_catch(control_t & control_info);
     void                    control_for(control_t & control_info);
     void                    control_forever(control_t & control_info);

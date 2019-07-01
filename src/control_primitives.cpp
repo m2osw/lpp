@@ -48,7 +48,12 @@ void Parser::control_primitive(control_t & control_info)
     switch(name[0])
     {
     case 'c':
-        if(name == "catch")
+        if(name == "call")
+        {
+            control_call(control_info);
+            return;
+        }
+        else if(name == "catch")
         {
             control_catch(control_info);
             return;
@@ -174,6 +179,74 @@ void Parser::control_primitive(control_t & control_info)
 }
 
 
+void Parser::control_call(control_t & control_info)
+{
+    if(control_info.f_max_args != 2)
+    {
+        throw std::logic_error("primitive \"call\" called with a number of parameters not equal to 2.");
+    }
+
+    std::string proc_value;
+    std::string proc_name;
+    bool direct_value(false);
+    Token::pointer_t procedure_name(control_info.f_function_call->get_list_item(0));
+    switch(procedure_name->get_token())
+    {
+    case token_t::TOK_FUNCTION_CALL:
+        // the output of a function call will generate a parameter
+        //
+        proc_value = get_unique_name();
+        f_out << "lpp::lpp__value::pointer_t "
+              << proc_value
+              << ";\n";
+        output_function_call(procedure_name, proc_value);
+        break;
+
+    case token_t::TOK_INTEGER:
+        direct_value = true;
+        proc_name = std::to_string(procedure_name->get_integer());
+        break;
+
+    case token_t::TOK_FLOAT:
+        direct_value = true;
+        proc_name = std::to_string(procedure_name->get_float());
+        break;
+
+    case token_t::TOK_QUOTED:
+    case token_t::TOK_WORD:
+        direct_value = true;
+        proc_name = procedure_name->get_word();
+        break;
+
+    case token_t::TOK_THING:
+        proc_value = get_unique_name();
+        f_out << "lpp::lpp__value::pointer_t "
+              << proc_value
+              << "(context->get_thing("
+              << word_to_cpp_string_literal(procedure_name->get_word())
+              << ")->get_value());\n";
+        break;
+
+    default:
+        procedure_name->error("unexpected token type ("
+                  + to_string(procedure_name->get_token())
+                  + ") for the procedure name of the \"call\" instruction.");
+        return;
+
+    }
+
+    if(direct_value)
+    {
+        f_out << word_to_cpp_string_literal(proc_name);
+    }
+    else
+    {
+        f_out << proc_value
+              << "->to_word()";
+    }
+}
+
+
 void Parser::control_catch(control_t & control_info)
 {
     if(control_info.f_max_args != 2)
@@ -218,7 +291,7 @@ void Parser::control_catch(control_t & control_info)
         f_out << "lpp::lpp__value::pointer_t "
               << tag_value
               << "(context->get_thing("
-              << word_to_cpp_literal_string(arg->get_word())
+              << word_to_cpp_string_literal(arg->get_word())
               << ")->get_value());\n";
         break;
 
@@ -244,9 +317,7 @@ void Parser::control_catch(control_t & control_info)
 
     if(direct_value)
     {
-        f_out << "\""
-              << tag_name
-              << "\"";
+        f_out << word_to_cpp_string_literal(tag_name);
     }
     else
     {
@@ -340,7 +411,7 @@ void Parser::control_for(control_t & control_info)
             f_out << "lpp::lpp__value::pointer_t "
                   << ctrl_var_name[idx]
                   << "(context->get_thing("
-                  << word_to_cpp_literal_string(ctrl_range->get_word())
+                  << word_to_cpp_string_literal(ctrl_range->get_word())
                   << ")->get_value());\n";
             break;
 
@@ -407,7 +478,7 @@ void Parser::control_for(control_t & control_info)
               << repeat_var
               << "));\n"
                  "context->set_thing("
-              << word_to_cpp_literal_string(var_name->get_word())
+              << word_to_cpp_string_literal(var_name->get_word())
               << ","
               << repeat_var
               << "_value,lpp::lpp__thing_type_t::LPP__THING_TYPE_PROCEDURE);\n";
@@ -516,7 +587,7 @@ void Parser::control_for(control_t & control_info)
               << repeat_var
               << "));\n"
                  "context->set_thing("
-              << word_to_cpp_literal_string(var_name->get_word())
+              << word_to_cpp_string_literal(var_name->get_word())
               << ","
               << repeat_var
               << "_value,lpp::lpp__thing_type_t::LPP__THING_TYPE_PROCEDURE);\n";
@@ -633,7 +704,7 @@ void Parser::control_if(control_t & control_info, bool always_else)
         f_out << "lpp::lpp__value::pointer_t "
               << value_name
               << "(context->get_thing("
-              << word_to_cpp_literal_string(arg->get_word())
+              << word_to_cpp_string_literal(arg->get_word())
               << ")->get_value());\n";
         break;
 
@@ -789,7 +860,7 @@ void Parser::control_repeat(control_t & control_info)
         f_out << "lpp::lpp__value::pointer_t "
               << value_name
               << "(context->get_thing("
-              << word_to_cpp_literal_string(arg->get_word())
+              << word_to_cpp_string_literal(arg->get_word())
               << ")->get_value());\n";
         break;
 
@@ -950,7 +1021,7 @@ void Parser::control_throw(control_t & control_info)
         f_out << "lpp::lpp__value::pointer_t "
               << tag_value
               << "(context->get_thing("
-              << word_to_cpp_literal_string(arg->get_word())
+              << word_to_cpp_string_literal(arg->get_word())
               << ")->get_value());\n";
         break;
 
@@ -1058,7 +1129,7 @@ void Parser::control_while(control_t & control_info, bool until, bool once)
         f_out << "lpp::lpp__value::pointer_t "
               << value_name
               << "(context->get_thing("
-              << word_to_cpp_literal_string(arg->get_word())
+              << word_to_cpp_string_literal(arg->get_word())
               << ")->get_value());\n";
         break;
 

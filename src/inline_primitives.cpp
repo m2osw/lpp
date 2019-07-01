@@ -118,7 +118,7 @@ void Parser::primitive_thing(control_t & control_info)
         f_out << "lpp::lpp__value::pointer_t "
               << value_name
               << "(context->get_thing("
-              << word_to_cpp_literal_string(arg->get_word())
+              << word_to_cpp_string_literal(arg->get_word())
               << ")->get_value());\n";
         break;
 
@@ -134,7 +134,7 @@ void Parser::primitive_thing(control_t & control_info)
     {
         f_out << control_info.f_result_var
               << "=context->get_thing("
-              << word_to_cpp_literal_string(thing_name)
+              << word_to_cpp_string_literal(thing_name)
               << ")->get_value();\n";
     }
     else
@@ -197,7 +197,7 @@ void Parser::primitive_wait(control_t & control_info)
         f_out << "lpp::lpp__value::pointer_t "
               << value_name
               << "(context->get_thing("
-              << word_to_cpp_literal_string(arg->get_word())
+              << word_to_cpp_string_literal(arg->get_word())
               << ")->get_value());\n";
         break;
 
