@@ -346,7 +346,7 @@ std::string Token::get_word() const
             return name.substr(0, pos);
         }
 #if __cplusplus >= 201700
-        [[fallthrough]]
+        [[fallthrough]];
 #endif
     default:
         throw std::logic_error("get_word() called when the token type is TOK_"
@@ -555,7 +555,7 @@ std::ostream & operator << (std::ostream & out, lpp::Token const & token)
     case lpp::token_t::TOK_FUNCTION_CALL:
         out << "*" << token.get_word() << " args:";
 #if __cplusplus >= 201700
-        [[fallthrough]]
+        [[fallthrough]];
 #endif
     case lpp::token_t::TOK_LIST:
         {
