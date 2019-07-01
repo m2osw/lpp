@@ -1,6 +1,13 @@
+lpp (1.0.1.1~xenial) xenial; urgency=high
+
+  * Applied a fix so the primitive_error.cpp compiles.
+
+ -- Alexis Wilke <alexis@m2osw.com>  Mon,  1 Jul 2019 04:12:47 -0800
+
 lpp (1.0.1.0~xenial) xenial; urgency=high
 
   * Added the CALL and CALLFUNCTION primitives.
+  * Try to fix an std::min()/std::max() which cause compile problems.
 
  -- Alexis Wilke <alexis@m2osw.com>  Mon,  1 Jul 2019 03:27:52 -0800
 

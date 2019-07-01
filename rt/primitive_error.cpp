@@ -52,7 +52,7 @@ void primitive_error(lpp::lpp__context::pointer_t context)
                        , std::make_shared<lpp::lpp__value>(e.tag()));
 
         result->add_prop("timestamp"
-                       , std::make_shared<lpp::lpp__value>(e.timestamp()));
+                       , std::make_shared<lpp::lpp__value>(static_cast<lpp::lpp__integer_t>(e.timestamp())));
 
         result->add_prop("message"
                        , std::make_shared<lpp::lpp__value>(std::string(e.what())));
